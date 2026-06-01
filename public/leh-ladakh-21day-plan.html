@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leh Ladakh — 21-Day Workation Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #e8d9bc;
+    --rust: #b85c38;
+    --gold: #c9993a;
+    --deep: #1a1208;
+    --stone: #8b7355;
+    --sky: #5a8fa3;
+    --sage: #6b7c5e;
+    --cream: #f5ede0;
+    --dark: #0f0b06;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--sand);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    background: 
+      radial-gradient(ellipse at 20% 80%, rgba(184,92,56,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(90,143,163,0.2) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(201,153,58,0.1) 0%, transparent 70%),
+      linear-gradient(180deg, #0f0b06 0%, #1a1208 50%, #0f0b06 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(201,153,58,0.03) 60px, rgba(201,153,58,0.03) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(201,153,58,0.03) 60px, rgba(201,153,58,0.03) 61px);
+  }
+
+  .altitude-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    border: 1px solid rgba(201,153,58,0.4);
+    padding: 0.4rem 1.2rem;
+    margin-bottom: 2.5rem;
+    text-transform: uppercase;
+    backdrop-filter: blur(4px);
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+    color: var(--cream);
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    font-style: italic;
+    color: var(--stone);
+    margin-bottom: 3rem;
+    font-weight: 300;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--stone);
+    text-transform: uppercase;
+  }
+
+  .hero-meta span strong {
+    display: block;
+    color: var(--sand);
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.2rem;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--stone);
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100% { opacity:0.4 } 50% { opacity:1 } }
+
+  /* NAV TABS */
+  .nav-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(15,11,6,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,153,58,0.2);
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 1rem;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+
+  .nav-tab {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1.1rem 1.5rem;
+    white-space: nowrap;
+    cursor: pointer;
+    color: var(--stone);
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .nav-tab:hover, .nav-tab.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+
+  /* SECTIONS */
+  .section { display: none; padding: 4rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 300;
+    color: var(--cream);
+    margin-bottom: 0.5rem;
+    line-height: 1;
+  }
+  .section-title em { font-style: italic; color: var(--gold); }
+  .section-subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--stone);
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(201,153,58,0.15);
+  }
+
+  /* CARDS */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+
+  .card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(201,153,58,0.15);
+    padding: 1.8rem;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--gold);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover { background: rgba(255,255,255,0.05); border-color: rgba(201,153,58,0.35); }
+  .card:hover::before { opacity: 1; }
+
+  .card-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+  }
+  .card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--cream);
+    margin-bottom: 0.6rem;
+  }
+  .card p { font-size: 0.85rem; line-height: 1.7; color: #a89880; }
+  .card-detail {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(201,153,58,0.1);
+    font-size: 0.78rem;
+    color: var(--stone);
+    line-height: 1.6;
+  }
+  .card-detail strong { color: var(--sand); }
+
+  /* HIGHLIGHT PILL */
+  .pill {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    padding: 0.25rem 0.7rem;
+    border-radius: 2rem;
+    text-transform: uppercase;
+    margin: 0.2rem 0.2rem 0 0;
+  }
+  .pill-gold { background: rgba(201,153,58,0.15); color: var(--gold); border: 1px solid rgba(201,153,58,0.3); }
+  .pill-sky { background: rgba(90,143,163,0.15); color: var(--sky); border: 1px solid rgba(90,143,163,0.3); }
+  .pill-rust { background: rgba(184,92,56,0.15); color: #e07050; border: 1px solid rgba(184,92,56,0.3); }
+  .pill-sage { background: rgba(107,124,94,0.15); color: #8fa880; border: 1px solid rgba(107,124,94,0.3); }
+
+  /* ITINERARY */
+  .week-block { margin-bottom: 4rem; }
+  .week-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border-left: 3px solid var(--gold);
+    padding-left: 1rem;
+    margin-bottom: 2rem;
+  }
+  .day-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 1.5rem;
+    margin-bottom: 0;
+    position: relative;
+  }
+  .day-row::before {
+    content: '';
+    position: absolute;
+    left: 39px;
+    top: 2.5rem;
+    bottom: -1px;
+    width: 1px;
+    background: rgba(201,153,58,0.15);
+  }
+  .day-row:last-child::before { display: none; }
+  .day-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: rgba(201,153,58,0.3);
+    text-align: center;
+    padding-top: 0.3rem;
+    line-height: 1;
+  }
+  .day-num small {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    color: var(--stone);
+    text-transform: uppercase;
+  }
+  .day-content {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(201,153,58,0.1);
+    padding: 1.4rem;
+    margin-bottom: 1.2rem;
+  }
+  .day-content h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--cream);
+    margin-bottom: 0.5rem;
+  }
+  .day-content p { font-size: 0.82rem; line-height: 1.75; color: #9a8870; }
+  .day-content .meals {
+    margin-top: 0.8rem;
+    font-size: 0.75rem;
+    color: var(--stone);
+    border-top: 1px solid rgba(201,153,58,0.08);
+    padding-top: 0.8rem;
+  }
+  .day-content .meals span { color: var(--sand); }
+
+  /* WEEKEND TREK */
+  .trek-card {
+    border: 1px solid rgba(90,143,163,0.2);
+    background: rgba(90,143,163,0.04);
+    padding: 1.8rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .trek-number {
+    position: absolute;
+    top: 1rem; right: 1.5rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    color: rgba(90,143,163,0.15);
+    font-weight: 300;
+  }
+  .trek-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    color: var(--cream);
+    margin-bottom: 0.3rem;
+  }
+  .trek-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    color: var(--sky);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+  .trek-card p { font-size: 0.85rem; line-height: 1.7; color: #9a8870; margin-bottom: 0.8rem; }
+
+  /* INFO BOXES */
+  .info-box {
+    background: rgba(201,153,58,0.06);
+    border: 1px solid rgba(201,153,58,0.2);
+    border-left: 4px solid var(--gold);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    line-height: 1.75;
+    color: #a89880;
+  }
+  .info-box strong { color: var(--sand); display: block; margin-bottom: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .warning-box {
+    background: rgba(184,92,56,0.06);
+    border: 1px solid rgba(184,92,56,0.2);
+    border-left: 4px solid var(--rust);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.83rem;
+    line-height: 1.75;
+    color: #a89880;
+  }
+  .warning-box strong { color: #e07050; display: block; margin-bottom: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* TWO COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* FESTIVAL BANNER */
+  .festival-banner {
+    background: linear-gradient(135deg, rgba(201,153,58,0.12), rgba(184,92,56,0.08));
+    border: 1px solid rgba(201,153,58,0.3);
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .festival-banner::before {
+    content: '◈ FESTIVAL SEASON ◈';
+    position: absolute;
+    top: 0.5rem; right: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    color: rgba(201,153,58,0.3);
+  }
+  .festival-banner h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+  .festival-banner p { font-size: 0.85rem; color: #a89880; line-height: 1.7; }
+
+  /* DIVIDER */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2.5rem 0;
+    color: rgba(201,153,58,0.3);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+  }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(201,153,58,0.15); }
+
+  /* COMPANY LIST */
+  .company-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid rgba(201,153,58,0.08);
+    gap: 1rem;
+  }
+  .company-row:last-child { border-bottom: none; }
+  .company-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--cream);
+    margin-bottom: 0.2rem;
+  }
+  .company-desc { font-size: 0.78rem; color: var(--stone); }
+  .company-contact { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--sky); text-align: right; white-space: nowrap; }
+
+  /* COST TABLE */
+  .cost-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+  .cost-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(201,153,58,0.2);
+  }
+  .cost-table td {
+    padding: 0.8rem 1rem;
+    font-size: 0.82rem;
+    color: #9a8870;
+    border-bottom: 1px solid rgba(201,153,58,0.06);
+  }
+  .cost-table tr:last-child td {
+    color: var(--cream);
+    font-weight: 500;
+    border-top: 1px solid rgba(201,153,58,0.2);
+    border-bottom: none;
+  }
+  .cost-table td:last-child { color: var(--sand); text-align: right; }
+  .cost-table tr:last-child td:last-child { color: var(--gold); font-family: 'Space Mono', monospace; font-size: 0.85rem; }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 0.6rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.85rem;
+    color: #9a8870;
+    border-bottom: 1px solid rgba(201,153,58,0.05);
+  }
+  .checklist li::before { content: '◆'; position: absolute; left: 0; color: var(--gold); font-size: 0.5rem; top: 0.85rem; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .day-row { grid-template-columns: 50px 1fr; }
+  }
+
+  /* MOUNTAIN DECORATION */
+  .mountain-deco {
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), rgba(201,153,58,0.3), var(--rust), transparent);
+    margin: 2rem 0;
+    opacity: 0.4;
+  }
+
+  .highlight-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.5rem;
+    color: var(--gold);
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .stat-block { text-align: center; padding: 1.5rem; }
+  .stat-label { font-family: 'Space Mono', monospace; font-size: 0.55rem; letter-spacing: 0.2em; color: var(--stone); text-transform: uppercase; }
+  .stats-row { display: flex; justify-content: space-around; flex-wrap: wrap; background: rgba(255,255,255,0.02); border: 1px solid rgba(201,153,58,0.1); margin-bottom: 3rem; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="altitude-badge">3,524m · Union Territory of Ladakh · July–August 2026</div>
+  <h1>Leh<br><em>Ladakh</em></h1>
+  <p class="hero-sub">A 21-Day Workation Guide — where the mountains demand nothing<br>and give everything</p>
+  <div class="hero-meta">
+    <span><strong>21 Nights</strong>Stay Duration</span>
+    <span><strong>3 Weekends</strong>Trek Windows</span>
+    <span><strong>2 Festivals</strong>Phyang + Ladakh</span>
+    <span><strong>~₹1.1L</strong>Est. Budget</span>
+  </div>
+  <div class="scroll-hint">↓ Scroll to explore</div>
+</div>
+
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showSection('overview')">Overview</button>
+  <button class="nav-tab" onclick="showSection('stay')">Where to Stay</button>
+  <button class="nav-tab" onclick="showSection('itinerary')">21-Day Plan</button>
+  <button class="nav-tab" onclick="showSection('treks')">Weekend Treks</button>
+  <button class="nav-tab" onclick="showSection('food')">Food & Cafés</button>
+  <button class="nav-tab" onclick="showSection('transport')">Transport</button>
+  <button class="nav-tab" onclick="showSection('mustdo')">Must-Do's</button>
+  <button class="nav-tab" onclick="showSection('essentials')">Essentials</button>
+</nav>
+
+<!-- OVERVIEW -->
+<div id="overview" class="section active">
+  <h2 class="section-title">Your <em>Ladakh</em><br>Blueprint</h2>
+  <p class="section-subtitle">Overview · Timing · Festivals · Strategy</p>
+
+  <div class="stats-row">
+    <div class="stat-block"><div class="highlight-number">3,524</div><div class="stat-label">Metres above sea level</div></div>
+    <div class="stat-block"><div class="highlight-number">21</div><div class="stat-label">Days in paradise</div></div>
+    <div class="stat-block"><div class="highlight-number">25°C</div><div class="stat-label">Avg July daytime high</div></div>
+    <div class="stat-block"><div class="highlight-number">3</div><div class="stat-label">Major festivals in window</div></div>
+  </div>
+
+  <div class="festival-banner">
+    <h3>🎭 Festival Calendar — Your Window</h3>
+    <p>Arrive <strong>late July</strong> to catch the Phyang Tsedup Festival (Jul 22–23) at Phyang Monastery — one of Ladakh's most spectacular masked dance festivals with the legendary giant Thangka display. Then stay through late August for shoulder calm, with the grand <strong>Ladakh Festival</strong> anchoring September 21–24 if you extend. The Korzok Gustor at Tso Moriri (Jul 27–28) also falls within your opening week if you time arrival well.</p>
+  </div>
+
+  <div class="info-box">
+    <strong>🗓 Recommended Arrival: July 22–25, 2026</strong>
+    Arriving July 22–23 puts you at the Phyang Tsedup Festival on day 1–2. You'll have all of July (dry, sunny, peak season) and August (slightly cooler, equally clear) for your 21 days. Weekend treks are fully operational, monasteries are buzzing with life. If you can stretch to 5 weeks, the Ladakh Festival (Sep 21–24) is unmissable.
+  </div>
+
+  <div class="two-col">
+    <div class="info-box">
+      <strong>☀️ July–August Weather</strong>
+      Daytime 20–28°C in Leh town. Nights drop to 8–12°C — keep a fleece handy. High passes (Khardung La, Chang La) can be 0°C even in August. Skies are mostly clear; occasional afternoon cloudbursts in August. Sunscreen is non-negotiable at this altitude.
+    </div>
+    <div class="info-box">
+      <strong>🌐 Connectivity Reality</strong>
+      Leh town now has reliable 4G (Airtel/BSNL) and many hotels have fiber WiFi. The Ladakh Coworking Hub and Coffee Culture Leh are your dedicated work spots. Outside Leh, connectivity drops sharply — plan offline work for weekend trip days.
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <strong>⚠️ Altitude Acclimatisation — Non-Negotiable</strong>
+    Leh sits at 3,524m. If flying in, do NOT do anything strenuous on Days 1–2. Rest, drink 3L+ of water daily, eat light. Symptoms of AMS (headache, nausea, breathlessness) are common. Days 1–2 in this plan are intentionally slow. Diamox (acetazolamide) is recommended — consult your doctor before travel.
+  </div>
+
+  <div class="mountain-deco"></div>
+
+  <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; color:var(--cream); margin-bottom:1.5rem; font-weight:400;">Your Workation Strategy</h3>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-tag">Work Rhythm</div>
+      <h3>Mon – Fri</h3>
+      <p>Base yourself in Leh. Morning work 8am–1pm from your hotel or coworking space. Afternoons: monastery visits, market walks, short excursions within 30km of Leh. Evenings at cafés or the Main Market.</p>
+    </div>
+    <div class="card">
+      <div class="card-tag">Adventure Rhythm</div>
+      <h3>Sat – Sun</h3>
+      <p>Weekend escapes: 1-day hikes or 2-day overnight treks with agencies. Pangong Tso, Nubra Valley, monastery circuits, valley treks — all achievable in 1–2 days from Leh with a local taxi.</p>
+    </div>
+  </div>
+</div>
+
+<!-- STAY -->
+<div id="stay" class="section">
+  <h2 class="section-title">Where to <em>Rest</em><br>Your Head</h2>
+  <p class="section-subtitle">Hotels · Guesthouses · Workation Picks · Long-Stay Options</p>
+
+  <div class="info-box">
+    <strong>📍 Best Neighbourhoods to Stay</strong>
+    <strong>Changspa Road</strong> — quieter, café-dense, 10-min walk to Main Market. Best for solo workation. · <strong>Fort Road</strong> — right below Leh Palace, central, market proximity. · <strong>Old Town / Main Market</strong> — bustling, atmospheric, walkable to everything.
+  </div>
+
+  <div class="divider">Premium Stays</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-tag">Luxury · Fort Road</div>
+      <h3>The Grand Dragon Ladakh</h3>
+      <p>Leh's best-known upscale property. Consistent fiber internet, panoramic mountain views from rooms, and a reliable power backup system. Perfect for serious workation.</p>
+      <div class="card-detail">
+        <strong>WiFi:</strong> Fiber, business-grade · <strong>Views:</strong> Stok Kangri range<br>
+        <strong>Price:</strong> ₹7,000–12,000/night · ₹1.5–2.5L for 21 nights<br>
+        <strong>Long stay:</strong> Negotiate 20–25% off for 3-week bookings
+      </div>
+      <div style="margin-top:0.8rem">
+        <span class="pill pill-gold">Great WiFi</span>
+        <span class="pill pill-sky">Mountain View</span>
+        <span class="pill pill-sage">Coworking Space</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Mid-Luxury · Changspa</div>
+      <h3>The Bodhi Tree Ladakh</h3>
+      <p>Boutique property with gorgeous garden, Zanskar and Stok views, excellent breakfast included. Calm, focused atmosphere — ideal for deep work weeks.</p>
+      <div class="card-detail">
+        <strong>WiFi:</strong> Reliable, 4G backup available<br>
+        <strong>Price:</strong> ₹4,500–7,500/night<br>
+        <strong>Vibe:</strong> Serene, garden-facing rooms
+      </div>
+      <div style="margin-top:0.8rem">
+        <span class="pill pill-gold">Mountain View</span>
+        <span class="pill pill-sage">Garden</span>
+        <span class="pill pill-sky">Breakfast Incl.</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Mid-Range · Changspa Road</div>
+      <h3>Hotel Ladakh Retreat</h3>
+      <p>Coworking spaces on-site, lush garden, reliable WiFi, balconies with mountain view, restaurant and deli. Business centre + meeting rooms make this genuinely workation-ready.</p>
+      <div class="card-detail">
+        <strong>WiFi:</strong> Free, good speed · <strong>Facilities:</strong> Business centre, coworking<br>
+        <strong>Price:</strong> ₹3,000–5,000/night<br>
+        <strong>Long stay:</strong> Monthly rates ~₹60,000–75,000
+      </div>
+      <div style="margin-top:0.8rem">
+        <span class="pill pill-gold">Coworking</span>
+        <span class="pill pill-sky">Business Centre</span>
+        <span class="pill pill-sage">Garden Views</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">Budget + Workation Hostels</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-tag">Social Workation · Central</div>
+      <h3>Woosah Hostel</h3>
+      <p>One of Leh's top-rated workation hostels. Fast WiFi, power backup, great common areas, friendly community of long-stay travelers. Recommended by locals and digital nomads alike.</p>
+      <div class="card-detail">
+        <strong>Price:</strong> Dorms ₹700–1,200 / Privates ₹2,500–3,500<br>
+        <strong>Best for:</strong> Solo travellers wanting community
+      </div>
+      <div style="margin-top:0.8rem"><span class="pill pill-gold">Community</span><span class="pill pill-sky">Fast WiFi</span></div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Nomad Fave · Old Town</div>
+      <h3>Dejavu Hostel Leh</h3>
+      <p>Highly recommended for workations — solid WiFi, clean rooms, rooftop with Leh Palace views, laundry facilities, helpful staff for local trip planning.</p>
+      <div class="card-detail">
+        <strong>Price:</strong> ₹600–900 dorm / ₹2,000–3,000 private<br>
+        <strong>Best for:</strong> Budget-conscious long stays
+      </div>
+      <div style="margin-top:0.8rem"><span class="pill pill-sky">Rooftop</span><span class="pill pill-sage">Laundry</span></div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Budget · Central Leh</div>
+      <h3>Skitpo Guest House</h3>
+      <p>Near Shanti Stupa and Leh Palace, 15-min walk to Main Market. Panoramic mountain views from multiple rooms, power backup, reliable WiFi. Great value mid-tier option.</p>
+      <div class="card-detail">
+        <strong>Price:</strong> ₹2,000–3,500/night<br>
+        <strong>Feature:</strong> Heated blankets, ensuite bathrooms
+      </div>
+      <div style="margin-top:0.8rem"><span class="pill pill-gold">Palace Views</span><span class="pill pill-sky">WiFi</span></div>
+    </div>
+  </div>
+
+  <div class="divider">Long-Stay & Apartments</div>
+  <div class="info-box">
+    <strong>🏡 Monthly Apartment Rentals</strong>
+    For 21+ day stays, renting a furnished apartment in Changspa or Old Town is excellent value. Monthly rates run ₹18,000–35,000 depending on size and amenities. Find listings through: (1) Leh Ladakh tourism Facebook groups, (2) Local real estate contacts at the Changspa Road café strip, (3) Ask your hotel's front desk — they often know of monthly options. Include asking about a reliable backup SIM and power inverter in your stay checklist.
+  </div>
+</div>
+
+<!-- ITINERARY -->
+<div id="itinerary" class="section">
+  <h2 class="section-title">The <em>21-Day</em><br>Blueprint</h2>
+  <p class="section-subtitle">Daily itinerary · Work + Explore · Festival Timing</p>
+
+  <!-- WEEK 1 -->
+  <div class="week-block">
+    <div class="week-label">Week One — Arrival & Acclimatisation (Days 1–7)</div>
+
+    <div class="day-row">
+      <div class="day-num">01<small>Sat</small></div>
+      <div class="day-content">
+        <h4>🛬 Arrive Leh — Absolute Rest Day</h4>
+        <p>Fly into Kushok Bakula Rimpochee Airport (ideally morning flight for best views). Transfer to accommodation. DO NOT exert yourself. Unpack slowly. Drink 3L water. Short stroll to Main Market in the evening only if you feel fine. No alcohol for 48 hours. Check in at Phyang Monastery info for the next day's festival.</p>
+        <div class="meals"><span>Dinner:</span> Room service or gentle walk to Bon Appetit or Amdo Food near Changspa</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">02<small>Sun</small></div>
+      <div class="day-content">
+        <h4>🎭 Phyang Tsedup Festival — Day 1</h4>
+        <p><em>Phyang Tsedup Festival (Jul 22–23)</em> — Hire a local taxi to Phyang Monastery (17km from Leh). Witness the Cham masked dances and the dramatic unfurling of the giant Thangka. This is one of Ladakh's most visually spectacular festivals. Return to Leh by afternoon. Rest.</p>
+        <div class="meals"><span>Lunch:</span> Festival stalls at Phyang · <span>Dinner:</span> Tibetan Kitchen, Leh</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">03<small>Mon</small></div>
+      <div class="day-content">
+        <h4>🖥 Work Day + Old Town Orientation</h4>
+        <p>First proper work morning from your hotel WiFi or Ladakh Coworking Hub (Fort Road). Set up workflow. 9am–2pm. Afternoon: walk Old Town, Soma Gompa, Main Bazaar. Evening at Leh Palace viewpoint for sunset — free, extraordinary.</p>
+        <div class="meals"><span>Breakfast:</span> Hotel · <span>Lunch:</span> Namza Café, Changspa · <span>Dinner:</span> Open Sky Restaurant</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">04<small>Tue</small></div>
+      <div class="day-content">
+        <h4>🖥 Deep Work Day + Shanti Stupa</h4>
+        <p>Full morning work session. Afternoon walk to Shanti Stupa (short hike, 20 min from Changspa) — incredible 360° views of Leh Valley. Early evening: explore Changspa Road's café strip.</p>
+        <div class="meals"><span>Café Work:</span> Coffee Culture Leh · <span>Dinner:</span> Bon Appetit Restaurant</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">05<small>Wed</small></div>
+      <div class="day-content">
+        <h4>🖥 Work + Leh Palace & Hall of Fame</h4>
+        <p>Work morning. Afternoon visit Leh Palace (₹25 entry, 400-year-old Namgyal dynasty palace). Then Hall of Fame museum — excellent for understanding Ladakh's military and cultural history. Evening: Main Market shopping for local crafts and pashmina.</p>
+        <div class="meals"><span>Lunch:</span> Leh Town Café (Fort Road) · <span>Dinner:</span> Gesmo Restaurant (classic)</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">06<small>Thu</small></div>
+      <div class="day-content">
+        <h4>🖥 Work + Indus Valley Drive</h4>
+        <p>Work until 1pm. Afternoon half-day taxi to Thiksey Monastery (19km) and Hemis Monastery (45km) — two of Ladakh's most iconic gompas. Thiksey at sunset is stunning. Book taxi for ~₹1,800 for the afternoon run.</p>
+        <div class="meals"><span>Lunch:</span> Spitok village dhaba · <span>Dinner:</span> Chopsticks Restaurant, Leh</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">07<small>Fri</small></div>
+      <div class="day-content">
+        <h4>🖥 Work + Prep Weekend Trek</h4>
+        <p>Work morning. Book your Weekend 1 trek (Sham Valley or Stok) with your chosen agency by noon — confirm pickup time. Afternoon: pack gear, get permits if needed, stock up on water and snacks from Main Market. Early dinner and early sleep.</p>
+        <div class="meals"><span>Dinner:</span> The Tibetan Kitchen · Early night by 9pm</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="week-block">
+    <div class="week-label">Week Two — Finding Flow (Days 8–14)</div>
+
+    <div class="day-row">
+      <div class="day-num">08<small>Sat</small></div>
+      <div class="day-content">
+        <h4>🥾 Weekend Trek 1 — Sham Valley / Stok Day Hike</h4>
+        <p>See Treks section for full details. Either a guided full-day hike in Stok Valley (monastery + ridge views) or the first day of the Sham Valley 2-day circuit with homestay overnight.</p>
+        <div class="meals"><span>Packed lunch</span> from agency · <span>Dinner:</span> Homestay or back in Leh</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">09<small>Sun</small></div>
+      <div class="day-content">
+        <h4>🥾 Trek Day 2 or Recovery + Pangong Planning</h4>
+        <p>Complete Sham Valley Day 2 or rest and recover in Leh. Begin planning Pangong Tso weekend trip — book taxi through your hotel or a reputable driver (₹5,000–6,500 one way). Note: Inner Line Permit required for Pangong (₹400, get via district magistrate or agency).</p>
+        <div class="meals"><span>Brunch:</span> Bob's Café · <span>Dinner:</span> Julelay Restaurant</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">10<small>Mon</small></div>
+      <div class="day-content">
+        <h4>🖥 Productivity Day + Local Market Deep Dive</h4>
+        <p>Strong work day. Set up your weekly schedule template. Afternoon: explore the Craft Bazaar behind Main Market — Tibetan jewellery, thangka paintings, Ladakhi rugs. Evening: Lehvenda Café for a long sunset coffee session.</p>
+        <div class="meals"><span>Lunch:</span> Neha Snacks, Main Bazaar (street food) · <span>Dinner:</span> Hotel dining</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">11<small>Tue</small></div>
+      <div class="day-content">
+        <h4>🖥 Work + Stok Palace Museum</h4>
+        <p>Morning work. Afternoon half-day trip to Stok Village (15km south of Leh) — visit the Stok Palace Museum with royal family artefacts and thangkas. The Stok valley walk is also a gentle 2km trail through apricot orchards.</p>
+        <div class="meals"><span>Café work:</span> Wanderer's Terrace Café · <span>Dinner:</span> Open Sky Café</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">12<small>Wed</small></div>
+      <div class="day-content">
+        <h4>🖥 Work + Sangam Point</h4>
+        <p>Work morning. Afternoon to Sangam — the confluence of the Indus and Zanskar rivers (35km). This is one of the most visually dramatic spots near Leh and a great 3-hour afternoon excursion. Taxi ~₹1,500 shared or ₹2,500 private.</p>
+        <div class="meals"><span>Lunch:</span> Roadside dhaba at Sangam · <span>Dinner:</span> Little Italy, Leh</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">13<small>Thu</small></div>
+      <div class="day-content">
+        <h4>🖥 Work + Diskit / Nubra Planning</h4>
+        <p>Work until 2pm. Book Weekend 2 transport to Nubra Valley (₹5,500–7,000 for 2-day taxi via Khardung La). Apply for Inner Line Permit for Nubra Valley (can do same day at DC office or online). Afternoon rest. Pack for the weekend.</p>
+        <div class="meals"><span>Dinner:</span> Tibetan Kitchen + early sleep</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">14<small>Fri</small></div>
+      <div class="day-content">
+        <h4>🖥 Work + Alchi Day Trip</h4>
+        <p>Half day work. Afternoon trip to Alchi Monastery (70km west of Leh) — 11th-century Tibetan Buddhist murals, completely unique art style, one of Ladakh's cultural crown jewels. One of Ladakh's best half-day excursions. Taxi ~₹3,500.</p>
+        <div class="meals"><span>Lunch:</span> Alchi Kitchen Restaurant (vegetarian, excellent) · <span>Dinner:</span> Back in Leh</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 3 -->
+  <div class="week-block">
+    <div class="week-label">Week Three — Deep Ladakh (Days 15–21)</div>
+
+    <div class="day-row">
+      <div class="day-num">15<small>Sat</small></div>
+      <div class="day-content">
+        <h4>🌄 Weekend 2 — Nubra Valley via Khardung La</h4>
+        <p>Early start (6am) to cross Khardung La (5,359m — world's highest motor-able road). Descend into Nubra Valley. Visit Diskit Monastery and the 32m Maitreya Buddha statue. Afternoon: Hunder sand dunes and Bactrian double-humped camel ride. Overnight at a Nubra Valley campsite or guesthouse.</p>
+        <div class="meals"><span>Packed breakfast</span> · <span>Lunch:</span> Sumur village café · <span>Dinner:</span> Campsite</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">16<small>Sun</small></div>
+      <div class="day-content">
+        <h4>🌄 Nubra Valley Day 2 — Turtuk Village</h4>
+        <p>Drive to Turtuk (95km from Hunder) — the last accessible village before Pakistan's border. Beautiful apricot and mulberry orchards, Balti culture, narrow lanes. Return to Leh in the evening via Khardung La.</p>
+        <div class="meals"><span>Lunch:</span> Local Balti food in Turtuk · <span>Dinner:</span> Recovery meal in Leh</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">17<small>Mon</small></div>
+      <div class="day-content">
+        <h4>🖥 Recovery Work Day + Market Evening</h4>
+        <p>Rest morning + lighter work schedule. Afternoon and evening at leisure in Main Market. Stock up on local apricot products, saffron, dried fruit. Evening coffee at Leh Town Café on Fort Road.</p>
+        <div class="meals"><span>All meals:</span> Light, in-town, no heavy planning today</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">18<small>Tue</small></div>
+      <div class="day-content">
+        <h4>🖥 Deep Work Day + Magnetic Hill</h4>
+        <p>Strong work morning. Afternoon drive to Magnetic Hill (30km) — the optical illusion where vehicles appear to roll uphill. Also visit Gurudwara Pathar Sahib (5km further) and Likir Monastery on the return. ₹2,000–2,500 shared taxi circuit.</p>
+        <div class="meals"><span>Lunch:</span> Gurudwara langar (free) · <span>Dinner:</span> Bon Appetit</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">19<small>Wed</small></div>
+      <div class="day-content">
+        <h4>🖥 Work + Lamayuru Planning</h4>
+        <p>Work day. Book Weekend 3 trip to Pangong Tso (permits ready from Day 9). Plan departure for Saturday 5am. Pack camping gear or confirm lakeside campsite booking (dozens of options around ₹1,500–3,000/night).</p>
+        <div class="meals"><span>Dinner:</span> Splurge at The Grand Dragon restaurant</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">20<small>Thu</small></div>
+      <div class="day-content">
+        <h4>🖥 Work + Farewell Market Walk</h4>
+        <p>Final full work day. Afternoon: final Main Market shopping — pashmina shawls, Ladakhi jewellery, thangka art, yak wool blankets. Order a custom handicraft piece if you want a unique memento. Last sunset at Shanti Stupa.</p>
+        <div class="meals"><span>Dinner:</span> Long dinner at Chopsticks — your favourite by now</div>
+      </div>
+    </div>
+
+    <div class="day-row">
+      <div class="day-num">21<small>Fri</small></div>
+      <div class="day-content">
+        <h4>🌅 Weekend 3 Begins — Pangong Tso Departure</h4>
+        <p>Pre-dawn start (5am) for Pangong Tso via Chang La (5,360m). Arrive by 11am at the iconic blue-green lake. Camp at the water's edge. This is the crown jewel of Ladakh — 3 days of colour-shifting water, starlit skies, and total silence.</p>
+        <div class="meals"><span>Packed breakfast</span> · <span>Lunch + Dinner:</span> Pangong campsite</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top:2rem">
+    <strong>🏕 Pangong Extension</strong>
+    If you can squeeze 3 nights here (Days 21–23), Pangong is worth it. The lake colours change from turquoise to cobalt to silver depending on cloud and time of day. Sunrises here are among the most extraordinary experiences in India. Add Spangmik and Merak villages for a fuller circuit.
+  </div>
+</div>
+
+<!-- TREKS -->
+<div id="treks" class="section">
+  <h2 class="section-title">Weekend <em>Treks</em><br>& Hikes</h2>
+  <p class="section-subtitle">3 Weekends · Curated Routes · Company Recommendations</p>
+
+  <div class="info-box">
+    <strong>🥾 Trekking Season Note</strong>
+    July–August is peak trekking season in Ladakh. Passes are clear, weather is stable (mornings especially), wildflowers are in bloom in river valleys. You do not need technical mountaineering skills for the treks listed — just solid fitness, acclimatisation, and good boots.
+  </div>
+
+  <div class="trek-card">
+    <div class="trek-number">01</div>
+    <h3>Sham Valley Trek (Village Circuit)</h3>
+    <div class="trek-meta">Weekend 1 · 1–2 Days · Difficulty: Easy-Medium · Max Alt: 4,100m</div>
+    <p>The gentlest introduction to Ladakhi trekking. Passes through ancient villages of Yangthang, Hemis Shukpachan, and Temisgam — traditional Ladakhi stone houses, apricot orchards, monasteries perched on cliffs. Can be done 1-day (12km) or 2-day with a homestay overnight.</p>
+    <p><strong style="color:var(--cream)">Highlights:</strong> Ribbok monastery, yak and dzos grazing on high meadows, local butter tea in a village home, traditional Ladakhi architecture unchanged for centuries.</p>
+    <div>
+      <span class="pill pill-sage">Beginner Friendly</span>
+      <span class="pill pill-gold">Village Homestay</span>
+      <span class="pill pill-sky">No Permits</span>
+    </div>
+  </div>
+
+  <div class="trek-card">
+    <div class="trek-number">02</div>
+    <h3>Stok Kangri Base Camp Day Trek</h3>
+    <div class="trek-meta">Any Weekend · 1 Day · Difficulty: Medium · Max Alt: 4,800m</div>
+    <p>The most popular day hike from Leh. From Stok village (15km from Leh), hike up through the Stok Valley past grazing meadows and glacial streams to Stok Kangri's base camp with jaw-dropping views of the Karakoram and Zanskar ranges.</p>
+    <p><strong style="color:var(--cream)">Distance:</strong> 12km round trip from Stok village · <strong style="color:var(--cream)">Duration:</strong> 7–8 hours</p>
+    <div>
+      <span class="pill pill-sky">Best Day Hike</span>
+      <span class="pill pill-gold">360° Views</span>
+      <span class="pill pill-rust">Altitude Gain</span>
+    </div>
+  </div>
+
+  <div class="trek-card">
+    <div class="trek-number">03</div>
+    <h3>Markha Valley Trek (Section)</h3>
+    <div class="trek-meta">Weekend 2 Alternative · 2 Days · Difficulty: Medium-Hard · Max Alt: 5,150m</div>
+    <p>The most famous multi-day trek in Ladakh. You can do a 2-day section (Skiu to Markha or Markha to Nimaling) for a weekend. Cross the Markha River multiple times, pass through remote villages, camp under impossible stars. 4WD jeep from Leh to Skiu trailhead (40km, ~₹3,000).</p>
+    <p><strong style="color:var(--cream)">Highlights:</strong> Kang Yatse peak views, Markha village gompa, yak herders at Nimaling high camp, incredible solitude.</p>
+    <div>
+      <span class="pill pill-rust">Challenging</span>
+      <span class="pill pill-gold">Iconic Route</span>
+      <span class="pill pill-sky">Camping</span>
+    </div>
+  </div>
+
+  <div class="divider">Trekking Companies & Guides</div>
+
+  <div class="card" style="margin-bottom:1.5rem">
+    <div class="card-tag">Top Rated Agency</div>
+    <h3>Ju-Leh Adventure</h3>
+    <p>One of the most professional trekking agencies in Leh. Offers customised itineraries, licensed guides, camping equipment, and fixed-departure group treks. Excellent for solo travellers.</p>
+    <div class="card-detail"><strong>Website:</strong> ju-lehadventure.com · Based in Leh town · All Ladakh routes</div>
+  </div>
+
+  <div class="company-row">
+    <div>
+      <div class="company-name">Ancient Tracks</div>
+      <div class="company-desc">Veteran Leh agency, 20+ years. Specialises in Markha Valley, Stok Kangri, and custom cultural treks. ancienttracks.com</div>
+    </div>
+    <div class="company-contact">Leh-based<br>ancienttracks.com</div>
+  </div>
+
+  <div class="company-row">
+    <div>
+      <div class="company-name">Overland Escape</div>
+      <div class="company-desc">Highly reviewed for solo travellers, flexible short treks, and weekend packages. Good English-speaking guides. overlandescape.com</div>
+    </div>
+    <div class="company-contact">Changspa, Leh<br>overlandescape.com</div>
+  </div>
+
+  <div class="company-row">
+    <div>
+      <div class="company-name">Explore Himalayas</div>
+      <div class="company-desc">Strong for day hikes, cultural circuit treks, and high-altitude peak expeditions. Also organises river rafting on the Zanskar.</div>
+    </div>
+    <div class="company-contact">Fort Road, Leh</div>
+  </div>
+
+  <div class="company-row">
+    <div>
+      <div class="company-name">Local Guide — Ask Your Hotel</div>
+      <div class="company-desc">The most authentic option: your hotel reception can connect you with a certified local guide (₹1,500–2,500/day) who knows the terrain intimately. Often more personal and cost-effective for day hikes.</div>
+    </div>
+    <div class="company-contact">Budget Pick<br>₹1,500–2,500/day</div>
+  </div>
+</div>
+
+<!-- FOOD -->
+<div id="food" class="section">
+  <h2 class="section-title">Eat, Drink<br><em>Repeat</em></h2>
+  <p class="section-subtitle">Must-Try Cafés · Restaurants · Local Food · Street Eats</p>
+
+  <div class="warning-box">
+    <strong>🍽 What to Always Order in Ladakh</strong>
+    <strong>Thukpa</strong> — Tibetan noodle soup, the soul food of Ladakh. Every café has it, every version is different. · <strong>Momos</strong> — steamed dumplings, veg or meat, with fiery chilli sauce. · <strong>Tingmo</strong> — twisted steamed bread, soft and fluffy, often with lamb curry. · <strong>Yak cheese momos</strong> — a Leh speciality. · <strong>Sea Buckthorn juice</strong> — the local superfruit, bright orange and sour. · <strong>Butter tea (Gur Gur Chai)</strong> — salty, buttery, acquired taste but essential.
+  </div>
+
+  <div class="divider">Must-Try Cafés</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-tag">Best Overall · Changspa</div>
+      <h3>Lehvenda Café</h3>
+      <p>Consistently rated Leh's best café. Exceptional specialty coffee, an extraordinary tea selection, incredible mountain views from the terrace. The go-to for a long afternoon work-from-café session.</p>
+      <div class="card-detail"><strong>Order:</strong> Specialty pour-over · <strong>Vibe:</strong> Calm, focused, beautiful · <strong>WiFi:</strong> Yes</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Rooftop Views · Fort Road</div>
+      <h3>Open Sky Café</h3>
+      <p>Legendary rooftop with the best panoramic view of Leh from any café. Delicious coffee, cakes, and Western meals. Open seasonally — always full by 11am. Come early or late afternoon.</p>
+      <div class="card-detail"><strong>Order:</strong> Apricot cake + cold brew · <strong>Vibe:</strong> Spectacular views, social</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Digital Nomad Spot · Central</div>
+      <h3>Coffee Culture Leh</h3>
+      <p>The co-working café of choice for remote workers in Leh. Modern, fast WiFi, good espresso, laptop-friendly seating. One of only a handful of places with true coworking infrastructure.</p>
+      <div class="card-detail"><strong>Order:</strong> Americano + BLT · <strong>WiFi:</strong> Fast, reliable · <strong>Plugs:</strong> Yes</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Hidden Gem · Changspa</div>
+      <h3>Namza Café</h3>
+      <p>Charming, quiet, focused on local ingredients. Excellent healthy bowls, salads, and fresh juices. The most Ladakhi-feeling of the cafés — low-key, authentic, good for a long lunch break.</p>
+      <div class="card-detail"><strong>Order:</strong> Khambir sandwich + sea buckthorn juice · <strong>Vibe:</strong> Intimate, calm</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Fort Road Favourite</div>
+      <h3>Leh Town Café</h3>
+      <p>Brilliant ambiance on Fort Road, books and a guitar to borrow, modern interiors. The caramel cappuccino is reportedly the best in Leh. Famous for iris and hazelnut flavoured coffees and fresh sandwiches made to order.</p>
+      <div class="card-detail"><strong>Order:</strong> Iris cappuccino + paneer sandwich · <strong>WiFi:</strong> Good</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Traveller Classic</div>
+      <h3>Bob's Café</h3>
+      <p>A small, cozy institution beloved by trekkers. Perfect post-trek recovery spot. Great coffee, enormous portions, warm vibe. Friendly owner who gives excellent local advice.</p>
+      <div class="card-detail"><strong>Order:</strong> Full breakfast + mint lemon tea · <strong>Vibe:</strong> Cozy, community feel</div>
+    </div>
+  </div>
+
+  <div class="divider">Restaurants</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-tag">Ladakhi Cuisine</div>
+      <h3>The Tibetan Kitchen</h3>
+      <p>Best momos in Leh, full stop. Authentic Tibetan-Ladakhi menu, excellent thukpa, friendly staff. A must-visit at least twice during your stay.</p>
+      <div class="card-detail"><strong>Must order:</strong> Yak meat momo · Skyu (traditional Ladakhi pasta) · Budget: ₹300–600/meal</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Western + Ladakhi Fusion</div>
+      <h3>Bon Appetit</h3>
+      <p>Popular with long-stay travellers. Great multi-cuisine menu, reasonable prices, consistent quality. Good for when you want a proper Western breakfast or a reliable dinner after a long work day.</p>
+      <div class="card-detail"><strong>Budget:</strong> ₹400–700/meal</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Street Food</div>
+      <h3>Neha Snacks, Main Bazaar</h3>
+      <p>The local favourite for quick bites — momos, thukpa, samosas, pakoras. Bustling, cheap, authentic. Great for a quick lunch between work and an afternoon excursion.</p>
+      <div class="card-detail"><strong>Budget:</strong> ₹100–200/meal · <strong>Hours:</strong> 11am–8pm</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Asian + Chinese</div>
+      <h3>Chopsticks</h3>
+      <p>Leh's best Chinese-Tibetan restaurant. Noodle dishes, dumplings, fried rice done properly. A comfort food go-to for later in your stay when you want something familiar but local.</p>
+      <div class="card-detail"><strong>Budget:</strong> ₹400–800/meal</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Italian · Leh Market</div>
+      <h3>Little Italy</h3>
+      <p>Surprisingly excellent Italian food at altitude. Great pizzas, pasta, salads. A good break from Ladakhi food mid-trip — the atmosphere is warm and the staff friendly.</p>
+      <div class="card-detail"><strong>Budget:</strong> ₹500–900/meal</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Rooftop Dining</div>
+      <h3>Wanderer's Terrace</h3>
+      <p>Rooftop restaurant with sweeping Leh views, good multi-cuisine menu, cold beers (when you've earned it after acclimatisation). Evening atmosphere is wonderful.</p>
+      <div class="card-detail"><strong>Budget:</strong> ₹500–1,000/meal · <strong>Go:</strong> Sunset hours</div>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSPORT -->
+<div id="transport" class="section">
+  <h2 class="section-title">Getting <em>Around</em><br>Ladakh</h2>
+  <p class="section-subtitle">Taxis · Bikes · Permits · Rules You Must Know</p>
+
+  <div class="warning-box">
+    <strong>⚠️ No Self-Drive Car Rentals in Leh</strong>
+    Since 2015, the Ladakh Taxi Union bans all outside-registered rental cars from sightseeing within Ladakh. This means no Zoomcar/Revv/self-drive within the region. Your options are: (1) hire a local Leh-registered taxi driver, (2) rent a motorcycle in Leh for local sightseeing, or (3) use shared jeep services for popular routes. This is actually fine — local drivers know roads, passes, and hidden spots far better than any GPS.
+  </div>
+
+  <div class="info-box">
+    <strong>🚗 Best Transport Setup for 21 Days</strong>
+    Establish a relationship with ONE reliable local driver from Day 1. They'll give you better rates for repeat bookings, priority availability, and genuine local knowledge. Ask your hotel to recommend one. Alternatively, the Leh Taxi Union stand near the Main Market has fixed-rate taxis for all destinations.
+  </div>
+
+  <div class="divider">Taxi Rate Reference (Union Rates 2025–26)</div>
+  <table class="cost-table">
+    <thead><tr><th>Destination</th><th>Distance</th><th>Est. Taxi Rate</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Leh ↔ Thiksey + Hemis circuit</td><td>50km</td><td>₹1,800–2,200</td><td>Half-day excursion</td></tr>
+      <tr><td>Leh ↔ Phyang Monastery</td><td>17km</td><td>₹800–1,200</td><td>Festival taxi</td></tr>
+      <tr><td>Leh ↔ Shanti Stupa</td><td>4km</td><td>₹300–500</td><td>Can also walk</td></tr>
+      <tr><td>Leh ↔ Sangam Confluence</td><td>35km</td><td>₹2,000–2,500</td><td>Half day</td></tr>
+      <tr><td>Leh ↔ Alchi Monastery</td><td>70km</td><td>₹3,000–3,800</td><td>Full day excursion</td></tr>
+      <tr><td>Leh ↔ Pangong Tso (one way)</td><td>160km</td><td>₹5,000–6,500</td><td>Permit required</td></tr>
+      <tr><td>Leh ↔ Nubra Valley 2-day</td><td>120km</td><td>₹6,000–8,000</td><td>Permit required</td></tr>
+      <tr><td>Leh ↔ Stok (day hike base)</td><td>15km</td><td>₹600–900</td><td>One way</td></tr>
+    </tbody>
+  </table>
+
+  <div class="divider">Bike Rentals in Leh</div>
+  <div class="info-box">
+    <strong>🏍 Motorcycle Rentals</strong>
+    Royal Enfield Himalayan or Bullet 500cc — most popular choice. Cost: ₹1,200–2,000/day. Multiple rental shops on Fort Road and Changspa Road. Recommended for experienced riders only — mountain roads demand respect. Carry all permits and ID. Fuel up before leaving Leh (petrol stations sparse).
+    <br><br>
+    <strong>Recommended Shops:</strong> Enfield House (Fort Road) · Himalayan Bike Rentals (Changspa) · Always inspect the bike thoroughly before taking it.
+  </div>
+
+  <div class="divider">Getting to Leh</div>
+  <div class="two-col">
+    <div class="info-box">
+      <strong>✈️ By Air (Recommended)</strong>
+      Direct flights from Delhi (~1hr), Mumbai (~2hr), Chandigarh, Jammu. IndiGo, Air India, SpiceJet all operate routes. Book 6–8 weeks ahead for July — peak season, seats sell out fast. Morning flights offer stunning Himalayan views.
+    </div>
+    <div class="info-box">
+      <strong>🚗 By Road (Adventure Option)</strong>
+      Manali–Leh Highway (~47 hours, open June–October) or Srinagar–Leh Highway (2 days with overnight in Kargil). Epic road trip but not practical for a solo workation arrival. Consider for your return if you have flexibility.
+    </div>
+  </div>
+
+  <div class="divider">Inner Line Permits</div>
+  <div class="info-box">
+    <strong>📋 Permits Required</strong>
+    You need an Inner Line Permit (ILP) for: Pangong Tso, Nubra Valley, Tso Moriri, Hanle. Cost: ₹400–600 per person per destination. Get them at the District Commissioner's Office in Leh (near Main Market, takes ~1 hour) or through your taxi driver / trekking agency (most will arrange for a small fee). Bring 2 passport-size photos and a copy of your ID. Also required: Restricted Area Permit (included with ILP) for some zones.
+  </div>
+</div>
+
+<!-- MUST DO -->
+<div id="mustdo" class="section">
+  <h2 class="section-title">Must-Do<br><em>Experiences</em></h2>
+  <p class="section-subtitle">Beyond the usual tourist circuit</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-tag">Culture · Free</div>
+      <h3>Leh Palace at Dawn</h3>
+      <p>Arrive at Leh Palace (Leh Khar) just as it opens at sunrise. You'll have the 17th-century Namgyal royal palace almost to yourself for 30 minutes. The views of the Zanskar range and Leh town are extraordinary in early morning light.</p>
+      <div class="card-detail"><strong>Entry:</strong> ₹25 · <strong>Best time:</strong> 7–8:30am · Open daily</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Spiritual · Unique</div>
+      <h3>Monastery Morning Prayers</h3>
+      <p>Ask any monastery if you can attend the early morning prayer ceremony (puja). Thiksey and Hemis monasteries allow respectful visitors. The sound of drums, horns, and chanting at 6am in a 600-year-old monastery is unforgettable.</p>
+      <div class="card-detail"><strong>Best at:</strong> Thiksey (arrive by 6am) · Donation-based</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Adventure · Thrilling</div>
+      <h3>Zanskar River Rafting</h3>
+      <p>The Zanskar River near Nimmu (45km from Leh) offers Grade III–IV white water rafting. Half-day trip, runs July–September when water levels are right. Multiple agencies offer this — ₹1,500–2,500 per person.</p>
+      <div class="card-detail"><strong>Duration:</strong> 3–4 hours on water · <strong>Season:</strong> July–Sept</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Astronomy · Mind-Bending</div>
+      <h3>Stargazing at Shanti Stupa</h3>
+      <p>Ladakh has some of the darkest skies in India. Walk up to Shanti Stupa after 10pm on a clear night. At 3,600m+ with zero light pollution, you'll see the Milky Way as a solid river of light. The Ladakh Festival also has an astronomy program at Shanti Stupa.</p>
+      <div class="card-detail"><strong>Best nights:</strong> New moon · Take a warm jacket</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Local Life · Authentic</div>
+      <h3>Village Homestay Dinner</h3>
+      <p>Book a homestay dinner in Stok or Alchi village — a Ladakhi family cooks a traditional meal (skyu, thukpa, tsampa, local apricot brandy). This single experience often becomes the highlight of people's entire Ladakh trip.</p>
+      <div class="card-detail"><strong>Arrange via:</strong> Your trekking agency or hotel · ₹400–700/person</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Offbeat · Remote</div>
+      <h3>Lamayuru Moonscape</h3>
+      <p>The village of Lamayuru (125km west of Leh) sits in a surreal eroded lunar landscape — otherworldly clay formations, one of Ladakh's oldest monasteries, complete isolation. A full-day excursion by taxi (₹4,000–4,500).</p>
+      <div class="card-detail"><strong>Combine with:</strong> Alchi and Likir on same route</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Shopping · Cultural</div>
+      <h3>Ladakhi Craft Bazaar</h3>
+      <p>The lanes behind Main Market hide excellent craft shops: handwoven pashmina, silver jewellery set with turquoise and coral, Tibetan singing bowls, thangka paintings, Ladakhi wool rugs. Buy directly from weavers where possible.</p>
+      <div class="card-detail"><strong>Best street:</strong> Behind Jama Masjid, Old Town</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Festivals · Spectacular</div>
+      <h3>Phyang Tsedup (Jul 22–23)</h3>
+      <p>If you time your arrival right, this two-day festival at Phyang Monastery features sacred Cham masked dances by monks in elaborate costumes. The unfurling of the giant silk Thangka is a once-in-a-lifetime sight. Gets crowded — arrive early morning.</p>
+      <div class="card-detail"><strong>Distance:</strong> 17km from Leh · Taxi ₹800–1,200 · Free entry</div>
+    </div>
+    <div class="card">
+      <div class="card-tag">Lakes · Iconic</div>
+      <h3>Pangong Tso Sunrise Camp</h3>
+      <p>Spend the night at a lakeside camp at Pangong. Wake at 5am for a sunrise that shifts the lake through a dozen shades of blue, green, and silver in 45 minutes. This is what people mean when they say Ladakh changes you.</p>
+      <div class="card-detail"><strong>Camp cost:</strong> ₹1,500–3,000/night incl. meals · 3hr 30min from Leh</div>
+    </div>
+  </div>
+</div>
+
+<!-- ESSENTIALS -->
+<div id="essentials" class="section">
+  <h2 class="section-title">The <em>Essentials</em><br>& Budget</h2>
+  <p class="section-subtitle">What to pack · Medical · Budget breakdown · Tips</p>
+
+  <div class="divider">Estimated Budget — 21 Nights</div>
+  <table class="cost-table">
+    <thead><tr><th>Category</th><th>Details</th><th>Est. Cost</th></tr></thead>
+    <tbody>
+      <tr><td>Accommodation (mid-range)</td><td>21 nights, Hotel Ladakh Retreat or similar</td><td>₹63,000–90,000</td></tr>
+      <tr><td>Food & Cafés</td><td>₹1,200–1,800/day avg · local + café mix</td><td>₹25,000–38,000</td></tr>
+      <tr><td>Weekend Treks (3 trips)</td><td>Transport + guide + camping fees</td><td>₹18,000–25,000</td></tr>
+      <tr><td>Weekday Excursions</td><td>~8 half-day taxi outings</td><td>₹12,000–18,000</td></tr>
+      <tr><td>Permits (ILP x 3 areas)</td><td>Pangong, Nubra, Tso Moriri</td><td>₹1,200–1,800</td></tr>
+      <tr><td>Shopping & Souvenirs</td><td>Pashmina, crafts, dried fruit</td><td>₹5,000–15,000</td></tr>
+      <tr><td>Flights (return Delhi–Leh)</td><td>Book 6–8 weeks ahead</td><td>₹8,000–16,000</td></tr>
+      <tr><td><strong>Total Estimate</strong></td><td></td><td>₹1,05,000–1,95,000</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box" style="margin-bottom:2rem">
+    <strong>💡 Budget Tip for Long Stays</strong>
+    Negotiate a 20–25% weekly/monthly discount at mid-range hotels. Cook simple breakfasts in your room using local market supplies (apricots, eggs, bread — all cheap). The Main Market has excellent street food for under ₹150. Reserve taxi splurges for weekend trips where the experience justifies the cost.
+  </div>
+
+  <div class="divider">What to Pack</div>
+  <div class="two-col">
+    <div>
+      <h4 style="font-family:'Space Mono',monospace; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:1rem;">Clothing</h4>
+      <ul class="checklist">
+        <li>Thermal base layers (even in July, nights are cold)</li>
+        <li>Down or fleece jacket — essential for mornings and passes</li>
+        <li>Waterproof outer shell jacket (August drizzles)</li>
+        <li>UV-protective trekking shirts × 4–5</li>
+        <li>Good trekking boots (waterproof, ankle support)</li>
+        <li>Comfortable sandals for town days</li>
+        <li>Neck gaiter / buff for high-altitude wind and sun</li>
+        <li>Warm hat and gloves (for Khardung La / Pangong nights)</li>
+        <li>UV-blocking sunglasses (critical at altitude)</li>
+        <li>SPF 50+ sunscreen × 2 bottles</li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="font-family:'Space Mono',monospace; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:1rem;">Tech & Work</h4>
+      <ul class="checklist">
+        <li>Laptop + charger (bring a multi-plug adaptor)</li>
+        <li>Portable power bank (20,000mAh+)</li>
+        <li>Backup SIM — get Airtel or BSNL Leh SIM on arrival</li>
+        <li>Portable 4G WiFi hotspot as backup</li>
+        <li>Power strip with surge protection</li>
+        <li>Noise-cancelling headphones</li>
+        <li>Camera with UV filter (altitude light is intense)</li>
+        <li>Offline maps downloaded (Maps.me or Google Maps offline)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:2rem">
+    <div class="two-col">
+      <div>
+        <h4 style="font-family:'Space Mono',monospace; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:1rem;">Medical Kit</h4>
+        <ul class="checklist">
+          <li>Diamox (acetazolamide) — consult doctor before travel</li>
+          <li>Ibuprofen + paracetamol for AMS headaches</li>
+          <li>Oral rehydration salts (ORS packets)</li>
+          <li>Anti-diarrhoeal (Imodium) + antacids</li>
+          <li>Antiseptic cream + plasters</li>
+          <li>Lip balm SPF 30+ (lips crack at altitude)</li>
+          <li>Personal prescription medicines × 1.5x quantity</li>
+          <li>Travel insurance with emergency evacuation cover</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="font-family:'Space Mono',monospace; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:1rem;">Documents & Admin</h4>
+        <ul class="checklist">
+          <li>Aadhaar / PAN / Passport — 5 photocopies each</li>
+          <li>Passport photos × 10 (for permits)</li>
+          <li>Travel insurance policy document</li>
+          <li>Emergency contacts printed (not just on phone)</li>
+          <li>Hotel booking confirmations printed</li>
+          <li>Sufficient cash — ATMs in Leh work but get sparse outside</li>
+          <li>Register at your country's embassy for LONG stays</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">Useful Contacts & Services</div>
+  <div class="company-row">
+    <div><div class="company-name">SNM Hospital, Leh</div><div class="company-desc">Main government hospital. Has altitude sickness facilities and emergency care.</div></div>
+    <div class="company-contact">+91 1982 252014</div>
+  </div>
+  <div class="company-row">
+    <div><div class="company-name">Sonam Wangchuk Clinic</div><div class="company-desc">Private clinic recommended by many long-stay travellers for AMS and general health.</div></div>
+    <div class="company-contact">Leh Main Market area</div>
+  </div>
+  <div class="company-row">
+    <div><div class="company-name">Leh District Commissioner</div><div class="company-desc">For Inner Line Permits. Near Main Market. Open Mon–Sat, 10am–4pm.</div></div>
+    <div class="company-contact">ILP Office, Leh</div>
+  </div>
+  <div class="company-row">
+    <div><div class="company-name">Ladakh Coworking Hub</div><div class="company-desc">Dedicated coworking space in Leh with fast internet, meeting rooms, and community of digital nomads.</div></div>
+    <div class="company-contact">Fort Road area, Leh</div>
+  </div>
+  <div class="company-row">
+    <div><div class="company-name">Leh Taxi Union Stand</div><div class="company-desc">Official fixed-rate taxi bookings. More transparent than negotiating individually but less flexible.</div></div>
+    <div class="company-contact">Main Market, Leh</div>
+  </div>
+
+  <div class="info-box" style="margin-top:2rem">
+    <strong>🔑 Final Tips from the Road</strong>
+    1. Respect the 2-day acclimatisation seriously — people ignore it and get helicoptered out. Don't be that person. · 2. The early morning light in Ladakh (6–8am) is extraordinary for photography and walks. · 3. Carry ₹5,000–10,000 cash at all times outside Leh — card machines and ATMs disappear fast. · 4. July evenings in Leh can get cold suddenly — always carry your fleece. · 5. Ladakh's plastic waste situation is dire. Pack your own reusable water bottle and refuse plastic bags. · 6. If locals invite you for butter tea — accept. It's the best way to understand Ladakh. · 7. The internet is slower than you're used to. Use this as a feature, not a bug.
+  </div>
+</div>
+
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+    window.scrollTo({ top: document.querySelector('.nav-tabs').offsetTop - 10, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

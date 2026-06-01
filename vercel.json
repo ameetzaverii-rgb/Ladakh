@@ -1,0 +1,13 @@
+{
+  "buildCommand": "prisma generate && next build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "env": {
+    "DATABASE_URL": "@database-url",
+    "DIRECT_URL": "@direct-url",
+    "NEXTAUTH_SECRET": "@nextauth-secret",
+    "ADMIN_EMAIL": "@admin-email",
+    "ADMIN_PASSWORD_HASH": "@admin-password-hash"
+  }
+}

@@ -1,0 +1,237 @@
+'use client'
+
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+
+type Tab = 'expense' | 'journal'
+
+export function QuickActions() {
+  const [tab, setTab] = useState<Tab>('expense')
+  const router = useRouter()
+
+  return (
+    <div className="card-base mb-8">
+      <div className="flex border-b border-gold/10">
+        {(['expense', 'journal'] as Tab[]).map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`px-4 py-2.5 font-mono text-[0.6rem] tracking-wider uppercase transition-all border-b-2 -mb-px ${
+              tab === t
+                ? 'text-gold border-gold'
+                : 'text-stone border-transparent hover:text-gold/70'
+            }`}
+          >
+            {t === 'expense' ? '₹ Log Expense' : '📔 Quick Journal'}
+          </button>
+        ))}
+        <div className="ml-auto flex items-center pr-4">
+          <span className="label-mono text-[0.5rem] text-stone/50">or ⌘K for command bar</span>
+        </div>
+      </div>
+      <div className="p-4">
+        {tab === 'expense' ? <ExpenseForm /> : <JournalForm />}
+      </div>
+    </div>
+  )
+}
+
+function ExpenseForm() {
+  const [amount, setAmount] = useState('')
+  const [category, setCategory] = useState('FOOD')
+  const [description, setDescription] = useState('')
+  const [place, setPlace] = useState('')
+  const [paymentMode, setPaymentMode] = useState('cash')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!amount || !description) return
+    setLoading(true)
+    const res = await fetch('/api/expenses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amountINR: parseInt(amount),
+        category,
+        description,
+        place: place || null,
+        paymentMode,
+        date: new Date().toISOString(),
+        tripDay: 1,
+      }),
+    })
+    setLoading(false)
+    if (res.ok) {
+      toast.success(`₹${amount} logged — ${description}`)
+      setAmount('')
+      setDescription('')
+      setPlace('')
+    } else {
+      toast.error('Failed to save expense')
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-wrap gap-3 items-end">
+      <div className="flex flex-col gap-1">
+        <label className="label-mono text-[0.55rem]">Amount (₹)</label>
+        <input
+          type="number"
+          value={amount}
+          onChange={e => setAmount(e.target.value)}
+          placeholder="350"
+          required
+          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm w-28 focus:border-gold/50 outline-none font-mono"
+        />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="label-mono text-[0.55rem]">Category</label>
+        <select
+          value={category}
+          onChange={e => setCategory(e.target.value)}
+          className="bg-dark border border-gold/20 text-sand px-3 py-2 text-sm focus:border-gold/50 outline-none"
+        >
+          {['FOOD','TRANSPORT','ACCOMMODATION','TREK','PERMITS','SHOPPING','HEALTH','WORK','MISC'].map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
+      <div className="flex flex-col gap-1 flex-1 min-w-32">
+        <label className="label-mono text-[0.55rem]">Description</label>
+        <input
+          type="text"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          placeholder="Thukpa at Tibetan Kitchen"
+          required
+          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none"
+        />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="label-mono text-[0.55rem]">Place (opt)</label>
+        <input
+          type="text"
+          value={place}
+          onChange={e => setPlace(e.target.value)}
+          placeholder="Tibetan Kitchen"
+          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm w-36 focus:border-gold/50 outline-none"
+        />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="label-mono text-[0.55rem]">Payment</label>
+        <select
+          value={paymentMode}
+          onChange={e => setPaymentMode(e.target.value)}
+          className="bg-dark border border-gold/20 text-sand px-3 py-2 text-sm focus:border-gold/50 outline-none"
+        >
+          <option value="cash">Cash</option>
+          <option value="upi">UPI</option>
+          <option value="card">Card</option>
+        </select>
+      </div>
+      <button
+        type="submit"
+        disabled={loading}
+        className="px-5 py-2 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-mono text-xs tracking-wider uppercase transition-all disabled:opacity-50"
+      >
+        {loading ? '...' : 'Log'}
+      </button>
+    </form>
+  )
+}
+
+function JournalForm() {
+  const [content, setContent] = useState('')
+  const [mood, setMood] = useState<string>('3')
+  const [location, setLocation] = useState('')
+  const [highlights, setHighlights] = useState('')
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!content) return
+    setLoading(true)
+    const res = await fetch('/api/journal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content,
+        mood: parseInt(mood),
+        location: location || null,
+        highlights: highlights ? highlights.split(',').map(s => s.trim()).filter(Boolean) : [],
+        date: new Date().toISOString(),
+        tripDay: 1,
+      }),
+    })
+    setLoading(false)
+    if (res.ok) {
+      toast.success('Journal entry saved!')
+      setContent('')
+      setLocation('')
+      setHighlights('')
+      router.refresh()
+    } else {
+      toast.error('Failed to save entry')
+    }
+  }
+
+  const MOODS = ['😔', '😐', '🙂', '😊', '🤩']
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="flex gap-3 flex-wrap items-center">
+        <div className="flex gap-1.5">
+          {MOODS.map((emoji, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setMood(String(i + 1))}
+              className={`text-xl w-9 h-9 flex items-center justify-center rounded transition-all border ${
+                mood === String(i + 1) ? 'border-gold bg-gold/10' : 'border-transparent hover:border-gold/30'
+              }`}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+        <input
+          type="text"
+          value={location}
+          onChange={e => setLocation(e.target.value)}
+          placeholder="Location (e.g. Phyang Monastery)"
+          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm flex-1 min-w-40 focus:border-gold/50 outline-none"
+        />
+      </div>
+      <textarea
+        value={content}
+        onChange={e => setContent(e.target.value)}
+        placeholder="What happened today? How did you feel? What surprised you?"
+        rows={4}
+        required
+        className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none resize-none leading-relaxed"
+      />
+      <div className="flex gap-3 items-end">
+        <div className="flex flex-col gap-1 flex-1">
+          <label className="label-mono text-[0.55rem]">Highlights (comma-separated)</label>
+          <input
+            type="text"
+            value={highlights}
+            onChange={e => setHighlights(e.target.value)}
+            placeholder="Saw masked dances, best momos ever, made it to 5000m"
+            className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-5 py-2 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-mono text-xs tracking-wider uppercase transition-all disabled:opacity-50"
+        >
+          {loading ? '...' : 'Save'}
+        </button>
+      </div>
+    </form>
+  )
+}
