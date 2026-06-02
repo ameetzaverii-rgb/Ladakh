@@ -50,17 +50,52 @@ function describe(code: number) {
   return WMO[code] ?? { label: 'Unknown', icon: '🌡️' }
 }
 
+export interface CurrentWeather {
+  temp: number
+  feelsLike: number
+  label: string
+  icon: string
+  windKmh: number
+  humidity: number | null
+}
+
+// Live "right now" conditions for a location (short cache — it's the current weather).
+export async function getCurrentWeather(
+  lat: number,
+  lng: number
+): Promise<CurrentWeather | null> {
+  try {
+    const url =
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}` +
+      `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m` +
+      `&timezone=Asia%2FKolkata`
+    const d = await fetchJson(url, 900) // 15 min cache
+    const c = d.current
+    const { label, icon } = describe(c.weather_code)
+    return {
+      temp: Math.round(c.temperature_2m),
+      feelsLike: Math.round(c.apparent_temperature),
+      label,
+      icon,
+      windKmh: Math.round(c.wind_speed_10m ?? 0),
+      humidity: c.relative_humidity_2m ?? null,
+    }
+  } catch {
+    return null
+  }
+}
+
 // Per-instance memory cache so we don't re-hit the API on every render.
 const cache = new Map<string, { value: DayWeather | null; expires: number }>()
 const TTL_MS = 6 * 60 * 60 * 1000 // 6 hours
 
-async function fetchJson(url: string): Promise<any> {
+async function fetchJson(url: string, revalidate = 21600): Promise<any> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 6000)
   try {
     const res = await fetch(url, {
       signal: controller.signal,
-      next: { revalidate: 21600 }, // 6h Next.js fetch cache
+      next: { revalidate },
     })
     if (!res.ok) throw new Error(`Weather API ${res.status}`)
     return await res.json()

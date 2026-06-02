@@ -3,8 +3,13 @@ import { daysUntil, formatINR, CATEGORY_COLORS, PHASE_ORDER } from '@/lib/utils'
 import { format, parseISO } from 'date-fns'
 import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
+import { getCurrentWeather } from '@/lib/weather'
+import { DAY_LOCATIONS } from '@/lib/locations'
 
 export const dynamic = 'force-dynamic'
+
+// Leh is the home base — used for the "right now" weather widget.
+const LEH = DAY_LOCATIONS[1]
 async function getDashboardData() {
   const [config, checklistItems, expenses, journalEntries, nextEvents] = await Promise.all([
     db.tripConfig.findFirst().catch(() => null),
@@ -45,7 +50,10 @@ async function getDashboardData() {
 }
 
 export default async function Dashboard() {
-  const data = await getDashboardData()
+  const [data, currentWeather] = await Promise.all([
+    getDashboardData(),
+    getCurrentWeather(LEH.lat, LEH.lng),
+  ])
 
   const {
     tripStart, budget, totalSpent, checklistTotal, checklistDone,
@@ -85,6 +93,31 @@ export default async function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Current weather in Leh */}
+      {currentWeather && (
+        <div className="flex items-center gap-3 flex-wrap mb-8 card-base px-4 py-3 border-l-2 border-l-sky">
+          <span className="text-2xl leading-none">{currentWeather.icon}</span>
+          <div>
+            <div className="label-mono text-[0.55rem] text-sky">Right now in Leh</div>
+            <div className="font-serif text-cream text-lg leading-tight">
+              {currentWeather.temp}°C
+              <span className="text-stone text-sm font-sans"> · {currentWeather.label}</span>
+            </div>
+          </div>
+          <div className="ml-auto flex gap-4 text-[0.7rem] text-stone">
+            <span>🌡 Feels {currentWeather.feelsLike}°</span>
+            <span>🌬 {currentWeather.windKmh} km/h</span>
+            {currentWeather.humidity != null && <span>💧 {currentWeather.humidity}%</span>}
+          </div>
+          <Link
+            href="/itinerary"
+            className="w-full md:w-auto label-mono text-[0.55rem] text-stone hover:text-gold transition-colors"
+          >
+            See daily forecast & packing →
+          </Link>
+        </div>
+      )}
 
       {/* Progress cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
