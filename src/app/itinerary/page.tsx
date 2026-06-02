@@ -1,8 +1,7 @@
 import { db } from '@/lib/db'
 import Link from 'next/link'
 
-export const revalidate = 3600
-
+export const dynamic = 'force-dynamic'
 const WEEK_LABELS: Record<number, string> = {
   1: 'Week One — Arrival & Acclimatisation',
   2: 'Week Two — Finding Flow',

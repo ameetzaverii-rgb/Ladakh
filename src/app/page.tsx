@@ -4,8 +4,7 @@ import { format, parseISO } from 'date-fns'
 import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
 
-export const revalidate = 300
-
+export const dynamic = 'force-dynamic'
 async function getDashboardData() {
   const [config, checklistItems, expenses, journalEntries, nextEvents] = await Promise.all([
     db.tripConfig.findFirst().catch(() => null),

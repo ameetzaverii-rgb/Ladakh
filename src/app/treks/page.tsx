@@ -1,8 +1,7 @@
 import { db } from '@/lib/db'
 import { formatINR } from '@/lib/utils'
 
-export const revalidate = 3600
-
+export const dynamic = 'force-dynamic'
 const DIFFICULTY_COLORS: Record<string, string> = {
   EASY: 'pill-sage',
   MEDIUM: 'pill-gold',

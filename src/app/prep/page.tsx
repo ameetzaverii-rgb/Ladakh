@@ -2,8 +2,7 @@ import { db } from '@/lib/db'
 import { PHASE_LABELS, PHASE_ORDER, CATEGORY_ICONS } from '@/lib/utils'
 import { PrepClient } from './PrepClient'
 
-export const revalidate = 60
-
+export const dynamic = 'force-dynamic'
 async function getChecklistData() {
   const items = await db.checklistItem.findMany({
     orderBy: [{ phase: 'asc' }, { priority: 'asc' }, { createdAt: 'asc' }],

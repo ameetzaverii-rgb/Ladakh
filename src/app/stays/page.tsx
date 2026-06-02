@@ -2,8 +2,7 @@ import { db } from '@/lib/db'
 import { formatINR } from '@/lib/utils'
 import Link from 'next/link'
 
-export const revalidate = 3600
-
+export const dynamic = 'force-dynamic'
 export default async function StaysPage() {
   const stays = await db.stay.findMany({ orderBy: { pricePerNightINR: 'asc' } })
 
