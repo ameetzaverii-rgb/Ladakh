@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { DayWeather } from '@/components/DayWeather'
 import { DAY_LOCATIONS } from '@/lib/locations'
 import type { DayWeather as DayWeatherData } from '@/lib/weather'
@@ -33,6 +34,33 @@ const VIEWS: { id: View; label: string; icon: string }[] = [
   { id: 'calendar', label: 'Weeks', icon: '▦' },
   { id: 'location', label: 'By place', icon: '📍' },
 ]
+
+// Contextual cross-links so each day jumps straight to the relevant section.
+function dayLinks(day: ViewDay): { href: string; label: string }[] {
+  const links: { href: string; label: string }[] = []
+  if (day.isFestivalDay) links.push({ href: '/events', label: '🎭 Festival info' })
+  if (day.isTrekDay) links.push({ href: '/treks', label: '🥾 Trek details' })
+  if (day.isExcursionDay) links.push({ href: '/transport', label: '🚖 Getting there' })
+  if (day.isWorkDay && !day.isTrekDay && !day.isExcursionDay) links.push({ href: '/food', label: '☕ Work cafés' })
+  links.push({ href: '/diary', label: '📔 Diary' })
+  return links
+}
+
+function DayLinkChips({ day }: { day: ViewDay }) {
+  return (
+    <div className="flex flex-wrap gap-1.5 mt-3 pt-2 border-t border-gold/8">
+      {dayLinks(day).map(l => (
+        <Link
+          key={l.href}
+          href={l.href}
+          className="label-mono text-[0.55rem] text-stone hover:text-gold border border-gold/15 hover:border-gold/40 rounded-full px-2.5 py-1 transition-colors"
+        >
+          {l.label} ↗
+        </Link>
+      ))}
+    </div>
+  )
+}
 
 function dayIcons(day: ViewDay) {
   return (
@@ -138,6 +166,7 @@ function TimelineView({ days, weather }: { days: ViewDay[]; weather: Record<numb
                       {day.dinnerNote && <div><span className="text-sand">🌙 Dinner: </span>{day.dinnerNote}</div>}
                     </div>
                   )}
+                  <DayLinkChips day={day} />
                 </div>
               </div>
             ))}

@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { formatINR } from '@/lib/utils'
 import { getTrekImage, getTrekMediaConfig, youtubeSearchUrl, type TrekImage } from '@/lib/trekMedia'
 import { ReviewLinks } from '@/components/ReviewLinks'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -28,6 +29,7 @@ export default async function TreksPage() {
         <div className="label-mono text-xs text-gold mb-2">Weekend Adventures</div>
         <h1 className="section-title mb-1">Weekend <em className="text-gold italic">Treks</em></h1>
         <p className="text-stone text-sm">3 weekends, 3 journeys. July–August is peak trekking season.</p>
+        <Link href="/itinerary" className="inline-block mt-2 label-mono text-[0.6rem] text-sky hover:underline">↩ See which weekends these land on</Link>
       </div>
 
       <div className="info-box p-4 mb-8 text-sm text-muted leading-relaxed">

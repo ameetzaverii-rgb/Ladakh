@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: '/prep',       label: 'Prep List',  short: 'Prep' },
   { href: '/itinerary',  label: 'Itinerary',  short: 'Plan' },
   { href: '/journal',    label: 'Journal',    short: 'Log' },
+  { href: '/diary',      label: 'Diary',      short: 'Day' },
   { href: '/budget',     label: 'Budget',     short: '₹' },
   { href: '/stays',      label: 'Stays',      short: 'Stay' },
   { href: '/treks',      label: 'Treks',      short: 'Trek' },

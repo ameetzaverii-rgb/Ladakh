@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import Link from 'next/link'
 import { format } from 'date-fns'
 import { ReviewLinks } from '@/components/ReviewLinks'
 
@@ -21,6 +22,7 @@ export default async function EventsPage() {
         <div className="label-mono text-xs text-gold mb-2">Festivals & Events</div>
         <h1 className="section-title mb-1">Festival <em className="text-gold italic">Calendar</em></h1>
         <p className="text-stone text-sm">Arriving late July puts you at two of Ladakh's most spectacular festivals.</p>
+        <Link href="/itinerary" className="inline-block mt-2 label-mono text-[0.6rem] text-sky hover:underline">↩ See where these fall on your 21-day plan</Link>
       </div>
 
       <div className="card-base p-5 mb-8 bg-gradient-to-r from-rust/10 to-gold/5">
