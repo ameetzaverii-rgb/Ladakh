@@ -1,9 +1,8 @@
 import { db } from '@/lib/db'
-import Link from 'next/link'
 import { DAY_LOCATIONS } from '@/lib/locations'
 import { getDayWeather, type DayWeather as DayWeatherData } from '@/lib/weather'
-import { DayWeather } from '@/components/DayWeather'
 import { ItineraryMap, type MapDay } from '@/components/ItineraryMap'
+import { ItineraryViews, type ViewDay } from '@/components/ItineraryViews'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,21 +13,6 @@ function isoForDay(start: Date, dayNumber: number): string {
   return d.toISOString().slice(0, 10)
 }
 
-const WEEK_LABELS: Record<number, string> = {
-  1: 'Week One — Arrival & Acclimatisation',
-  2: 'Week Two — Finding Flow',
-  3: 'Week Three — Deep Ladakh',
-}
-
-const EMOJI_MAP: Record<string, string> = {
-  work: '🖥',
-  trek: '🥾',
-  excursion: '🌄',
-  festival: '🎭',
-  arrival: '🛬',
-  rest: '🌙',
-}
-
 export default async function ItineraryPage() {
   const [days, tripConfig] = await Promise.all([
     db.itineraryDay.findMany({ orderBy: { dayNumber: 'asc' } }),
@@ -37,20 +21,14 @@ export default async function ItineraryPage() {
 
   // Live weather for every day, fetched in parallel.
   const startDate = tripConfig?.tripStartDate ?? new Date('2026-07-22')
-  const weatherMap = new Map<number, DayWeatherData | null>()
+  const weather: Record<number, DayWeatherData | null> = {}
   await Promise.all(
     days.map(async day => {
       const loc = DAY_LOCATIONS[day.dayNumber]
       if (!loc) return
-      const w = await getDayWeather(loc.lat, loc.lng, isoForDay(startDate, day.dayNumber))
-      weatherMap.set(day.dayNumber, w)
+      weather[day.dayNumber] = await getDayWeather(loc.lat, loc.lng, isoForDay(startDate, day.dayNumber))
     })
   )
-
-  const weeks = [1, 2, 3].map(w => ({
-    week: w,
-    days: days.filter(d => Math.ceil(d.dayNumber / 7) === w),
-  }))
 
   // Locations for the route map.
   const mapDays: MapDay[] = days
@@ -59,6 +37,22 @@ export default async function ItineraryPage() {
       const loc = DAY_LOCATIONS[d.dayNumber]
       return { dayNumber: d.dayNumber, title: d.title, name: loc.name, lat: loc.lat, lng: loc.lng }
     })
+
+  // Plain serialisable day data for the client view switcher.
+  const viewDays: ViewDay[] = days.map(d => ({
+    id: d.id,
+    dayNumber: d.dayNumber,
+    dayOfWeek: d.dayOfWeek,
+    title: d.title,
+    description: d.description,
+    isWorkDay: d.isWorkDay,
+    isTrekDay: d.isTrekDay,
+    isFestivalDay: d.isFestivalDay,
+    isExcursionDay: d.isExcursionDay,
+    breakfastNote: d.breakfastNote,
+    lunchNote: d.lunchNote,
+    dinnerNote: d.dinnerNote,
+  }))
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -96,78 +90,15 @@ export default async function ItineraryPage() {
         </div>
       )}
 
-      {days.length === 0 && (
+      {days.length === 0 ? (
         <div className="text-center py-16 text-stone">
           <div className="text-4xl mb-3">📅</div>
           <p className="font-serif text-cream text-lg mb-2">Itinerary not seeded yet</p>
           <p className="text-sm">Run <code className="text-gold">npm run db:seed</code> to populate the 21-day plan.</p>
         </div>
+      ) : (
+        <ItineraryViews days={viewDays} weather={weather} />
       )}
-
-      {weeks.map(({ week, days: weekDays }) => {
-        if (weekDays.length === 0) return null
-        return (
-          <div key={week} className="mb-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-px flex-1 bg-gold/10" />
-              <div className="label-mono text-[0.65rem] text-gold border-l-2 border-gold pl-3">
-                {WEEK_LABELS[week]}
-              </div>
-              <div className="h-px w-8 bg-gold/10" />
-            </div>
-
-            {weekDays.map((day, idx) => {
-              const dayType = day.isTrekDay ? 'trek'
-                : day.isFestivalDay ? 'festival'
-                : day.isExcursionDay ? 'excursion'
-                : day.dayNumber === 1 ? 'arrival'
-                : 'work'
-
-              return (
-                <div key={day.id} className="flex gap-4 relative">
-                  {/* Connector line */}
-                  {idx < weekDays.length - 1 && (
-                    <div className="absolute left-[19px] top-10 bottom-0 w-px bg-gold/10" />
-                  )}
-                  {/* Day number */}
-                  <div className="w-10 shrink-0 text-center pt-3">
-                    <div className="font-serif text-2xl text-gold/30 font-light leading-none">{day.dayNumber}</div>
-                    <div className="label-mono text-[0.45rem] text-stone">{day.dayOfWeek}</div>
-                  </div>
-
-                  {/* Day card */}
-                  <div className="flex-1 card-base p-4 mb-3">
-                    {/* Live weather + packing list, right at the top */}
-                    {DAY_LOCATIONS[day.dayNumber] && (
-                      <DayWeather
-                        weather={weatherMap.get(day.dayNumber) ?? null}
-                        location={DAY_LOCATIONS[day.dayNumber]}
-                      />
-                    )}
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-serif text-cream text-base leading-tight">{day.title}</h3>
-                      <div className="flex gap-1 shrink-0">
-                        {day.isWorkDay && <span className="text-xs">🖥</span>}
-                        {day.isTrekDay && <span className="text-xs">🥾</span>}
-                        {day.isFestivalDay && <span className="text-xs">🎭</span>}
-                        {day.isExcursionDay && <span className="text-xs">🌄</span>}
-                      </div>
-                    </div>
-                    <p className="text-muted text-xs leading-relaxed">{day.description}</p>
-                    {(day.breakfastNote || day.lunchNote || day.dinnerNote) && (
-                      <div className="mt-3 pt-2 border-t border-gold/8 text-xs text-stone space-y-0.5">
-                        {day.breakfastNote && <div><span className="text-sand">☀️ Breakfast: </span>{day.breakfastNote}</div>}
-                        {day.lunchNote && <div><span className="text-sand">🌤 Lunch: </span>{day.lunchNote}</div>}
-                        {day.dinnerNote && <div><span className="text-sand">🌙 Dinner: </span>{day.dinnerNote}</div>}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )
-      })}
     </div>
   )
 }
