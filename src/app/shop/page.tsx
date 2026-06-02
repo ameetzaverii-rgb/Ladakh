@@ -21,6 +21,7 @@ export default async function ShopPage() {
         <div className="label-mono text-xs text-gold mb-2">Souvenir Repository</div>
         <h1 className="section-title mb-1">The <em className="text-gold italic">Shopping List</em></h1>
         <p className="text-stone text-sm">What to pick up — and where — across each part of Ladakh. Tick things off as you buy them.</p>
+        <a href="/contribute" className="inline-block mt-2 label-mono text-[0.6rem] text-sky hover:underline">🙋 Friends can add suggestions → share the Collaborate page</a>
       </div>
 
       {needsMigrate ? (

@@ -22,6 +22,7 @@ export default async function FoodPage() {
         <div className="label-mono text-xs text-gold mb-2">Food & Cafés</div>
         <h1 className="section-title mb-1">Eat, Drink,<br /><em className="text-gold italic">Repeat</em></h1>
         <p className="text-stone text-sm">The best cafés, restaurants, and street eats in Leh.</p>
+        <a href="/contribute" className="inline-block mt-2 label-mono text-[0.6rem] text-sky hover:underline">🙋 Got a recommendation? Friends can add via the Collaborate page</a>
       </div>
 
       <div className="warning-box p-4 mb-8 text-sm text-muted">
@@ -72,7 +73,7 @@ function PlaceCard({ place }: { place: any }) {
         </div>
         <span className="text-xl ml-2 shrink-0">{TYPE_ICONS[place.type] ?? '🍴'}</span>
       </div>
-      <p className="text-muted text-xs leading-relaxed mb-3">{place.description}</p>
+      <p className="text-muted text-sm leading-relaxed mb-3">{place.description}</p>
       {place.mustOrder.length > 0 && (
         <div className="text-xs mb-3">
           <span className="text-stone">Order: </span>

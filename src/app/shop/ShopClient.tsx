@@ -86,18 +86,18 @@ export function ShopClient({ items }: { items: ShopItemT[] }) {
     <div>
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="card-base p-4 text-center">
+        <div className="card-base p-3 sm:p-4 text-center">
           <div className="label-mono text-[0.55rem] text-stone mb-1">Items</div>
           <div className="font-serif text-2xl text-cream">{acquired}/{items.length}</div>
           <div className="label-mono text-[0.5rem] text-stone mt-0.5">bought</div>
         </div>
-        <div className="card-base p-4 text-center">
+        <div className="card-base p-3 sm:p-4 text-center">
           <div className="label-mono text-[0.55rem] text-stone mb-1">Est. total</div>
-          <div className="font-serif text-2xl text-gold">{inr(estTotal)}</div>
+          <div className="font-serif text-lg sm:text-2xl text-gold">{inr(estTotal)}</div>
         </div>
-        <div className="card-base p-4 text-center">
+        <div className="card-base p-3 sm:p-4 text-center">
           <div className="label-mono text-[0.55rem] text-stone mb-1">Spent so far</div>
-          <div className="font-serif text-2xl text-rust">{inr(spent)}</div>
+          <div className="font-serif text-lg sm:text-2xl text-rust">{inr(spent)}</div>
         </div>
       </div>
 

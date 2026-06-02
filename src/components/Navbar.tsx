@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { href: '/food',       label: 'Food',       short: 'Eat' },
   { href: '/events',     label: 'Festivals',  short: 'Fest' },
   { href: '/shop',       label: 'Shop',       short: 'Buy' },
+  { href: '/contribute', label: 'Collaborate', short: 'Add+' },
   { href: '/flights',    label: 'Flights',    short: '✈' },
   { href: '/admin',      label: 'Admin',      short: 'ADM' },
 ]

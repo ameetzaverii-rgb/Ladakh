@@ -74,11 +74,26 @@ html[data-theme='light'] [cmdk-root] {
     background: var(--dark);
     color: var(--sand);
     font-family: 'Outfit', sans-serif;
-    font-weight: 300;
+    font-weight: 400;
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Comfortable reading rhythm for body copy. */
+  p {
+    line-height: 1.7;
   }
 
   h1, h2, h3, h4 {
     font-family: 'Cormorant Garamond', serif;
+  }
+
+  /* Keep tap targets comfortable on touch devices. */
+  @media (max-width: 768px) {
+    a, button, [role='button'], input, select, textarea {
+      touch-action: manipulation;
+    }
   }
 }
 

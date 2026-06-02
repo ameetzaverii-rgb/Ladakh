@@ -55,17 +55,17 @@ export default async function BudgetPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3 mb-8">
-        <div className="card-base p-5 text-center">
+        <div className="card-base p-3 sm:p-5 text-center">
           <div className="label-mono text-[0.55rem] text-stone mb-1">Total Budget</div>
           <div className="font-serif text-2xl text-cream">{formatINR(totalBudget)}</div>
           <div className="label-mono text-[0.5rem] text-stone mt-0.5">{formatINRFull(totalBudget)}</div>
         </div>
-        <div className="card-base p-5 text-center">
+        <div className="card-base p-3 sm:p-5 text-center">
           <div className="label-mono text-[0.55rem] text-stone mb-1">Spent</div>
           <div className="font-serif text-2xl text-rust">{formatINR(totalSpent)}</div>
           <div className="label-mono text-[0.5rem] text-stone mt-0.5">{Math.round((totalSpent/totalBudget)*100)}% of budget</div>
         </div>
-        <div className="card-base p-5 text-center">
+        <div className="card-base p-3 sm:p-5 text-center">
           <div className="label-mono text-[0.55rem] text-stone mb-1">Remaining</div>
           <div className={`font-serif text-2xl ${remaining >= 0 ? 'text-sage' : 'text-rust'}`}>
             {formatINR(Math.abs(remaining))}

@@ -22,7 +22,10 @@ export default async function EventsPage() {
         <div className="label-mono text-xs text-gold mb-2">Festivals & Events</div>
         <h1 className="section-title mb-1">Festival <em className="text-gold italic">Calendar</em></h1>
         <p className="text-stone text-sm">Arriving late July puts you at two of Ladakh's most spectacular festivals.</p>
-        <Link href="/itinerary" className="inline-block mt-2 label-mono text-[0.6rem] text-sky hover:underline">↩ See where these fall on your 21-day plan</Link>
+        <div className="flex gap-4 flex-wrap mt-2">
+          <Link href="/itinerary" className="label-mono text-[0.6rem] text-sky hover:underline">↩ See where these fall on your 21-day plan</Link>
+          <Link href="/contribute" className="label-mono text-[0.6rem] text-sky hover:underline">🙋 Friends can flag an event</Link>
+        </div>
       </div>
 
       <div className="card-base p-5 mb-8 bg-gradient-to-r from-rust/10 to-gold/5">
@@ -66,7 +69,7 @@ export default async function EventsPage() {
                 )}
               </div>
             </div>
-            <p className="text-muted text-xs leading-relaxed mb-2">{event.description}</p>
+            <p className="text-muted text-sm leading-relaxed mb-3">{event.description}</p>
             <div className="text-xs text-stone space-y-0.5">
               <div>📍 {event.location}</div>
               {event.distanceFromLehKm && <div>🚗 {event.distanceFromLehKm}km from Leh</div>}

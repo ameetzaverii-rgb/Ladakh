@@ -29,7 +29,10 @@ export default async function TreksPage() {
         <div className="label-mono text-xs text-gold mb-2">Weekend Adventures</div>
         <h1 className="section-title mb-1">Weekend <em className="text-gold italic">Treks</em></h1>
         <p className="text-stone text-sm">3 weekends, 3 journeys. July–August is peak trekking season.</p>
-        <Link href="/itinerary" className="inline-block mt-2 label-mono text-[0.6rem] text-sky hover:underline">↩ See which weekends these land on</Link>
+        <div className="flex gap-4 flex-wrap mt-2">
+          <Link href="/itinerary" className="label-mono text-[0.6rem] text-sky hover:underline">↩ See which weekends these land on</Link>
+          <Link href="/contribute" className="label-mono text-[0.6rem] text-sky hover:underline">🙋 Friends can suggest a trek</Link>
+        </div>
       </div>
 
       <div className="info-box p-4 mb-8 text-sm text-muted leading-relaxed">
