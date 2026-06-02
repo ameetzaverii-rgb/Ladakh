@@ -36,7 +36,7 @@ export function youtubeSearchUrl(query: string): string {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
 }
 
-async function fetchSummary(title: string): Promise<TrekImage | null> {
+export async function fetchWikiImage(title: string): Promise<TrekImage | null> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 6000)
   try {
@@ -64,7 +64,7 @@ async function fetchSummary(title: string): Promise<TrekImage | null> {
 export async function getTrekImage(trekName: string): Promise<TrekImage | null> {
   const { titles } = getTrekMediaConfig(trekName)
   for (const title of titles) {
-    const img = await fetchSummary(title)
+    const img = await fetchWikiImage(title)
     if (img) return img
   }
   return null

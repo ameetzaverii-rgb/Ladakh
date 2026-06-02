@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
 import { getCurrentWeather } from '@/lib/weather'
 import { DAY_LOCATIONS } from '@/lib/locations'
+import { getHeroForNow } from '@/lib/heroImages'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,9 +51,10 @@ async function getDashboardData() {
 }
 
 export default async function Dashboard() {
-  const [data, currentWeather] = await Promise.all([
+  const [data, currentWeather, hero] = await Promise.all([
     getDashboardData(),
     getCurrentWeather(LEH.lat, LEH.lng),
+    getHeroForNow(),
   ])
 
   const {
@@ -66,31 +68,49 @@ export default async function Dashboard() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
 
-      {/* Hero countdown */}
-      <div className="relative overflow-hidden rounded-none border border-gold/20 bg-gradient-to-br from-deep via-dark to-deep p-8 mb-8 text-center"
-           style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(184,92,56,0.15) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(90,143,163,0.1) 0%, transparent 60%), var(--hero-base)' }}>
-        <div className="label-mono text-xs mb-3 text-gold/60">
-          3,524m · Union Territory of Ladakh
-        </div>
-        <h1 className="font-serif text-5xl md:text-7xl text-cream font-light tracking-tight mb-2">
-          Leh <em className="text-gold italic">Ladakh</em>
-        </h1>
-        <p className="font-serif text-stone italic text-lg mb-6">21-Day Workation</p>
+      {/* Hero masthead — image shifts with the time of day in Ladakh */}
+      <div className="relative overflow-hidden rounded-xl border border-gold/20 mb-8 text-center flex flex-col justify-center min-h-[19rem] md:min-h-[23rem]"
+           style={hero ? undefined : { background: 'radial-gradient(ellipse at 30% 50%, rgba(184,92,56,0.15) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(90,143,163,0.1) 0%, transparent 60%), var(--hero-base)' }}>
+        {hero && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={hero.src} alt={hero.title} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0" style={{ background: hero.tint }} />
+          </>
+        )}
 
-        {isOnTrip ? (
-          <div className="inline-flex items-center gap-3 bg-gold/10 border border-gold/30 px-6 py-3">
-            <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-            <span className="font-mono text-sm text-gold tracking-widest uppercase">
-              You are in Ladakh
-            </span>
+        <div className="relative px-6 py-12">
+          <div className="label-mono text-xs mb-3" style={{ color: hero?.accent ?? 'rgba(201,153,58,0.6)' }}>
+            {hero ? `${hero.greeting} · ${hero.theme}` : '3,524m · Union Territory of Ladakh'}
           </div>
-        ) : (
-          <div className="flex justify-center gap-6 flex-wrap">
-            <StatPill value={daysToTrip > 0 ? daysToTrip : 0} label="Days to Trip" />
-            <StatPill value={`${format(tripStart, 'MMM d')}`} label="Departure" />
-            <StatPill value="21" label="Nights" />
-            <StatPill value={formatINR(budget)} label="Budget" />
-          </div>
+          <h1 className="font-serif text-5xl md:text-7xl text-cream font-light tracking-tight mb-2 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+            Leh <em className="text-gold italic">Ladakh</em>
+          </h1>
+          <p className="font-serif italic text-lg mb-6 text-cream/80">21-Day Workation</p>
+
+          {isOnTrip ? (
+            <div className="inline-flex items-center gap-3 bg-gold/15 border border-gold/40 px-6 py-3 backdrop-blur-sm">
+              <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+              <span className="font-mono text-sm text-gold tracking-widest uppercase">
+                You are in Ladakh
+              </span>
+            </div>
+          ) : (
+            <div className="flex justify-center gap-6 flex-wrap">
+              <StatPill value={daysToTrip > 0 ? daysToTrip : 0} label="Days to Trip" />
+              <StatPill value={`${format(tripStart, 'MMM d')}`} label="Departure" />
+              <StatPill value="21" label="Nights" />
+              <StatPill value={formatINR(budget)} label="Budget" />
+            </div>
+          )}
+        </div>
+
+        {hero && (
+          <a href={hero.pageUrl} target="_blank" rel="noopener noreferrer"
+             className="absolute bottom-1.5 right-2.5 label-mono text-[0.5rem] text-cream/50 hover:text-cream/90 transition-colors">
+            📷 {hero.title} · Wikipedia
+          </a>
         )}
       </div>
 
