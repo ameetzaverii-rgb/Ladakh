@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { DAY_LOCATIONS } from '@/lib/locations'
 import { getDayWeather, type DayWeather as DayWeatherData } from '@/lib/weather'
 import { DayWeather } from '@/components/DayWeather'
+import { ItineraryMap, type MapDay } from '@/components/ItineraryMap'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,6 +52,14 @@ export default async function ItineraryPage() {
     days: days.filter(d => Math.ceil(d.dayNumber / 7) === w),
   }))
 
+  // Locations for the route map.
+  const mapDays: MapDay[] = days
+    .filter(d => DAY_LOCATIONS[d.dayNumber])
+    .map(d => {
+      const loc = DAY_LOCATIONS[d.dayNumber]
+      return { dayNumber: d.dayNumber, title: d.title, name: loc.name, lat: loc.lat, lng: loc.lng }
+    })
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <div className="mb-8">
@@ -72,6 +81,20 @@ export default async function ItineraryPage() {
           </span>
         ))}
       </div>
+
+      {/* Route map */}
+      {mapDays.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-serif text-xl text-cream">Where you'll be</h2>
+            <span className="label-mono text-[0.55rem] text-stone">
+              <span className="text-gold">●</span> Leh base &nbsp;·&nbsp; <span className="text-rust">●</span> Excursions
+            </span>
+          </div>
+          <ItineraryMap days={mapDays} />
+          <p className="text-muted text-[0.7rem] mt-2">Tap a pin to see which days are spent there.</p>
+        </div>
+      )}
 
       {days.length === 0 && (
         <div className="text-center py-16 text-stone">
