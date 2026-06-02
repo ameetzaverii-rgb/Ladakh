@@ -1,7 +1,18 @@
 import { db } from '@/lib/db'
 import Link from 'next/link'
+import { DAY_LOCATIONS } from '@/lib/locations'
+import { getDayWeather, type DayWeather as DayWeatherData } from '@/lib/weather'
+import { DayWeather } from '@/components/DayWeather'
 
 export const dynamic = 'force-dynamic'
+
+// Build the calendar date (YYYY-MM-DD) for a given day number.
+function isoForDay(start: Date, dayNumber: number): string {
+  const d = new Date(start)
+  d.setUTCDate(d.getUTCDate() + (dayNumber - 1))
+  return d.toISOString().slice(0, 10)
+}
+
 const WEEK_LABELS: Record<number, string> = {
   1: 'Week One — Arrival & Acclimatisation',
   2: 'Week Two — Finding Flow',
@@ -18,9 +29,22 @@ const EMOJI_MAP: Record<string, string> = {
 }
 
 export default async function ItineraryPage() {
-  const days = await db.itineraryDay.findMany({
-    orderBy: { dayNumber: 'asc' },
-  })
+  const [days, tripConfig] = await Promise.all([
+    db.itineraryDay.findMany({ orderBy: { dayNumber: 'asc' } }),
+    db.tripConfig.findFirst(),
+  ])
+
+  // Live weather for every day, fetched in parallel.
+  const startDate = tripConfig?.tripStartDate ?? new Date('2026-07-22')
+  const weatherMap = new Map<number, DayWeatherData | null>()
+  await Promise.all(
+    days.map(async day => {
+      const loc = DAY_LOCATIONS[day.dayNumber]
+      if (!loc) return
+      const w = await getDayWeather(loc.lat, loc.lng, isoForDay(startDate, day.dayNumber))
+      weatherMap.set(day.dayNumber, w)
+    })
+  )
 
   const weeks = [1, 2, 3].map(w => ({
     week: w,
@@ -90,6 +114,13 @@ export default async function ItineraryPage() {
 
                   {/* Day card */}
                   <div className="flex-1 card-base p-4 mb-3">
+                    {/* Live weather + packing list, right at the top */}
+                    {DAY_LOCATIONS[day.dayNumber] && (
+                      <DayWeather
+                        weather={weatherMap.get(day.dayNumber) ?? null}
+                        location={DAY_LOCATIONS[day.dayNumber]}
+                      />
+                    )}
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <h3 className="font-serif text-cream text-base leading-tight">{day.title}</h3>
                       <div className="flex gap-1 shrink-0">
