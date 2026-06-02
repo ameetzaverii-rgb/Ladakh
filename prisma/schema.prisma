@@ -232,8 +232,30 @@ model TripConfig {
   homeCity       String   @default("Delhi")
   travelerName   String   @default("Amit")
   notes          String?  @db.Text
+  categoryBudgets Json?   // Per-category budget targets, editable from the Budget page
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────
+// SHOPPING / SOUVENIR REPOSITORY
+// ─────────────────────────────────────────
+model ShopItem {
+  id           String   @id @default(cuid())
+  name         String   // "Pashmina shawl"
+  area         String   @default("Leh")     // Where to pick it up: Leh, Nubra, Pangong, Sham, Turtuk, General
+  category     String   @default("Handicraft") // Textiles, Food, Handicraft, Jewellery, Spiritual, Misc
+  estPriceINR  Int?
+  whereToBuy   String?  // "Moti Market, Leh" / specific shop
+  priority     String   @default("nice")    // must | nice | maybe
+  acquired     Boolean  @default(false)
+  notes        String?  @db.Text
+  photo        String?  @db.Text            // optional data URL / image link
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([area])
+  @@index([acquired])
 }
 
 // ─────────────────────────────────────────

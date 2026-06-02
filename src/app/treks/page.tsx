@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { formatINR } from '@/lib/utils'
 import { getTrekImage, getTrekMediaConfig, youtubeSearchUrl, type TrekImage } from '@/lib/trekMedia'
+import { ReviewLinks } from '@/components/ReviewLinks'
 
 export const dynamic = 'force-dynamic'
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -137,6 +138,9 @@ export default async function TreksPage() {
                   )}
                 </div>
               )}
+            </div>
+            <div className="mt-3 pt-3 border-t border-gold/10">
+              <ReviewLinks name={trek.name} context="Ladakh trek" />
             </div>
             </div>
           </div>

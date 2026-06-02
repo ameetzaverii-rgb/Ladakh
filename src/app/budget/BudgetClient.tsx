@@ -16,7 +16,6 @@ const PAYMENT_ICONS: Record<string, string> = {
 }
 
 export function BudgetClient({ expenses }: { expenses: Expense[] }) {
-  const [showForm, setShowForm] = useState(false)
   const [filterCat, setFilterCat] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
@@ -46,12 +45,7 @@ export function BudgetClient({ expenses }: { expenses: Expense[] }) {
             {CATEGORY_ICONS[cat]} {cat}
           </button>
         ))}
-        <button onClick={() => setShowForm(v => !v)} className="pill pill-sky ml-auto">
-          + Add Expense
-        </button>
       </div>
-
-      {showForm && <ExpenseForm onClose={() => setShowForm(false)} />}
 
       {filtered.length === 0 && (
         <div className="text-center py-12 text-stone">
@@ -105,84 +99,5 @@ export function BudgetClient({ expenses }: { expenses: Expense[] }) {
         </div>
       )}
     </div>
-  )
-}
-
-function ExpenseForm({ onClose }: { onClose: () => void }) {
-  const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState('FOOD')
-  const [description, setDescription] = useState('')
-  const [place, setPlace] = useState('')
-  const [tripDay, setTripDay] = useState('1')
-  const [paymentMode, setPaymentMode] = useState('cash')
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    const res = await fetch('/api/expenses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amountINR: parseInt(amount),
-        category,
-        description,
-        place: place || null,
-        tripDay: parseInt(tripDay),
-        paymentMode,
-        date: new Date().toISOString(),
-      }),
-    })
-    setLoading(false)
-    if (res.ok) {
-      toast.success(`₹${amount} logged!`)
-      onClose()
-      router.refresh()
-    } else {
-      toast.error('Failed to save')
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="card-base p-5 mb-4 space-y-3">
-      <div className="label-mono text-xs text-gold">Add Expense</div>
-      <div className="grid md:grid-cols-3 gap-3">
-        <input type="number" value={amount} onChange={e => setAmount(e.target.value)}
-          placeholder="Amount ₹" required min="1"
-          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
-        <select value={category} onChange={e => setCategory(e.target.value)}
-          className="bg-dark border border-gold/20 text-sand px-3 py-2 text-sm focus:border-gold/50 outline-none">
-          {Object.keys(CATEGORY_ICONS).filter(c => !['FLIGHTS','ACCOMMODATION','PERMITS','GEAR','DOCUMENTS','WORK_SETUP','MONEY'].includes(c)).map(c => (
-            <option key={c} value={c}>{CATEGORY_ICONS[c]} {c}</option>
-          ))}
-        </select>
-        <input type="number" value={tripDay} onChange={e => setTripDay(e.target.value)}
-          placeholder="Trip Day #" min="1" max="30"
-          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
-        <input type="text" value={description} onChange={e => setDescription(e.target.value)}
-          placeholder="Description *" required
-          className="md:col-span-2 bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
-        <select value={paymentMode} onChange={e => setPaymentMode(e.target.value)}
-          className="bg-dark border border-gold/20 text-sand px-3 py-2 text-sm focus:border-gold/50 outline-none">
-          <option value="cash">💵 Cash</option>
-          <option value="upi">📱 UPI</option>
-          <option value="card">💳 Card</option>
-        </select>
-        <input type="text" value={place} onChange={e => setPlace(e.target.value)}
-          placeholder="Place (optional)"
-          className="md:col-span-2 bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
-      </div>
-      <div className="flex gap-3">
-        <button type="submit" disabled={loading}
-          className="px-5 py-2 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-mono text-xs tracking-wider uppercase transition-all disabled:opacity-50">
-          {loading ? '...' : 'Log Expense'}
-        </button>
-        <button type="button" onClick={onClose}
-          className="px-5 py-2 border border-gold/10 text-stone font-mono text-xs tracking-wider uppercase hover:text-gold transition-all">
-          Cancel
-        </button>
-      </div>
-    </form>
   )
 }

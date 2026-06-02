@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { format } from 'date-fns'
+import { ReviewLinks } from '@/components/ReviewLinks'
 
 export const dynamic = 'force-dynamic'
 const TYPE_COLORS: Record<string, string> = {
@@ -72,6 +73,9 @@ export default async function EventsPage() {
                 <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer"
                    className="text-sky hover:underline">🎫 Get Tickets</a>
               )}
+            </div>
+            <div className="mt-3 pt-3 border-t border-gold/10">
+              <ReviewLinks name={event.name} context={`festival ${event.location}`} />
             </div>
           </div>
         ))}

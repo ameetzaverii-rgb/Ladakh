@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { ReviewLinks } from '@/components/ReviewLinks'
 
 export const dynamic = 'force-dynamic'
 const TYPE_ICONS: Record<string, string> = {
@@ -87,6 +88,9 @@ function PlaceCard({ place }: { place: any }) {
         {place.tags.map((tag: string, i: number) => (
           <span key={i} className="pill pill-sage">{tag}</span>
         ))}
+      </div>
+      <div className="mt-3 pt-3 border-t border-gold/10">
+        <ReviewLinks name={place.name} context={`${place.neighbourhood} Leh Ladakh`} />
       </div>
     </div>
   )

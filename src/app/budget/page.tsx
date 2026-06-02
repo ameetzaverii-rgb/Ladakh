@@ -1,9 +1,13 @@
 import { db } from '@/lib/db'
-import { formatINR, formatINRFull, CATEGORY_COLORS, CATEGORY_ICONS } from '@/lib/utils'
+import { formatINR, formatINRFull } from '@/lib/utils'
 import { BudgetClient } from './BudgetClient'
+import { AddExpense } from './AddExpense'
+import { CategoryBudgets } from './CategoryBudgets'
 
 export const dynamic = 'force-dynamic'
-const BUDGET_BREAKDOWN: Record<string, number> = {
+
+// Fallback targets used only if none have been saved in trip settings yet.
+const DEFAULT_BREAKDOWN: Record<string, number> = {
   ACCOMMODATION: 76500,
   FOOD: 31500,
   TRANSPORT: 15000,
@@ -25,16 +29,14 @@ export default async function BudgetPage() {
   const totalSpent = expenses.reduce((sum, e) => sum + e.amountINR, 0)
   const remaining = totalBudget - totalSpent
 
+  // Per-category targets come from editable trip settings; fall back to defaults.
+  const savedBudgets = (config?.categoryBudgets ?? null) as Record<string, number> | null
+  const breakdown = savedBudgets && Object.keys(savedBudgets).length > 0 ? savedBudgets : DEFAULT_BREAKDOWN
+
   const spendByCategory = expenses.reduce((acc, e) => {
     acc[e.category] = (acc[e.category] || 0) + e.amountINR
     return acc
   }, {} as Record<string, number>)
-
-  // Daily breakdown
-  const spendByDay = expenses.reduce((acc, e) => {
-    acc[e.tripDay] = (acc[e.tripDay] || 0) + e.amountINR
-    return acc
-  }, {} as Record<number, number>)
 
   const avgDailySpend = expenses.length > 0
     ? Math.round(totalSpent / Math.max(...expenses.map(e => e.tripDay), 1))
@@ -47,6 +49,9 @@ export default async function BudgetPage() {
         <h1 className="section-title mb-1">Budget <em className="text-gold italic">Tracker</em></h1>
         <p className="text-stone text-sm">Live spend vs estimate. Every rupee accounted for.</p>
       </div>
+
+      {/* Add expense — pinned to the top */}
+      <AddExpense />
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3 mb-8">
@@ -92,9 +97,8 @@ export default async function BudgetPage() {
           {[0.33, 0.66, 1].map((frac, i) => {
             const label = ['Week 1', 'Week 2', 'Full Trip']
             const target = totalBudget * frac
-            const pct = Math.round((totalSpent / target) * 100)
             return (
-              <div key={i} className="">
+              <div key={i}>
                 <div className="label-mono text-[0.5rem] text-stone">{label[i]}</div>
                 <div className="label-mono text-[0.55rem] text-cream">{formatINR(target)}</div>
               </div>
@@ -103,33 +107,8 @@ export default async function BudgetPage() {
         </div>
       </div>
 
-      {/* Category breakdown */}
-      <div className="mb-8">
-        <div className="label-mono text-xs text-gold mb-4 border-b border-gold/15 pb-2">By Category</div>
-        <div className="space-y-3">
-          {Object.entries(BUDGET_BREAKDOWN).map(([cat, budgeted]) => {
-            const spent = spendByCategory[cat] ?? 0
-            const pct = budgeted > 0 ? Math.min((spent / budgeted) * 100, 100) : 0
-            const color = CATEGORY_COLORS[cat] ?? '#666'
-            return (
-              <div key={cat} className="flex items-center gap-3">
-                <span className="text-base w-6 shrink-0">{CATEGORY_ICONS[cat] ?? '📌'}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between mb-1">
-                    <span className="label-mono text-[0.6rem] text-sand">{cat}</span>
-                    <span className="label-mono text-[0.55rem] text-stone">
-                      {formatINR(spent)} / {formatINR(budgeted)}
-                    </span>
-                  </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
+      {/* Editable category breakdown */}
+      <CategoryBudgets budgets={breakdown} spendByCategory={spendByCategory} />
 
       <BudgetClient expenses={expenses} />
     </div>

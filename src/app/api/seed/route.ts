@@ -15,7 +15,12 @@ export async function GET(req: Request) {
     // Trip Config
     await db.tripConfig.upsert({
       where: { id: 'trip-config-1' },
-      update: {},
+      update: {
+        categoryBudgets: {
+          ACCOMMODATION: 76500, FOOD: 31500, TRANSPORT: 15000, TREK: 21500,
+          PERMITS: 1500, SHOPPING: 10000, HEALTH: 3000, WORK: 0, MISC: 5000,
+        },
+      },
       create: {
         id: 'trip-config-1',
         tripStartDate: new Date('2026-07-22'),
@@ -23,6 +28,10 @@ export async function GET(req: Request) {
         totalBudgetINR: 150000,
         homeCity: 'Delhi',
         travelerName: 'Amit',
+        categoryBudgets: {
+          ACCOMMODATION: 76500, FOOD: 31500, TRANSPORT: 15000, TREK: 21500,
+          PERMITS: 1500, SHOPPING: 10000, HEALTH: 3000, WORK: 0, MISC: 5000,
+        },
       },
     })
 
@@ -182,6 +191,29 @@ export async function GET(req: Request) {
           isFestivalDay: (day as { isFestivalDay?: boolean }).isFestivalDay ?? false,
         },
       })
+    }
+
+    // Shopping / souvenir repository — classic Ladakh buys by area.
+    // Guarded so it won't crash if the ShopItem table isn't migrated yet.
+    try {
+      if ((await db.shopItem.count()) === 0) {
+        await db.shopItem.createMany({ data: [
+          { name: 'Pashmina shawl', area: 'Leh', category: 'Textiles', estPriceINR: 6000, whereToBuy: 'Moti Market / LAMO area, Leh', priority: 'must', notes: 'Insist on GI-tagged Changthangi pashmina; beware blends.' },
+          { name: 'Apricot kernel oil & dried apricots', area: 'Nubra', category: 'Food', estPriceINR: 800, whereToBuy: 'Diskit / Turtuk roadside stalls', priority: 'must', notes: 'Turtuk apricots are famous — buy fresh and dried.' },
+          { name: 'Thangka painting', area: 'Leh', category: 'Spiritual', estPriceINR: 4500, whereToBuy: 'Old Town Leh / Tibetan Refugee Market', priority: 'nice', notes: 'Hand-painted on cotton; ask about the school/lineage.' },
+          { name: 'Prayer flags (Lungta)', area: 'Leh', category: 'Spiritual', estPriceINR: 250, whereToBuy: 'Main Bazaar, Leh', priority: 'nice', notes: 'Cheap, light, great gifts.' },
+          { name: 'Ladakhi turquoise & coral jewellery (Perak)', area: 'Leh', category: 'Jewellery', estPriceINR: 3000, whereToBuy: 'Tibetan Refugee Market, Leh', priority: 'nice', notes: 'Haggle hard; check stones are real.' },
+          { name: 'Sea buckthorn juice / jam', area: 'Leh', category: 'Food', estPriceINR: 400, whereToBuy: 'Leh Berry / local co-ops', priority: 'nice', notes: 'Local superfruit; juice and jam both travel well.' },
+          { name: 'Yak wool / Nambu woollens', area: 'Sham', category: 'Textiles', estPriceINR: 2500, whereToBuy: 'Sham Valley village co-ops (Likir/Basgo)', priority: 'nice', notes: 'Hand-woven Nambu cloth; warm and authentic.' },
+          { name: 'Pashmina socks / gloves', area: 'Leh', category: 'Textiles', estPriceINR: 900, whereToBuy: 'Women’s Alliance / SECMOL shop', priority: 'maybe', notes: 'Supports local women’s collectives.' },
+          { name: 'Apricot scrub & soaps', area: 'Nubra', category: 'Misc', estPriceINR: 350, whereToBuy: 'Nubra village stalls', priority: 'maybe' },
+          { name: 'Singing bowl', area: 'Leh', category: 'Spiritual', estPriceINR: 1800, whereToBuy: 'Old Town Leh', priority: 'maybe', notes: 'Test the tone before buying.' },
+          { name: 'Pangong-stone fridge magnets / keepsakes', area: 'Pangong', category: 'Misc', estPriceINR: 200, whereToBuy: 'Spangmik tent-shops', priority: 'maybe', notes: 'Don’t pocket natural stones from the lakeshore — buy instead.' },
+          { name: 'Organic Ladakhi barley (Ngamphe) & tsampa', area: 'Sham', category: 'Food', estPriceINR: 500, whereToBuy: 'Village homestays / co-ops', priority: 'maybe' },
+        ]})
+      }
+    } catch (e) {
+      console.warn('ShopItem seed skipped (run /api/migrate first):', e)
     }
 
     const counts = await Promise.all([
