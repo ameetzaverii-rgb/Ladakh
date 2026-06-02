@@ -15,6 +15,54 @@
   --cream: #f5ede0;
   --dark: #0f0b06;
   --muted: #9a8870;
+  --hero-base: #1a1208;
+}
+
+/* Lighter "traditional Ladakh" theme — warm parchment + monastery ochre/maroon. */
+html[data-theme='light'] {
+  --sand: #2e2415;   /* primary body text → dark brown */
+  --cream: #1d1610;  /* headings → near-black */
+  --muted: #6b5d45;
+  --stone: #7a6a4f;
+  --gold: #a8771a;
+  --rust: #a8472a;
+  --sky: #3f7689;
+  --sage: #566a49;
+  --deep: #e9dcc2;   /* secondary surface */
+  --dark: #f4ecdd;   /* page background → parchment */
+  --hero-base: #efe3cc;
+}
+
+html[data-theme='light'] body {
+  background: var(--dark);
+  color: var(--sand);
+}
+
+html[data-theme='light'] .card-base {
+  background: rgba(120, 90, 30, 0.05);
+  border-color: rgba(168, 119, 26, 0.25);
+}
+html[data-theme='light'] .card-base:hover {
+  background: rgba(120, 90, 30, 0.09);
+  border-color: rgba(168, 119, 26, 0.45);
+}
+html[data-theme='light'] .info-box {
+  background: rgba(168, 119, 26, 0.1);
+}
+html[data-theme='light'] .warning-box {
+  background: rgba(168, 71, 42, 0.1);
+}
+html[data-theme='light'] .pill-rust {
+  color: #9a3f22;
+}
+html[data-theme='light'] .pill-sage {
+  color: #4d5e41;
+}
+html[data-theme='light'] ::-webkit-scrollbar-track {
+  background: var(--deep);
+}
+html[data-theme='light'] [cmdk-root] {
+  background: #faf3e6 !important;
 }
 
 @layer base {

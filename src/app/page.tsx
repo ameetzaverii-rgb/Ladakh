@@ -68,7 +68,7 @@ export default async function Dashboard() {
 
       {/* Hero countdown */}
       <div className="relative overflow-hidden rounded-none border border-gold/20 bg-gradient-to-br from-deep via-dark to-deep p-8 mb-8 text-center"
-           style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(184,92,56,0.15) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(90,143,163,0.1) 0%, transparent 60%), #1a1208' }}>
+           style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(184,92,56,0.15) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(90,143,163,0.1) 0%, transparent 60%), var(--hero-base)' }}>
         <div className="label-mono text-xs mb-3 text-gold/60">
           3,524m · Union Territory of Ladakh
         </div>

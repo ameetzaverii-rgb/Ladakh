@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const NAV_ITEMS = [
   { href: '/',           label: 'Dashboard',  short: 'Home' },
@@ -45,8 +46,9 @@ export function Navbar() {
             {item.label}
           </Link>
         ))}
-        <div className="ml-auto shrink-0 px-3 py-3 label-mono text-xs opacity-40">
-          ⌘K
+        <div className="ml-auto shrink-0 flex items-center gap-1">
+          <ThemeToggle />
+          <div className="px-3 py-3 label-mono text-xs opacity-40">⌘K</div>
         </div>
       </div>
 
@@ -55,6 +57,8 @@ export function Navbar() {
         <Link href="/" className="font-serif text-gold text-base font-semibold tracking-wider">
           Leh Ladakh
         </Link>
+        <div className="flex items-center gap-1">
+        <ThemeToggle />
         <button
           onClick={() => setMenuOpen(v => !v)}
           className="text-stone hover:text-gold transition-colors p-1"
@@ -66,6 +70,7 @@ export function Navbar() {
             <span className={cn('block h-px w-5 bg-current transition-transform', menuOpen && '-rotate-45 -translate-y-1.5')} />
           </div>
         </button>
+        </div>
       </div>
 
       {menuOpen && (
