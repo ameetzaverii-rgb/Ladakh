@@ -1,0 +1,79 @@
+name: Deploy to Vercel (manual)
+
+# Manually triggered deploy. Vercel + Neon are reachable from GitHub-hosted
+# runners, so this acts as the network bridge for environments that can't
+# reach them directly. Secrets are passed as run-time inputs (not committed).
+
+on:
+  workflow_dispatch:
+    inputs:
+      vercel_token:
+        description: Vercel access token
+        required: true
+      database_url:
+        description: Neon pooled DATABASE_URL
+        required: true
+      git_ref:
+        description: Branch/ref to deploy
+        required: true
+        default: claude/keen-mendel-sd4kx
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mask secrets in logs
+        run: |
+          echo "::add-mask::${{ inputs.vercel_token }}"
+          echo "::add-mask::${{ inputs.database_url }}"
+
+      - name: Checkout deploy ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Link / create Vercel project
+        env:
+          VERCEL_TOKEN: ${{ inputs.vercel_token }}
+        run: |
+          vercel projects add ladakh --token "$VERCEL_TOKEN" 2>/dev/null || true
+          vercel link --yes --project ladakh --token "$VERCEL_TOKEN"
+
+      - name: Set DATABASE_URL (production)
+        env:
+          VERCEL_TOKEN: ${{ inputs.vercel_token }}
+          DBURL: ${{ inputs.database_url }}
+        run: |
+          vercel env rm DATABASE_URL production --yes --token "$VERCEL_TOKEN" 2>/dev/null || true
+          printf '%s' "$DBURL" | vercel env add DATABASE_URL production --token "$VERCEL_TOKEN"
+
+      - name: Deploy (production)
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ inputs.vercel_token }}
+        run: |
+          url=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed to: $url"
+
+      - name: Seed database
+        run: |
+          sleep 8
+          echo "Seeding via ${{ steps.deploy.outputs.url }}/api/seed"
+          curl -fsS "${{ steps.deploy.outputs.url }}/api/seed?token=ladakh2026" && echo "" || echo "seed call did not return 200 — retry from a browser"
+
+      - name: Summary
+        run: |
+          {
+            echo "## 🚀 Deployed"
+            echo "- **URL:** ${{ steps.deploy.outputs.url }}"
+            echo "- **Seed:** ${{ steps.deploy.outputs.url }}/api/seed?token=ladakh2026"
+          } >> "$GITHUB_STEP_SUMMARY"
