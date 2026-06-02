@@ -128,7 +128,10 @@ function JournalEntryCard({
               <div className="label-mono text-[0.55rem] text-stone mb-1.5">Photos</div>
               <div className="flex gap-2 flex-wrap">
                 {entry.photos.map((url, i) => (
-                  <img key={i} src={url} alt="" className="w-24 h-24 object-cover border border-gold/20" />
+                  <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" className="w-24 h-24 object-cover border border-gold/20 rounded hover:border-gold/50 transition-colors" />
+                  </a>
                 ))}
               </div>
             </div>
@@ -152,9 +155,66 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
   const [weather, setWeather] = useState(entry?.weather ?? '')
   const [highlights, setHighlights] = useState((entry?.highlights ?? []).join(', '))
   const [lowlights, setLowlights] = useState((entry?.lowlights ?? []).join(', '))
-  const [photos, setPhotos] = useState((entry?.photos ?? []).join('\n'))
+  const [photos, setPhotos] = useState<string[]>(entry?.photos ?? [])
+  const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+
+  // Resize/compress an image in the browser to a small JPEG data URL so it can
+  // be stored directly without a separate file-storage service.
+  function resizeImage(file: File, maxDim = 1280, quality = 0.72): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const img = new window.Image()
+        img.onload = () => {
+          let { width, height } = img
+          if (width > height && width > maxDim) {
+            height = Math.round((height * maxDim) / width)
+            width = maxDim
+          } else if (height >= width && height > maxDim) {
+            width = Math.round((width * maxDim) / height)
+            height = maxDim
+          }
+          const canvas = document.createElement('canvas')
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          if (!ctx) return reject(new Error('no canvas'))
+          ctx.drawImage(img, 0, 0, width, height)
+          resolve(canvas.toDataURL('image/jpeg', quality))
+        }
+        img.onerror = reject
+        img.src = reader.result as string
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (files.length === 0) return
+    if (photos.length + files.length > 12) {
+      toast.error('Up to 12 photos per entry')
+      e.target.value = ''
+      return
+    }
+    setUploading(true)
+    try {
+      const resized = await Promise.all(files.map(f => resizeImage(f)))
+      setPhotos(prev => [...prev, ...resized])
+    } catch {
+      toast.error('Could not process one of the images')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  function removePhoto(i: number) {
+    setPhotos(prev => prev.filter((_, idx) => idx !== i))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -168,7 +228,7 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
       weather: weather || null,
       highlights: highlights.split(',').map(s => s.trim()).filter(Boolean),
       lowlights: lowlights.split(',').map(s => s.trim()).filter(Boolean),
-      photos: photos.split('\n').map(s => s.trim()).filter(Boolean),
+      photos,
       date: new Date().toISOString(),
     }
 
@@ -258,11 +318,38 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
       </div>
 
       <div>
-        <label className="label-mono text-[0.55rem] block mb-1">Photo URLs (one per line)</label>
-        <textarea value={photos} onChange={e => setPhotos(e.target.value)}
-          placeholder="https://..."
-          rows={2}
-          className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none resize-none" />
+        <label className="label-mono text-[0.55rem] block mb-1">Photos</label>
+        <div className="flex flex-wrap gap-2 mb-2">
+          {photos.map((src, i) => (
+            <div key={i} className="relative w-20 h-20 group">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt="" className="w-full h-full object-cover border border-gold/20 rounded" />
+              <button
+                type="button"
+                onClick={() => removePhoto(i)}
+                aria-label="Remove photo"
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rust text-cream text-xs leading-none flex items-center justify-center shadow"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <label className="w-20 h-20 flex flex-col items-center justify-center border border-dashed border-gold/30 rounded cursor-pointer text-stone hover:text-gold hover:border-gold/50 transition-colors">
+            <span className="text-xl leading-none">{uploading ? '…' : '+'}</span>
+            <span className="label-mono text-[0.4rem] mt-1">{uploading ? 'Adding' : 'Add'}</span>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFiles}
+              disabled={uploading}
+              className="hidden"
+            />
+          </label>
+        </div>
+        <p className="text-muted text-[0.6rem]">
+          Pick photos from your device — they're resized automatically. Up to 12 per entry.
+        </p>
       </div>
 
       <div className="flex gap-3 pt-1">
