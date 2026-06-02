@@ -16,7 +16,7 @@ function isoForDay(start: Date, dayNumber: number): string {
 export default async function ItineraryPage() {
   const [days, tripConfig] = await Promise.all([
     db.itineraryDay.findMany({ orderBy: { dayNumber: 'asc' } }),
-    db.tripConfig.findFirst(),
+    db.tripConfig.findFirst().catch(() => null),
   ])
 
   // Live weather for every day, fetched in parallel.
