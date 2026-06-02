@@ -2,7 +2,7 @@ import { db } from '@/lib/db'
 import { format } from 'date-fns'
 import { formatINR } from '@/lib/utils'
 
-export const revalidate = 300
+export const dynamic = 'force-dynamic'
 
 export default async function FlightsPage() {
   const flights = await db.flight.findMany({ orderBy: { priceINR: 'asc' } })

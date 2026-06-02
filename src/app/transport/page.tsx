@@ -1,7 +1,6 @@
 import { db } from '@/lib/db'
 
-export const revalidate = 3600
-
+export const dynamic = 'force-dynamic'
 export default async function TransportPage() {
   const routes = await db.transport.findMany({ orderBy: { rateINR: 'asc' } })
 

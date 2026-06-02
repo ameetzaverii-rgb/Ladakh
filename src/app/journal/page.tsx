@@ -2,8 +2,7 @@ import { db } from '@/lib/db'
 import { format } from 'date-fns'
 import { JournalClient } from './JournalClient'
 
-export const revalidate = 60
-
+export const dynamic = 'force-dynamic'
 export default async function JournalPage() {
   const entries = await db.journalEntry.findMany({
     orderBy: { date: 'desc' },

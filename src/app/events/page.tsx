@@ -1,8 +1,7 @@
 import { db } from '@/lib/db'
 import { format } from 'date-fns'
 
-export const revalidate = 3600
-
+export const dynamic = 'force-dynamic'
 const TYPE_COLORS: Record<string, string> = {
   FESTIVAL: 'pill-rust',
   CULTURAL: 'pill-gold',

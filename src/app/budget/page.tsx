@@ -2,8 +2,7 @@ import { db } from '@/lib/db'
 import { formatINR, formatINRFull, CATEGORY_COLORS, CATEGORY_ICONS } from '@/lib/utils'
 import { BudgetClient } from './BudgetClient'
 
-export const revalidate = 60
-
+export const dynamic = 'force-dynamic'
 const BUDGET_BREAKDOWN: Record<string, number> = {
   ACCOMMODATION: 76500,
   FOOD: 31500,

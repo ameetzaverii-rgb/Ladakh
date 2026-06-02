@@ -1,7 +1,6 @@
 import { db } from '@/lib/db'
 
-export const revalidate = 3600
-
+export const dynamic = 'force-dynamic'
 const TYPE_ICONS: Record<string, string> = {
   CAFE: '☕',
   RESTAURANT: '🍜',
