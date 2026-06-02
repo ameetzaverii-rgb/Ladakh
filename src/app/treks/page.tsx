@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { formatINR } from '@/lib/utils'
+import { getTrekImage, getTrekMediaConfig, youtubeSearchUrl, type TrekImage } from '@/lib/trekMedia'
 
 export const dynamic = 'force-dynamic'
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -11,6 +12,14 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 
 export default async function TreksPage() {
   const treks = await db.trek.findMany({ orderBy: { difficulty: 'asc' } })
+
+  // Fetch a real photo for each trek in parallel.
+  const imageMap = new Map<string, TrekImage | null>()
+  await Promise.all(
+    treks.map(async t => {
+      imageMap.set(t.id, await getTrekImage(t.name))
+    })
+  )
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
@@ -35,13 +44,56 @@ export default async function TreksPage() {
       )}
 
       <div className="space-y-5">
-        {treks.map((trek, idx) => (
-          <div key={trek.id} className="border border-sky/20 bg-sky/[0.03] p-6 relative">
+        {treks.map((trek, idx) => {
+          const img = imageMap.get(trek.id)
+          const ytUrl = youtubeSearchUrl(getTrekMediaConfig(trek.name).youtubeQuery)
+          return (
+          <div key={trek.id} className="border border-sky/20 bg-sky/[0.03] overflow-hidden relative">
+            {/* Photo banner */}
+            {img && (
+              <div className="relative h-48 md:h-56 w-full bg-deep">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={img.src}
+                  alt={trek.name}
+                  className="absolute inset-0 w-full h-full object-cover opacity-90"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/30 to-transparent" />
+                <a
+                  href={img.pageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute bottom-1.5 right-2 label-mono text-[0.5rem] text-cream/60 hover:text-cream"
+                >
+                  photo: Wikipedia
+                </a>
+                <a
+                  href={ytUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 bg-rust/90 hover:bg-rust text-cream text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
+                >
+                  ▶ Watch videos
+                </a>
+              </div>
+            )}
+            <div className="p-6 relative">
             <div className="absolute top-4 right-5 font-serif text-5xl text-sky/10 font-light">
               {String(idx + 1).padStart(2, '0')}
             </div>
             <div className="flex items-start gap-3 flex-wrap mb-2">
               <h3 className="font-serif text-cream text-xl">{trek.name}</h3>
+              {!img && (
+                <a
+                  href={ytUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 bg-rust/90 hover:bg-rust text-cream text-xs font-medium px-3 py-1 rounded-full transition-colors"
+                >
+                  ▶ Watch videos
+                </a>
+              )}
             </div>
             <div className="flex gap-2 flex-wrap mb-3">
               <span className={`pill ${DIFFICULTY_COLORS[trek.difficulty]}`}>{trek.difficulty}</span>
@@ -86,8 +138,10 @@ export default async function TreksPage() {
                 </div>
               )}
             </div>
+            </div>
           </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
