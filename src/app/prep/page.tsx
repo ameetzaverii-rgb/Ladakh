@@ -39,7 +39,7 @@ export default async function PrepPage() {
           </div>
           <div className="font-serif text-5xl text-gold/30 font-light">{pct}%</div>
         </div>
-        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+        <div className="h-2 bg-[#eee9df] rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-700"
             style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #b85c38, #c9993a)' }}

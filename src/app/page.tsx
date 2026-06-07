@@ -1,16 +1,19 @@
 import { db } from '@/lib/db'
-import { daysUntil, formatINR, CATEGORY_COLORS, PHASE_ORDER } from '@/lib/utils'
-import { format, parseISO } from 'date-fns'
+import { daysUntil, formatINR, FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
+import { format } from 'date-fns'
 import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
 import { getCurrentWeather } from '@/lib/weather'
 import { DAY_LOCATIONS } from '@/lib/locations'
-import { getHeroForNow } from '@/lib/heroImages'
+import {
+  CalendarDays, PartyPopper, Mountain, Wallet, ListChecks, BookOpen,
+  ChevronRight, Plus, type LucideIcon,
+} from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-// Leh is the home base — used for the "right now" weather widget.
 const LEH = DAY_LOCATIONS[1]
+
 async function getDashboardData() {
   const [config, checklistItems, expenses, journalEntries, nextEvents] = await Promise.all([
     db.tripConfig.findFirst().catch(() => null),
@@ -33,11 +36,6 @@ async function getDashboardData() {
   const daysToTrip = daysUntil(tripStart)
   const isOnTrip = daysToTrip <= 0 && daysUntil(tripEnd) >= 0
 
-  const spendByCategory = expenses.reduce((acc, e) => {
-    acc[e.category] = (acc[e.category] || 0) + e.amountINR
-    return acc
-  }, {} as Record<string, number>)
-
   const urgentItems = checklistItems.filter(i =>
     !i.completed && (i.phase === 'ASAP' || i.phase === 'MONTH_BEFORE')
   ).slice(0, 5)
@@ -45,16 +43,23 @@ async function getDashboardData() {
   return {
     tripStart, tripEnd, budget, totalSpent,
     checklistTotal: checklistItems.length, checklistDone,
-    daysToTrip, isOnTrip, spendByCategory, urgentItems,
+    daysToTrip, isOnTrip, urgentItems,
     recentJournal: journalEntries, nextEvents,
   }
 }
 
+function greeting() {
+  const h = new Date().getUTCHours() + 5 // rough IST
+  const hour = (h >= 24 ? h - 24 : h)
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
 export default async function Dashboard() {
-  const [data, currentWeather, hero] = await Promise.all([
+  const [data, currentWeather] = await Promise.all([
     getDashboardData(),
     getCurrentWeather(LEH.lat, LEH.lng),
-    getHeroForNow(),
   ])
 
   const {
@@ -66,135 +71,92 @@ export default async function Dashboard() {
   const budgetPct = Math.min(Math.round((totalSpent / budget) * 100), 100)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
+    <div className="mx-auto max-w-3xl px-4 py-7">
 
-      {/* Hero masthead — image shifts with the time of day in Ladakh */}
-      <div className="relative overflow-hidden rounded-xl border border-gold/20 mb-8 text-center flex flex-col justify-center min-h-[19rem] md:min-h-[23rem]"
-           style={hero ? undefined : { background: 'radial-gradient(ellipse at 30% 50%, rgba(184,92,56,0.15) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(90,143,163,0.1) 0%, transparent 60%), var(--hero-base)' }}>
-        {hero && (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={hero.src} alt={hero.title} className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/40" />
-            <div className="absolute inset-0" style={{ background: hero.tint }} />
-          </>
-        )}
-
-        <div className="relative px-6 py-12">
-          <div className="label-mono text-xs mb-3" style={{ color: hero?.accent ?? 'rgba(201,153,58,0.6)' }}>
-            {hero ? `${hero.greeting} · ${hero.theme}` : '3,524m · Union Territory of Ladakh'}
-          </div>
-          <h1 className="font-serif text-5xl md:text-7xl text-cream font-light tracking-tight mb-2 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
-            Leh <em className="text-gold italic">Ladakh</em>
-          </h1>
-          <p className="font-serif italic text-lg mb-6 text-cream/80">21-Day Workation</p>
-
-          {isOnTrip ? (
-            <div className="inline-flex items-center gap-3 bg-gold/15 border border-gold/40 px-6 py-3 backdrop-blur-sm">
-              <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-              <span className="font-mono text-sm text-gold tracking-widest uppercase">
-                You are in Ladakh
-              </span>
-            </div>
-          ) : (
-            <div className="flex justify-center gap-6 flex-wrap">
-              <StatPill value={daysToTrip > 0 ? daysToTrip : 0} label="Days to Trip" />
-              <StatPill value={`${format(tripStart, 'MMM d')}`} label="Departure" />
-              <StatPill value="21" label="Nights" />
-              <StatPill value={formatINR(budget)} label="Budget" />
-            </div>
-          )}
+      {/* Greeting + weather */}
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-cream">{greeting()}, Amit</h1>
+          <p className="mt-0.5 text-sm text-stone">
+            {isOnTrip
+              ? `You're in Ladakh · ${format(new Date(), 'EEE, MMM d')}`
+              : `${format(new Date(), 'EEE, MMM d')} · ${daysToTrip > 0 ? daysToTrip : 0} days to Ladakh`}
+          </p>
         </div>
-
-        {hero && (
-          <a href={hero.pageUrl} target="_blank" rel="noopener noreferrer"
-             className="absolute bottom-1.5 right-2.5 label-mono text-[0.5rem] text-cream/50 hover:text-cream/90 transition-colors">
-            📷 {hero.title} · Wikipedia
-          </a>
-        )}
-      </div>
-
-      {/* Current weather in Leh */}
-      {currentWeather && (
-        <div className="flex items-center gap-3 flex-wrap mb-8 card-base px-4 py-3 border-l-2 border-l-sky">
-          <span className="text-2xl leading-none">{currentWeather.icon}</span>
-          <div>
-            <div className="label-mono text-[0.55rem] text-sky">Right now in Leh</div>
-            <div className="font-serif text-cream text-lg leading-tight">
-              {currentWeather.temp}°C
-              <span className="text-stone text-sm font-sans"> · {currentWeather.label}</span>
-            </div>
-          </div>
-          <div className="ml-auto flex gap-4 text-[0.7rem] text-stone">
-            <span>🌡 Feels {currentWeather.feelsLike}°</span>
-            <span>🌬 {currentWeather.windKmh} km/h</span>
-            {currentWeather.humidity != null && <span>💧 {currentWeather.humidity}%</span>}
-          </div>
+        {currentWeather && (
           <Link
             href="/itinerary"
-            className="w-full md:w-auto label-mono text-[0.55rem] text-stone hover:text-gold transition-colors"
+            className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold"
+            style={{ background: FLAG_TINT.blue, color: '#235a98' }}
           >
-            See daily forecast & packing →
+            <span className="text-base leading-none">{currentWeather.icon}</span>
+            Leh {currentWeather.temp}°
           </Link>
-        </div>
-      )}
-
-      {/* Progress cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-        <ProgressCard
-          href="/prep"
-          label="Prep Checklist"
-          icon="✅"
-          value={checklistDone}
-          total={checklistTotal}
-          pct={checklistPct}
-          color="#c9993a"
-        />
-        <ProgressCard
-          href="/budget"
-          label="Budget Used"
-          icon="₹"
-          value={formatINR(totalSpent)}
-          total={formatINR(budget)}
-          pct={budgetPct}
-          color={budgetPct > 80 ? '#b85c38' : '#c9993a'}
-          subtitle={`${formatINR(budget - totalSpent)} left`}
-        />
-        <Link href="/journal"
-          className="card-base p-4 flex flex-col gap-1 group">
-          <div className="label-mono text-[0.55rem]">Journal</div>
-          <div className="font-serif text-2xl text-gold">{recentJournal.length}</div>
-          <div className="text-stone text-xs">Entries</div>
-          {recentJournal[0] && (
-            <div className="text-muted text-[0.7rem] mt-1 truncate group-hover:text-sand transition-colors">
-              Day {recentJournal[0].tripDay}: {recentJournal[0].title || 'entry'}
-            </div>
-          )}
-        </Link>
-        <Link href="/events"
-          className="card-base p-4 flex flex-col gap-1 group">
-          <div className="label-mono text-[0.55rem]">Next Event</div>
-          {nextEvents[0] ? (
-            <>
-              <div className="font-serif text-sm text-cream leading-tight mt-1">
-                {nextEvents[0].name}
-              </div>
-              <div className="label-mono text-[0.5rem] text-sky">
-                {format(nextEvents[0].startDate, 'MMM d')}
-              </div>
-            </>
-          ) : (
-            <div className="text-stone text-xs mt-1">No events yet</div>
-          )}
-        </Link>
+        )}
       </div>
 
-      {/* Quick entry forms */}
+      {/* Countdown banner */}
+      <div
+        className="relative mb-6 overflow-hidden rounded-2xl px-5 py-5 text-white shadow-soft"
+        style={{ background: `linear-gradient(100deg, ${FLAG.blue} 0%, ${FLAG.red} 55%, ${FLAG.yellow} 100%)` }}
+      >
+        {isOnTrip ? (
+          <div className="flex items-center gap-3">
+            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-white" />
+            <div>
+              <div className="text-xl font-extrabold leading-tight">You&apos;re in Ladakh</div>
+              <div className="text-sm text-white/85">Make today count</div>
+            </div>
+            <Link href="/itinerary" className="ml-auto rounded-full bg-white/20 px-4 py-2 text-sm font-bold backdrop-blur-sm">
+              Today
+            </Link>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <div className="text-4xl font-extrabold leading-none">{daysToTrip > 0 ? daysToTrip : 0}</div>
+            <div className="leading-tight">
+              <div className="text-sm font-semibold">days until your trip</div>
+              <div className="text-sm text-white/80">Departs {format(tripStart, 'MMM d, yyyy')}</div>
+            </div>
+            <Link href="/itinerary" className="ml-auto rounded-full bg-white/20 px-4 py-2 text-sm font-bold backdrop-blur-sm hover:bg-white/30">
+              View plan
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Colour-coded tiles */}
+      <div className="mb-6 grid grid-cols-2 gap-3">
+        <Tile href="/itinerary" color="blue" icon={CalendarDays} title="Itinerary" sub="21-day plan" />
+        <Tile
+          href="/events" color="red" icon={PartyPopper} title="Festivals"
+          sub={nextEvents[0] ? nextEvents[0].name : 'See what’s on'}
+        />
+        <Tile href="/treks" color="green" icon={Mountain} title="Treks" sub="Weekend adventures" />
+        <Tile
+          href="/budget" color="yellow" icon={Wallet} title="Budget"
+          sub={`${formatINR(totalSpent)} of ${formatINR(budget)}`}
+        />
+      </div>
+
+      {/* Progress */}
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <ProgressCard
+          href="/prep" color="blue" icon={ListChecks} label="Prep checklist"
+          value={`${checklistDone}/${checklistTotal}`} pct={checklistPct} note={`${checklistPct}% ready`}
+        />
+        <ProgressCard
+          href="/budget" color={budgetPct > 80 ? 'red' : 'yellow'} icon={Wallet} label="Budget used"
+          value={formatINR(totalSpent)} pct={budgetPct} note={`${formatINR(budget - totalSpent)} left`}
+        />
+      </div>
+
+      {/* Quick log */}
       <QuickActions />
 
-      {/* Urgent checklist */}
+      {/* Urgent */}
       {urgentItems.length > 0 && (
-        <section className="mb-8">
+        <section className="mb-6">
           <SectionHeader title="Urgent" href="/prep" linkLabel="See all" />
           <div className="space-y-2">
             {urgentItems.map(item => (
@@ -206,9 +168,9 @@ export default async function Dashboard() {
 
       {/* Recent journal */}
       {recentJournal.length > 0 && (
-        <section className="mb-8">
-          <SectionHeader title="Recent Journal" href="/journal" linkLabel="All entries" />
-          <div className="grid md:grid-cols-3 gap-3">
+        <section className="mb-6">
+          <SectionHeader title="Recent journal" href="/journal" linkLabel="All entries" />
+          <div className="grid gap-3 sm:grid-cols-3">
             {recentJournal.map(entry => (
               <JournalCard key={entry.id} entry={entry} />
             ))}
@@ -216,72 +178,68 @@ export default async function Dashboard() {
         </section>
       )}
 
-      {/* Module grid */}
-      <section>
-        <SectionHeader title="All Modules" />
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {[
-            { href: '/prep', icon: '✅', title: 'Prep Checklist', desc: 'Book flights, permits, gear' },
-            { href: '/itinerary', icon: '🗓', title: 'Itinerary', desc: '21-day day-by-day plan' },
-            { href: '/journal', icon: '📔', title: 'Trip Journal', desc: 'Daily logs & highlights' },
-            { href: '/budget', icon: '💰', title: 'Budget', desc: 'Track every rupee' },
-            { href: '/stays', icon: '🏨', title: 'Stays', desc: 'Hotels & guesthouses' },
-            { href: '/treks', icon: '🥾', title: 'Treks', desc: '3 weekend adventures' },
-            { href: '/transport', icon: '🚗', title: 'Transport', desc: 'Taxis, bikes, permits' },
-            { href: '/food', icon: '🍜', title: 'Food & Cafés', desc: 'Best spots in Leh' },
-            { href: '/events', icon: '🎭', title: 'Festivals', desc: 'Phyang Tsedup + more' },
-            { href: '/flights', icon: '✈️', title: 'Flights', desc: 'Delhi–Leh pricing' },
-          ].map(m => (
-            <Link key={m.href} href={m.href}
-              className="card-base p-4 group">
-              <div className="text-2xl mb-2">{m.icon}</div>
-              <div className="font-serif text-cream text-base group-hover:text-gold transition-colors">{m.title}</div>
-              <div className="text-muted text-xs mt-0.5">{m.desc}</div>
-            </Link>
-          ))}
+      {/* Explore everything */}
+      <Link
+        href="/more"
+        className="flex items-center gap-3 rounded-2xl border border-border bg-white px-5 py-4 shadow-soft transition-transform hover:-translate-y-0.5"
+      >
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: FLAG_TINT.ink }}>
+          <BookOpen className="h-5 w-5" style={{ color: FLAG.ink }} />
+        </span>
+        <div>
+          <div className="font-bold text-cream">Explore everything</div>
+          <div className="text-xs text-stone">Stays, food, transport, flights & more</div>
         </div>
-      </section>
+        <ChevronRight className="ml-auto h-5 w-5 text-muted" />
+      </Link>
 
     </div>
   )
 }
 
-function StatPill({ value, label }: { value: string | number; label: string }) {
-  return (
-    <div className="text-center">
-      <div className="font-serif text-2xl md:text-3xl text-gold font-light">{value}</div>
-      <div className="label-mono text-[0.55rem] text-stone mt-0.5">{label}</div>
-    </div>
-  )
-}
-
-function ProgressCard({
-  href, label, icon, value, total, pct, color, subtitle
-}: {
-  href: string; label: string; icon: string; value: string | number
-  total: string | number; pct: number; color: string; subtitle?: string
+function Tile({ href, color, icon: Icon, title, sub }: {
+  href: string; color: FlagColor; icon: LucideIcon; title: string; sub: string
 }) {
   return (
-    <Link href={href} className="card-base p-4 group">
-      <div className="label-mono text-[0.55rem] mb-1">{icon} {label}</div>
-      <div className="font-serif text-xl text-cream">{value}</div>
-      <div className="text-stone text-xs">of {total}</div>
-      <div className="mt-2 h-1 bg-white/5 rounded-full overflow-hidden">
-        <div className="h-full rounded-full transition-all duration-500"
-             style={{ width: `${pct}%`, background: color }} />
+    <Link
+      href={href}
+      className="group rounded-2xl p-4 transition-transform hover:-translate-y-0.5"
+      style={{ background: FLAG_TINT[color] }}
+    >
+      <span className="mb-9 flex h-11 w-11 items-center justify-center rounded-xl" style={{ background: FLAG[color] }}>
+        <Icon className="h-[22px] w-[22px] text-white" strokeWidth={2.2} />
+      </span>
+      <div className="text-base font-extrabold text-cream">{title}</div>
+      <div className="truncate text-xs text-stone">{sub}</div>
+    </Link>
+  )
+}
+
+function ProgressCard({ href, color, icon: Icon, label, value, pct, note }: {
+  href: string; color: FlagColor; icon: LucideIcon; label: string; value: string; pct: number; note: string
+}) {
+  return (
+    <Link href={href} className="card-base p-4">
+      <div className="mb-1 flex items-center gap-2">
+        <Icon className="h-4 w-4" style={{ color: FLAG[color] }} />
+        <span className="text-xs font-semibold text-stone">{label}</span>
       </div>
-      {subtitle && <div className="text-muted text-[0.65rem] mt-1">{subtitle}</div>}
+      <div className="text-xl font-extrabold text-cream">{value}</div>
+      <div className="mt-2 h-2 overflow-hidden rounded-full" style={{ background: '#eee9df' }}>
+        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: FLAG[color] }} />
+      </div>
+      <div className="mt-1.5 text-[0.7rem] text-muted">{note}</div>
     </Link>
   )
 }
 
 function SectionHeader({ title, href, linkLabel }: { title: string; href?: string; linkLabel?: string }) {
   return (
-    <div className="flex items-center justify-between mb-3">
-      <h2 className="font-serif text-xl text-cream">{title}</h2>
+    <div className="mb-3 flex items-center justify-between">
+      <h2 className="text-lg font-extrabold text-cream">{title}</h2>
       {href && linkLabel && (
-        <Link href={href} className="label-mono text-[0.55rem] text-stone hover:text-gold transition-colors">
-          {linkLabel} →
+        <Link href={href} className="flex items-center gap-0.5 text-xs font-semibold text-stone hover:text-cream">
+          {linkLabel} <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       )}
     </div>
@@ -295,11 +253,11 @@ function ChecklistRow({ item }: { item: any }) {
     WEEK_BEFORE: 'pill-sky',
   }
   return (
-    <div className="card-base px-4 py-3 flex items-center gap-3">
-      <div className={`w-3 h-3 rounded-full shrink-0 ${item.completed ? 'bg-sage' : 'bg-rust/60'}`} />
-      <div className="flex-1 min-w-0">
-        <div className="text-sm text-sand truncate">{item.title}</div>
-        {item.notes && <div className="text-xs text-stone truncate">{item.notes}</div>}
+    <div className="card-base flex items-center gap-3 px-4 py-3">
+      <div className={`h-2.5 w-2.5 shrink-0 rounded-full ${item.completed ? 'bg-sage' : 'bg-rust'}`} />
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium text-sand">{item.title}</div>
+        {item.notes && <div className="truncate text-xs text-stone">{item.notes}</div>}
       </div>
       <span className={`pill ${phaseColors[item.phase] ?? 'pill-gold'} shrink-0`}>
         {item.phase.replace('_', ' ').replace('BEFORE', '').trim()}
@@ -312,15 +270,15 @@ function JournalCard({ entry }: { entry: any }) {
   const moodEmoji = ['', '😔', '😐', '🙂', '😊', '🤩']
   return (
     <div className="card-base p-4">
-      <div className="flex items-center justify-between mb-2">
-        <span className="label-mono text-[0.55rem] text-sky">Day {entry.tripDay}</span>
+      <div className="mb-2 flex items-center justify-between">
+        <span className="rounded-full px-2 py-0.5 text-[0.7rem] font-bold" style={{ background: FLAG_TINT.ink, color: FLAG.ink }}>
+          Day {entry.tripDay}
+        </span>
         {entry.mood && <span className="text-base">{moodEmoji[entry.mood]}</span>}
       </div>
-      {entry.title && <div className="font-serif text-cream text-sm mb-1">{entry.title}</div>}
-      <p className="text-muted text-xs leading-relaxed line-clamp-3">{entry.content}</p>
-      {entry.location && (
-        <div className="label-mono text-[0.5rem] text-stone mt-2">📍 {entry.location}</div>
-      )}
+      {entry.title && <div className="mb-1 font-bold text-cream">{entry.title}</div>}
+      <p className="line-clamp-3 text-xs leading-relaxed text-muted">{entry.content}</p>
+      {entry.location && <div className="mt-2 text-[0.7rem] text-stone">📍 {entry.location}</div>}
     </div>
   )
 }

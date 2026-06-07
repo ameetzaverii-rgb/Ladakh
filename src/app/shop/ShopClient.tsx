@@ -286,7 +286,7 @@ function ItemForm({ item, onClose }: { item: ShopItemT | null; onClose: () => vo
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={photo} alt="" className="w-full h-full object-cover rounded border border-gold/20" />
             <button type="button" onClick={() => setPhoto(null)} aria-label="Remove photo"
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rust text-cream text-xs flex items-center justify-center">✕</button>
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rust text-white text-xs flex items-center justify-center">✕</button>
           </div>
         )}
         <label className="pill border border-gold/30 text-stone hover:text-gold cursor-pointer">

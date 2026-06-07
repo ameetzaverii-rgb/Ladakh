@@ -30,16 +30,49 @@ export function formatDate(date: Date | string, fmt = 'MMM d, yyyy'): string {
   return format(d, fmt)
 }
 
+/* ── Tibetan prayer-flag colour system ──
+   Five flag colours, each mapped to a kind of activity. */
+export const FLAG = {
+  blue: '#2f6db5',   // plan & logistics
+  red: '#d24b3e',    // culture & food
+  green: '#3e9e6e',  // treks & nature
+  yellow: '#e0a21b', // money & shopping
+  ink: '#3a4150',    // journal & diary
+} as const
+
+export const FLAG_TINT = {
+  blue: '#e7f0fa',
+  red: '#fbe9e7',
+  green: '#e7f4ee',
+  yellow: '#fbf0d8',
+  ink: '#eceef2',
+} as const
+
+export type FlagColor = keyof typeof FLAG
+
+/** Theme (accent + tint) for a top-level section of the app. */
+export const SECTION_THEME: Record<string, FlagColor> = {
+  itinerary: 'blue', stays: 'blue', transport: 'blue', flights: 'blue', prep: 'blue',
+  events: 'red', food: 'red',
+  treks: 'green',
+  budget: 'yellow', shop: 'yellow', contribute: 'yellow',
+  journal: 'ink', diary: 'ink',
+}
+
+export function sectionFlag(key: string): FlagColor {
+  return SECTION_THEME[key] ?? 'ink'
+}
+
 export const CATEGORY_COLORS: Record<string, string> = {
-  ACCOMMODATION: '#c9993a',
-  FOOD: '#6b7c5e',
-  TRANSPORT: '#5a8fa3',
-  TREK: '#b85c38',
-  PERMITS: '#8b7355',
-  SHOPPING: '#9b6b9b',
-  HEALTH: '#e07050',
-  WORK: '#4a8fa3',
-  MISC: '#666',
+  ACCOMMODATION: FLAG.blue,
+  FOOD: FLAG.red,
+  TRANSPORT: '#2aa6a0',
+  TREK: FLAG.green,
+  PERMITS: '#6b7280',
+  SHOPPING: FLAG.yellow,
+  HEALTH: '#e07a50',
+  WORK: '#7c5cbc',
+  MISC: '#8c92a0',
 }
 
 export const CATEGORY_ICONS: Record<string, string> = {

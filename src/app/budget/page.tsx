@@ -82,14 +82,14 @@ export default async function BudgetPage() {
           <span className="label-mono text-[0.6rem] text-gold">Burn rate</span>
           <span className="label-mono text-[0.55rem] text-stone">₹{avgDailySpend.toLocaleString()}/day avg</span>
         </div>
-        <div className="h-3 bg-white/5 rounded-full overflow-hidden">
+        <div className="h-3 bg-[#eee9df] rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-700"
             style={{
               width: `${Math.min((totalSpent / totalBudget) * 100, 100)}%`,
               background: totalSpent > totalBudget * 0.8
-                ? 'linear-gradient(90deg, #b85c38, #e07050)'
-                : 'linear-gradient(90deg, #6b7c5e, #c9993a)',
+                ? 'linear-gradient(90deg, #d24b3e, #e07050)'
+                : 'linear-gradient(90deg, #e0a21b, #3e9e6e)',
             }}
           />
         </div>

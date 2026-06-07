@@ -2,67 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
+/* ── Prayer Flag light theme ──
+   Warm paper background, white surfaces, ink text, five flag accent colours. */
 :root {
-  --sand: #e8d9bc;
-  --rust: #b85c38;
-  --gold: #c9993a;
-  --deep: #1a1208;
-  --stone: #8b7355;
-  --sky: #5a8fa3;
-  --sage: #6b7c5e;
-  --cream: #f5ede0;
-  --dark: #0f0b06;
-  --muted: #9a8870;
-  --hero-base: #1a1208;
-}
-
-/* Lighter "traditional Ladakh" theme — warm parchment + monastery ochre/maroon. */
-html[data-theme='light'] {
-  --sand: #2e2415;   /* primary body text → dark brown */
-  --cream: #1d1610;  /* headings → near-black */
-  --muted: #6b5d45;
-  --stone: #7a6a4f;
-  --gold: #a8771a;
-  --rust: #a8472a;
-  --sky: #3f7689;
-  --sage: #566a49;
-  --deep: #e9dcc2;   /* secondary surface */
-  --dark: #f4ecdd;   /* page background → parchment */
+  --sand: #2a3140;   /* body text */
+  --cream: #14181f;  /* headings */
+  --muted: #8c92a0;  /* faint text */
+  --stone: #6b7280;  /* labels */
+  --gold: #b07a16;   /* amber accent */
+  --rust: #c0402f;   /* red accent */
+  --sky: #2f6db5;    /* blue */
+  --sage: #3e9e6e;   /* green */
+  --deep: #ffffff;   /* surface */
+  --dark: #fbfaf7;   /* page bg */
+  --border: #e8e3d8;
   --hero-base: #efe3cc;
-}
 
-html[data-theme='light'] body {
-  background: var(--dark);
-  color: var(--sand);
-}
-
-html[data-theme='light'] .card-base {
-  background: rgba(120, 90, 30, 0.05);
-  border-color: rgba(168, 119, 26, 0.25);
-}
-html[data-theme='light'] .card-base:hover {
-  background: rgba(120, 90, 30, 0.09);
-  border-color: rgba(168, 119, 26, 0.45);
-}
-html[data-theme='light'] .info-box {
-  background: rgba(168, 119, 26, 0.1);
-}
-html[data-theme='light'] .warning-box {
-  background: rgba(168, 71, 42, 0.1);
-}
-html[data-theme='light'] .pill-rust {
-  color: #9a3f22;
-}
-html[data-theme='light'] .pill-sage {
-  color: #4d5e41;
-}
-html[data-theme='light'] ::-webkit-scrollbar-track {
-  background: var(--deep);
-}
-html[data-theme='light'] [cmdk-root] {
-  background: #faf3e6 !important;
+  /* flag colours */
+  --flag-blue: #2f6db5;
+  --flag-red: #d24b3e;
+  --flag-green: #3e9e6e;
+  --flag-yellow: #e0a21b;
+  --flag-ink: #3a4150;
+  --tint-blue: #e7f0fa;
+  --tint-red: #fbe9e7;
+  --tint-green: #e7f4ee;
+  --tint-yellow: #fbf0d8;
+  --tint-ink: #eceef2;
 }
 
 @layer base {
@@ -75,21 +43,23 @@ html[data-theme='light'] [cmdk-root] {
     color: var(--sand);
     font-family: 'Outfit', sans-serif;
     font-weight: 400;
-    line-height: 1.65;
+    line-height: 1.6;
     overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
   }
 
-  /* Comfortable reading rhythm for body copy. */
   p {
-    line-height: 1.7;
+    line-height: 1.65;
   }
 
+  /* Friendly, confident headings — sans by default, opt into serif with .font-serif. */
   h1, h2, h3, h4 {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: -0.01em;
   }
 
-  /* Keep tap targets comfortable on touch devices. */
   @media (max-width: 768px) {
     a, button, [role='button'], input, select, textarea {
       touch-action: manipulation;
@@ -114,133 +84,110 @@ html[data-theme='light'] [cmdk-root] {
   .bg-dark { background: var(--dark); }
   .bg-deep { background: var(--deep); }
 
-  .border-gold-dim { border-color: rgba(201,153,58,0.2); }
-  .border-gold-mid { border-color: rgba(201,153,58,0.35); }
+  .border-gold-dim { border-color: rgba(176,122,22,0.18); }
+  .border-gold-mid { border-color: rgba(176,122,22,0.35); }
 
+  /* Flag colour helpers for category coding */
+  .flag-blue { color: var(--flag-blue); }
+  .flag-red { color: var(--flag-red); }
+  .flag-green { color: var(--flag-green); }
+  .flag-yellow { color: var(--flag-yellow); }
+  .flag-ink { color: var(--flag-ink); }
+
+  /* ── Cards: white surface, soft shadow, gentle lift on hover ── */
   .card-base {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(201,153,58,0.15);
-    transition: all 0.25s ease;
+    background: var(--deep);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px rgba(20,24,31,0.04), 0 4px 16px rgba(20,24,31,0.05);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   }
-
   .card-base:hover {
-    background: rgba(255,255,255,0.05);
-    border-color: rgba(201,153,58,0.35);
+    border-color: #ded7c7;
+    box-shadow: 0 2px 4px rgba(20,24,31,0.06), 0 10px 30px rgba(20,24,31,0.10);
+    transform: translateY(-1px);
   }
 
+  /* ── Pills / chips ── */
   .pill {
     display: inline-block;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    padding: 0.2rem 0.65rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.22rem 0.7rem;
     border-radius: 2rem;
     text-transform: uppercase;
   }
-
-  .pill-gold {
-    background: rgba(201,153,58,0.15);
-    color: var(--gold);
-    border: 1px solid rgba(201,153,58,0.3);
-  }
-
-  .pill-sky {
-    background: rgba(90,143,163,0.15);
-    color: var(--sky);
-    border: 1px solid rgba(90,143,163,0.3);
-  }
-
-  .pill-rust {
-    background: rgba(184,92,56,0.15);
-    color: #e07050;
-    border: 1px solid rgba(184,92,56,0.3);
-  }
-
-  .pill-sage {
-    background: rgba(107,124,94,0.15);
-    color: #8fa880;
-    border: 1px solid rgba(107,124,94,0.3);
-  }
+  .pill-gold { background: var(--tint-yellow); color: #8a6500; }
+  .pill-sky  { background: var(--tint-blue);  color: #235a98; }
+  .pill-rust { background: var(--tint-red);   color: #b23b2e; }
+  .pill-sage { background: var(--tint-green); color: #2f8159; }
 
   .section-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.8rem, 4vw, 3rem);
-    font-weight: 300;
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 800;
     color: var(--cream);
-    line-height: 1.1;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
   }
 
   .label-mono {
     font-family: 'Space Mono', monospace;
     font-size: 0.6rem;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--stone);
   }
 
   .info-box {
-    background: rgba(201,153,58,0.06);
-    border: 1px solid rgba(201,153,58,0.2);
-    border-left: 4px solid var(--gold);
+    background: var(--tint-blue);
+    border: 1px solid rgba(47,109,181,0.18);
+    border-left: 4px solid var(--flag-blue);
+    border-radius: 0.75rem;
   }
 
   .warning-box {
-    background: rgba(184,92,56,0.06);
-    border: 1px solid rgba(184,92,56,0.2);
-    border-left: 4px solid var(--rust);
+    background: var(--tint-red);
+    border: 1px solid rgba(210,75,62,0.18);
+    border-left: 4px solid var(--flag-red);
+    border-radius: 0.75rem;
   }
 
-  .scrollbar-none {
-    scrollbar-width: none;
-  }
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
-  }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
 
-  .animate-pulse-gold {
-    animation: pulseGold 2s infinite;
-  }
-
+  .animate-pulse-gold { animation: pulseGold 2s infinite; }
   @keyframes pulseGold {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
   }
 }
 
-/* Custom scrollbar for main content */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: var(--dark);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(201,153,58,0.3);
-  border-radius: 2px;
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(20,24,31,0.15); border-radius: 4px; }
 
 /* cmdk palette */
 [cmdk-root] {
-  background: var(--deep) !important;
-  border: 1px solid rgba(201,153,58,0.3) !important;
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
   color: var(--sand) !important;
+  border-radius: 0.9rem !important;
+  box-shadow: 0 10px 40px rgba(20,24,31,0.18) !important;
 }
-
 [cmdk-input] {
   background: transparent !important;
   color: var(--cream) !important;
-  border-bottom: 1px solid rgba(201,153,58,0.2) !important;
+  border-bottom: 1px solid var(--border) !important;
 }
-
 [cmdk-item][aria-selected='true'] {
-  background: rgba(201,153,58,0.1) !important;
-  color: var(--gold) !important;
+  background: var(--tint-red) !important;
+  color: var(--flag-red) !important;
 }
-
-[cmdk-item] {
-  color: var(--sand) !important;
-}
-
+[cmdk-item] { color: var(--sand) !important; }
 [cmdk-group-heading] {
   color: var(--stone) !important;
   font-family: 'Space Mono', monospace;
