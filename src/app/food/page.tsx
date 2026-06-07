@@ -1,5 +1,8 @@
 import { db } from '@/lib/db'
 import { ReviewLinks } from '@/components/ReviewLinks'
+import { CategoryHero } from '@/components/Photo'
+import { getCategoryImage } from '@/lib/imagery'
+import { UtensilsCrossed } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 const TYPE_ICONS: Record<string, string> = {
@@ -11,19 +14,19 @@ const TYPE_ICONS: Record<string, string> = {
 }
 
 export default async function FoodPage() {
-  const places = await db.place.findMany({ orderBy: { laptopFriendly: 'desc' } })
+  const [places, heroImg] = await Promise.all([
+    db.place.findMany({ orderBy: { laptopFriendly: 'desc' } }),
+    getCategoryImage('food'),
+  ])
 
   const cafes = places.filter(p => p.type === 'CAFE')
   const restaurants = places.filter(p => p.type !== 'CAFE')
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <div className="label-mono text-xs text-gold mb-2">Food & Cafés</div>
-        <h1 className="section-title mb-1">Eat, Drink,<br /><em className="text-gold italic">Repeat</em></h1>
-        <p className="text-stone text-sm">The best cafés, restaurants, and street eats in Leh.</p>
-        <a href="/contribute" className="inline-block mt-2 label-mono text-[0.6rem] text-sky hover:underline">🙋 Got a recommendation? Friends can add via the Collaborate page</a>
-      </div>
+      <CategoryHero src={heroImg?.src ?? null} color="red" icon={UtensilsCrossed}
+        title="Eat, Drink, Repeat" subtitle="The best cafés, restaurants, and street eats in Leh." />
+      <a href="/contribute" className="mb-8 inline-block label-mono text-[0.6rem] text-sky hover:underline">🙋 Got a recommendation? Friends can add via the Collaborate page</a>
 
       <div className="warning-box p-4 mb-8 text-sm text-muted">
         <strong className="label-mono text-[0.65rem] text-rust block mb-2">🍜 Must Order in Ladakh</strong>

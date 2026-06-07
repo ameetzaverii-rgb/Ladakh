@@ -3,11 +3,13 @@ import { daysUntil, formatINR, FLAG, FLAG_TINT, type FlagColor } from '@/lib/uti
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
+import { PhotoTile } from '@/components/Photo'
+import { getCategoryImage } from '@/lib/imagery'
 import { getCurrentWeather } from '@/lib/weather'
 import { DAY_LOCATIONS } from '@/lib/locations'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, ListChecks, BookOpen,
-  ChevronRight, Plus, type LucideIcon,
+  ChevronRight, Images, type LucideIcon,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -57,9 +59,14 @@ function greeting() {
 }
 
 export default async function Dashboard() {
-  const [data, currentWeather] = await Promise.all([
+  const [data, currentWeather, itinImg, festImg, trekImg, budgetImg, galleryImg] = await Promise.all([
     getDashboardData(),
     getCurrentWeather(LEH.lat, LEH.lng),
+    getCategoryImage('itinerary'),
+    getCategoryImage('events'),
+    getCategoryImage('treks'),
+    getCategoryImage('budget'),
+    getCategoryImage('gallery'),
   ])
 
   const {
@@ -125,19 +132,37 @@ export default async function Dashboard() {
         )}
       </div>
 
-      {/* Colour-coded tiles */}
+      {/* Colour-coded photo tiles */}
       <div className="mb-6 grid grid-cols-2 gap-3">
-        <Tile href="/itinerary" color="blue" icon={CalendarDays} title="Itinerary" sub="21-day plan" />
-        <Tile
-          href="/events" color="red" icon={PartyPopper} title="Festivals"
-          sub={nextEvents[0] ? nextEvents[0].name : 'See what’s on'}
-        />
-        <Tile href="/treks" color="green" icon={Mountain} title="Treks" sub="Weekend adventures" />
-        <Tile
-          href="/budget" color="yellow" icon={Wallet} title="Budget"
-          sub={`${formatINR(totalSpent)} of ${formatINR(budget)}`}
-        />
+        <PhotoTile href="/itinerary" src={itinImg?.src ?? null} color="blue" icon={CalendarDays} title="Itinerary" sub="21-day plan" />
+        <PhotoTile href="/events" src={festImg?.src ?? null} color="red" icon={PartyPopper} title="Festivals"
+          sub={nextEvents[0] ? nextEvents[0].name : 'See what’s on'} />
+        <PhotoTile href="/treks" src={trekImg?.src ?? null} color="green" icon={Mountain} title="Treks" sub="Weekend adventures" />
+        <PhotoTile href="/budget" src={budgetImg?.src ?? null} color="yellow" icon={Wallet} title="Budget"
+          sub={`${formatINR(totalSpent)} of ${formatINR(budget)}`} />
       </div>
+
+      {/* Places gallery CTA */}
+      <Link href="/gallery"
+        className="group press relative mb-6 block h-28 overflow-hidden rounded-2xl shadow-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
+        {galleryImg?.src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={galleryImg.src} alt="Places to visit" className="img-zoom absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <div className="absolute inset-0" style={{ background: FLAG.blue }} />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
+        <div className="absolute inset-0 flex items-center gap-3 p-5">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
+            <Images className="h-6 w-6 text-white" strokeWidth={2.2} />
+          </span>
+          <div>
+            <div className="text-lg font-extrabold text-white drop-shadow">Places gallery</div>
+            <div className="text-xs text-white/85">Every stop on your 21-day plan, in pictures</div>
+          </div>
+          <ChevronRight className="ml-auto h-5 w-5 text-white/80" />
+        </div>
+      </Link>
 
       {/* Progress */}
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -194,24 +219,6 @@ export default async function Dashboard() {
       </Link>
 
     </div>
-  )
-}
-
-function Tile({ href, color, icon: Icon, title, sub }: {
-  href: string; color: FlagColor; icon: LucideIcon; title: string; sub: string
-}) {
-  return (
-    <Link
-      href={href}
-      className="group rounded-2xl p-4 transition-transform hover:-translate-y-0.5"
-      style={{ background: FLAG_TINT[color] }}
-    >
-      <span className="mb-9 flex h-11 w-11 items-center justify-center rounded-xl" style={{ background: FLAG[color] }}>
-        <Icon className="h-[22px] w-[22px] text-white" strokeWidth={2.2} />
-      </span>
-      <div className="text-base font-extrabold text-cream">{title}</div>
-      <div className="truncate text-xs text-stone">{sub}</div>
-    </Link>
   )
 }
 

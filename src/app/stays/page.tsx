@@ -1,10 +1,16 @@
 import { db } from '@/lib/db'
 import { formatINR } from '@/lib/utils'
+import { CategoryHero } from '@/components/Photo'
+import { getCategoryImage } from '@/lib/imagery'
+import { BedDouble } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 export default async function StaysPage() {
-  const stays = await db.stay.findMany({ orderBy: { pricePerNightINR: 'asc' } })
+  const [stays, heroImg] = await Promise.all([
+    db.stay.findMany({ orderBy: { pricePerNightINR: 'asc' } }),
+    getCategoryImage('stays'),
+  ])
 
   const grouped = stays.reduce((acc, s) => {
     const key = s.type
@@ -15,11 +21,8 @@ export default async function StaysPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <div className="label-mono text-xs text-gold mb-2">Accommodation Guide</div>
-        <h1 className="section-title mb-1">Where to <em className="text-gold italic">Rest</em></h1>
-        <p className="text-stone text-sm">Hotels, guesthouses, and hostels optimised for a 21-day workation.</p>
-      </div>
+      <CategoryHero src={heroImg?.src ?? null} color="blue" icon={BedDouble}
+        title="Where to Rest" subtitle="Hotels, guesthouses, and hostels optimised for a 21-day workation." />
 
       <div className="info-box p-4 mb-8 text-sm text-muted leading-relaxed">
         <strong className="label-mono text-[0.65rem] text-gold block mb-2">📍 Best Neighbourhood for Workation</strong>

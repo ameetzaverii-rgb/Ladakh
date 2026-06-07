@@ -2,6 +2,9 @@ import { db } from '@/lib/db'
 import { formatINR } from '@/lib/utils'
 import { getTrekImage, getTrekMediaConfig, youtubeSearchUrl, type TrekImage } from '@/lib/trekMedia'
 import { ReviewLinks } from '@/components/ReviewLinks'
+import { CategoryHero } from '@/components/Photo'
+import { getCategoryImage } from '@/lib/imagery'
+import { Mountain } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -13,7 +16,10 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 }
 
 export default async function TreksPage() {
-  const treks = await db.trek.findMany({ orderBy: { difficulty: 'asc' } })
+  const [treks, heroImg] = await Promise.all([
+    db.trek.findMany({ orderBy: { difficulty: 'asc' } }),
+    getCategoryImage('treks'),
+  ])
 
   // Fetch a real photo for each trek in parallel.
   const imageMap = new Map<string, TrekImage | null>()
@@ -25,14 +31,11 @@ export default async function TreksPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <div className="label-mono text-xs text-gold mb-2">Weekend Adventures</div>
-        <h1 className="section-title mb-1">Weekend <em className="text-gold italic">Treks</em></h1>
-        <p className="text-stone text-sm">3 weekends, 3 journeys. July–August is peak trekking season.</p>
-        <div className="flex gap-4 flex-wrap mt-2">
-          <Link href="/itinerary" className="label-mono text-[0.6rem] text-sky hover:underline">↩ See which weekends these land on</Link>
-          <Link href="/contribute" className="label-mono text-[0.6rem] text-sky hover:underline">🙋 Friends can suggest a trek</Link>
-        </div>
+      <CategoryHero src={heroImg?.src ?? null} color="green" icon={Mountain}
+        title="Weekend Treks" subtitle="3 weekends, 3 journeys. July–August is peak trekking season." />
+      <div className="mb-8 flex flex-wrap gap-4">
+        <Link href="/itinerary" className="label-mono text-[0.6rem] text-sky hover:underline">↩ See which weekends these land on</Link>
+        <Link href="/contribute" className="label-mono text-[0.6rem] text-sky hover:underline">🙋 Friends can suggest a trek</Link>
       </div>
 
       <div className="info-box p-4 mb-8 text-sm text-muted leading-relaxed">

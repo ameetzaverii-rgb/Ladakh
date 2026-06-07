@@ -195,3 +195,53 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
+
+/* ──────────────────────────────────────────────────────────────
+   Motion system (Emil Kowalski principles):
+   animate transform + opacity only, ease-out for entrances,
+   fast & subtle, fully reduced-motion safe.
+   ────────────────────────────────────────────────────────────── */
+:root {
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer utilities {
+  /* Staggered entrance — set --d (delay) inline per item. */
+  .reveal {
+    opacity: 0;
+    animation: revealUp 0.55s var(--ease-out-soft) forwards;
+    animation-delay: var(--d, 0ms);
+    will-change: transform, opacity;
+  }
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(14px) scale(0.985); filter: blur(6px); }
+    to   { opacity: 1; transform: none; filter: blur(0); }
+  }
+
+  /* Image hover-zoom — parent needs .group + overflow-hidden. */
+  .img-zoom { transition: transform 0.45s var(--ease-out-soft); will-change: transform; }
+  .group:hover .img-zoom { transform: scale(1.06); }
+
+  /* Lightbox in/backdrop */
+  .lb-panel { animation: lbIn 0.28s var(--ease-out-soft); }
+  @keyframes lbIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+  .lb-back { animation: fadeIn 0.2s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Gentle press feedback on tappable cards */
+  .press { transition: transform 0.18s var(--ease-out-soft), box-shadow 0.18s var(--ease-out-soft); }
+  .press:active { transform: scale(0.985); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .lb-panel, .lb-back {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .img-zoom, .press { transition: none !important; }
+  .group:hover .img-zoom { transform: none !important; }
+  .press:active { transform: none !important; }
+}
+
