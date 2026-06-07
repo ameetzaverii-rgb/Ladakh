@@ -48,7 +48,8 @@ export default async function EventsPage() {
 
       <div className="space-y-4">
         {events.map(event => (
-          <div key={event.id} className="card-base p-5">
+          <div key={event.id} className="card-base p-5 relative overflow-hidden">
+            <span className="absolute left-0 top-0 h-full w-1.5 bg-flag-red" />
             <div className="flex items-start justify-between gap-3 mb-2">
               <div>
                 <h3 className="font-serif text-cream text-lg mb-0.5">{event.name}</h3>

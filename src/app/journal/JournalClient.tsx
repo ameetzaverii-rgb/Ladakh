@@ -328,7 +328,7 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
                 type="button"
                 onClick={() => removePhoto(i)}
                 aria-label="Remove photo"
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rust text-cream text-xs leading-none flex items-center justify-center shadow"
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rust text-white text-xs leading-none flex items-center justify-center shadow"
               >
                 ✕
               </button>

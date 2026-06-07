@@ -78,7 +78,7 @@ export default async function TreksPage() {
                   href={ytUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 bg-rust/90 hover:bg-rust text-cream text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
+                  className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 bg-rust/90 hover:bg-rust text-white text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
                 >
                   ▶ Watch videos
                 </a>
@@ -95,7 +95,7 @@ export default async function TreksPage() {
                   href={ytUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-rust/90 hover:bg-rust text-cream text-xs font-medium px-3 py-1 rounded-full transition-colors"
+                  className="inline-flex items-center gap-1.5 bg-rust/90 hover:bg-rust text-white text-xs font-medium px-3 py-1 rounded-full transition-colors"
                 >
                   ▶ Watch videos
                 </a>

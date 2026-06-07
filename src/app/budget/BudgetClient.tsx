@@ -20,7 +20,7 @@ export function BudgetClient({ expenses }: { expenses: Expense[] }) {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
-  const categories = [...new Set(expenses.map(e => e.category))]
+  const categories = Array.from(new Set(expenses.map(e => e.category)))
 
   const filtered = filterCat ? expenses.filter(e => e.category === filterCat) : expenses
 

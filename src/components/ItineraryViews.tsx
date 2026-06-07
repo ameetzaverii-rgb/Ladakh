@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { DayWeather } from '@/components/DayWeather'
 import { DAY_LOCATIONS } from '@/lib/locations'
+import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
 import type { DayWeather as DayWeatherData } from '@/lib/weather'
 
 export interface ViewDay {
@@ -60,6 +61,14 @@ function DayLinkChips({ day }: { day: ViewDay }) {
       ))}
     </div>
   )
+}
+
+// Primary category → prayer-flag colour for the day.
+function dayFlag(day: ViewDay): { color: FlagColor; label: string } {
+  if (day.isFestivalDay) return { color: 'red', label: 'Festival' }
+  if (day.isTrekDay) return { color: 'green', label: 'Trek' }
+  if (day.isExcursionDay) return { color: 'yellow', label: 'Excursion' }
+  return { color: 'blue', label: 'Plan' }
 }
 
 function dayIcons(day: ViewDay) {
@@ -140,23 +149,29 @@ function TimelineView({ days, weather }: { days: ViewDay[]; weather: Record<numb
               <div className="h-px w-8 bg-gold/10" />
             </div>
 
-            {weekDays.map((day, idx) => (
+            {weekDays.map((day, idx) => {
+              const flag = dayFlag(day)
+              return (
               <div key={day.id} className="flex gap-4 relative">
                 {idx < weekDays.length - 1 && (
                   <div className="absolute left-[19px] top-10 bottom-0 w-px bg-gold/10" />
                 )}
                 <div className="w-10 shrink-0 text-center pt-3">
-                  <div className="font-serif text-2xl text-gold/30 font-light leading-none">{day.dayNumber}</div>
+                  <div className="font-serif text-2xl font-semibold leading-none" style={{ color: FLAG[flag.color] }}>{day.dayNumber}</div>
                   <div className="label-mono text-[0.45rem] text-stone">{day.dayOfWeek}</div>
                 </div>
 
-                <div className="flex-1 card-base p-4 mb-3">
+                <div className="relative flex-1 card-base p-4 mb-3 overflow-hidden">
+                  <span className="absolute left-0 top-0 h-full w-1.5" style={{ background: FLAG[flag.color] }} />
                   {DAY_LOCATIONS[day.dayNumber] && (
                     <DayWeather weather={weather[day.dayNumber] ?? null} location={DAY_LOCATIONS[day.dayNumber]} />
                   )}
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="font-serif text-cream text-base leading-tight">{day.title}</h3>
-                    <div className="flex gap-1 shrink-0">{dayIcons(day)}</div>
+                    <h3 className="font-serif text-cream text-base font-semibold leading-tight">{day.title}</h3>
+                    <span className="shrink-0 rounded-full px-2 py-0.5 text-[0.6rem] font-bold"
+                          style={{ background: FLAG_TINT[flag.color], color: FLAG[flag.color] }}>
+                      {flag.label}
+                    </span>
                   </div>
                   <p className="text-muted text-xs leading-relaxed">{day.description}</p>
                   {(day.breakfastNote || day.lunchNote || day.dinnerNote) && (
@@ -169,7 +184,7 @@ function TimelineView({ days, weather }: { days: ViewDay[]; weather: Record<numb
                   <DayLinkChips day={day} />
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )
       })}

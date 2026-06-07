@@ -116,7 +116,7 @@ function ChecklistItemRow({
           onClick={onToggle}
           className={`w-5 h-5 shrink-0 border-2 rounded-sm flex items-center justify-center transition-all ${
             item.completed
-              ? 'bg-sage/50 border-sage text-cream'
+              ? 'bg-sage border-sage text-white'
               : 'border-gold/30 hover:border-gold'
           }`}
         >

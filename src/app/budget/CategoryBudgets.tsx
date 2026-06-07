@@ -84,7 +84,7 @@ export function CategoryBudgets({
                     </span>
                   )}
                 </div>
-                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-[#eee9df] rounded-full overflow-hidden">
                   <div className="h-full rounded-full" style={{ width: `${pct}%`, background: over ? '#b85c38' : color }} />
                 </div>
               </div>

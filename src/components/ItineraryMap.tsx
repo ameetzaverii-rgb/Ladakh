@@ -144,7 +144,7 @@ export function ItineraryMap({ days }: { days: MapDay[] }) {
     <div
       ref={containerRef}
       className="w-full h-[380px] rounded-md border border-gold/15 overflow-hidden z-0"
-      style={{ background: '#0f0b06' }}
+      style={{ background: '#eef1f4' }}
     />
   )
 }
