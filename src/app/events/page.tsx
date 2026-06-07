@@ -2,6 +2,9 @@ import { db } from '@/lib/db'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { ReviewLinks } from '@/components/ReviewLinks'
+import { CategoryHero } from '@/components/Photo'
+import { getCategoryImage } from '@/lib/imagery'
+import { PartyPopper } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 const TYPE_COLORS: Record<string, string> = {
@@ -14,18 +17,18 @@ const TYPE_COLORS: Record<string, string> = {
 }
 
 export default async function EventsPage() {
-  const events = await db.event.findMany({ orderBy: { startDate: 'asc' } })
+  const [events, heroImg] = await Promise.all([
+    db.event.findMany({ orderBy: { startDate: 'asc' } }),
+    getCategoryImage('events'),
+  ])
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <div className="label-mono text-xs text-gold mb-2">Festivals & Events</div>
-        <h1 className="section-title mb-1">Festival <em className="text-gold italic">Calendar</em></h1>
-        <p className="text-stone text-sm">Arriving late July puts you at two of Ladakh's most spectacular festivals.</p>
-        <div className="flex gap-4 flex-wrap mt-2">
-          <Link href="/itinerary" className="label-mono text-[0.6rem] text-sky hover:underline">↩ See where these fall on your 21-day plan</Link>
-          <Link href="/contribute" className="label-mono text-[0.6rem] text-sky hover:underline">🙋 Friends can flag an event</Link>
-        </div>
+      <CategoryHero src={heroImg?.src ?? null} color="red" icon={PartyPopper}
+        title="Festival Calendar" subtitle="Arriving late July puts you at two of Ladakh's most spectacular festivals." />
+      <div className="mb-8 flex flex-wrap gap-4">
+        <Link href="/itinerary" className="label-mono text-[0.6rem] text-sky hover:underline">↩ See where these fall on your 21-day plan</Link>
+        <Link href="/contribute" className="label-mono text-[0.6rem] text-sky hover:underline">🙋 Friends can flag an event</Link>
       </div>
 
       <div className="card-base p-5 mb-8 bg-gradient-to-r from-rust/10 to-gold/5">

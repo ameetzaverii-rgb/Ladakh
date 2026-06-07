@@ -1,16 +1,19 @@
 import { db } from '@/lib/db'
+import { CategoryHero } from '@/components/Photo'
+import { getCategoryImage } from '@/lib/imagery'
+import { Car } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 export default async function TransportPage() {
-  const routes = await db.transport.findMany({ orderBy: { rateINR: 'asc' } })
+  const [routes, heroImg] = await Promise.all([
+    db.transport.findMany({ orderBy: { rateINR: 'asc' } }),
+    getCategoryImage('transport'),
+  ])
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <div className="label-mono text-xs text-gold mb-2">Getting Around</div>
-        <h1 className="section-title mb-1">Transport <em className="text-gold italic">Guide</em></h1>
-        <p className="text-stone text-sm">Fixed Union rates, permit requirements, bike rentals, and getting here.</p>
-      </div>
+      <CategoryHero src={heroImg?.src ?? null} color="blue" icon={Car}
+        title="Transport Guide" subtitle="Fixed Union rates, permits, bike rentals, and getting here." />
 
       <div className="warning-box p-4 mb-8 text-sm text-muted leading-relaxed">
         <strong className="label-mono text-[0.65rem] text-rust block mb-2">⚠️ No Self-Drive Rentals</strong>
