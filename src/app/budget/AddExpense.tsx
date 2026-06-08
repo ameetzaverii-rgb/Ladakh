@@ -45,7 +45,7 @@ export function AddExpense() {
     }
   }
 
-  const inputCls = 'bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none'
+  const inputCls = 'rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none'
 
   return (
     <div className="card-base p-5 mb-6 border-gold/30 bg-gold/[0.04]">
@@ -65,13 +65,13 @@ export function AddExpense() {
             placeholder="Amount ₹" required min="1" className={`w-28 ${inputCls}`} />
           <select value={category} onChange={e => setCategory(e.target.value)} className={inputCls}>
             {Object.keys(CATEGORY_ICONS).filter(c => !HIDDEN.includes(c)).map(c => (
-              <option key={c} value={c}>{CATEGORY_ICONS[c]} {c}</option>
+              <option key={c} value={c}>{c}</option>
             ))}
           </select>
           <input type="text" value={description} onChange={e => setDescription(e.target.value)}
             placeholder="On what? *" required className={`flex-1 min-w-[8rem] ${inputCls}`} />
           <button type="submit" disabled={loading}
-            className="px-5 py-2 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-mono text-xs tracking-wider uppercase transition-all disabled:opacity-50">
+            className="px-5 py-2 rounded-lg bg-gold text-white font-semibold text-xs tracking-wide uppercase transition-[filter] hover:brightness-110 disabled:opacity-50">
             {loading ? '...' : 'Add'}
           </button>
         </form>
@@ -84,7 +84,7 @@ export function AddExpense() {
               placeholder="Amount ₹" required min="1" className={inputCls} />
             <select value={category} onChange={e => setCategory(e.target.value)} className={inputCls}>
               {Object.keys(CATEGORY_ICONS).filter(c => !HIDDEN.includes(c)).map(c => (
-                <option key={c} value={c}>{CATEGORY_ICONS[c]} {c}</option>
+                <option key={c} value={c}>{c}</option>
               ))}
             </select>
             <input type="number" value={tripDay} onChange={e => setTripDay(e.target.value)}
@@ -92,15 +92,15 @@ export function AddExpense() {
             <input type="text" value={description} onChange={e => setDescription(e.target.value)}
               placeholder="Description *" required className={`md:col-span-2 ${inputCls}`} />
             <select value={paymentMode} onChange={e => setPaymentMode(e.target.value)} className={inputCls}>
-              <option value="cash">💵 Cash</option>
-              <option value="upi">📱 UPI</option>
-              <option value="card">💳 Card</option>
+              <option value="cash">Cash</option>
+              <option value="upi">UPI</option>
+              <option value="card">Card</option>
             </select>
             <input type="text" value={place} onChange={e => setPlace(e.target.value)}
               placeholder="Place (optional)" className={`md:col-span-3 ${inputCls}`} />
           </div>
           <button type="submit" disabled={loading}
-            className="px-5 py-2 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-mono text-xs tracking-wider uppercase transition-all disabled:opacity-50">
+            className="px-5 py-2 rounded-lg bg-gold text-white font-semibold text-xs tracking-wide uppercase transition-[filter] hover:brightness-110 disabled:opacity-50">
             {loading ? '...' : 'Log Expense'}
           </button>
         </form>

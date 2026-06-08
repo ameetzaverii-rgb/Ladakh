@@ -3,32 +3,38 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { Wallet, BookOpen, type LucideIcon } from 'lucide-react'
 
 type Tab = 'expense' | 'journal'
+
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
+  { id: 'expense', label: 'Log expense', icon: Wallet },
+  { id: 'journal', label: 'Quick journal', icon: BookOpen },
+]
 
 export function QuickActions() {
   const [tab, setTab] = useState<Tab>('expense')
   const router = useRouter()
 
   return (
-    <div className="card-base mb-8">
-      <div className="flex border-b border-gold/10">
-        {(['expense', 'journal'] as Tab[]).map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-2.5 font-mono text-[0.6rem] tracking-wider uppercase transition-all border-b-2 -mb-px ${
-              tab === t
-                ? 'text-gold border-gold'
-                : 'text-stone border-transparent hover:text-gold/70'
-            }`}
-          >
-            {t === 'expense' ? '₹ Log Expense' : '📔 Quick Journal'}
-          </button>
-        ))}
-        <div className="ml-auto flex items-center pr-4">
-          <span className="label-mono text-[0.5rem] text-stone/50">or ⌘K for command bar</span>
-        </div>
+    <div className="card-base mb-8 overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-border px-3 pt-3">
+        {TABS.map(t => {
+          const Icon = t.icon
+          const active = tab === t.id
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
+                active ? 'border-gold text-cream' : 'border-transparent text-stone hover:text-cream'
+              }`}
+            >
+              <Icon className="h-4 w-4" /> {t.label}
+            </button>
+          )
+        })}
+        <span className="ml-auto hidden pr-1 text-[0.7rem] text-muted sm:block">⌘K for command bar</span>
       </div>
       <div className="p-4">
         {tab === 'expense' ? <ExpenseForm /> : <JournalForm />}
@@ -83,7 +89,7 @@ function ExpenseForm() {
           onChange={e => setAmount(e.target.value)}
           placeholder="350"
           required
-          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm w-28 focus:border-gold/50 outline-none font-mono"
+          className="rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm w-28 focus:border-gold-mid outline-none font-mono"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -91,7 +97,7 @@ function ExpenseForm() {
         <select
           value={category}
           onChange={e => setCategory(e.target.value)}
-          className="bg-dark border border-gold/20 text-sand px-3 py-2 text-sm focus:border-gold/50 outline-none"
+          className="rounded-lg border border-border bg-white text-sand px-3 py-2 text-sm focus:border-gold-mid outline-none"
         >
           {['FOOD','TRANSPORT','ACCOMMODATION','TREK','PERMITS','SHOPPING','HEALTH','WORK','MISC'].map(c => (
             <option key={c} value={c}>{c}</option>
@@ -106,7 +112,7 @@ function ExpenseForm() {
           onChange={e => setDescription(e.target.value)}
           placeholder="Thukpa at Tibetan Kitchen"
           required
-          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none"
+          className="rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -116,7 +122,7 @@ function ExpenseForm() {
           value={place}
           onChange={e => setPlace(e.target.value)}
           placeholder="Tibetan Kitchen"
-          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm w-36 focus:border-gold/50 outline-none"
+          className="rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm w-36 focus:border-gold-mid outline-none"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -124,7 +130,7 @@ function ExpenseForm() {
         <select
           value={paymentMode}
           onChange={e => setPaymentMode(e.target.value)}
-          className="bg-dark border border-gold/20 text-sand px-3 py-2 text-sm focus:border-gold/50 outline-none"
+          className="rounded-lg border border-border bg-white text-sand px-3 py-2 text-sm focus:border-gold-mid outline-none"
         >
           <option value="cash">Cash</option>
           <option value="upi">UPI</option>
@@ -134,7 +140,7 @@ function ExpenseForm() {
       <button
         type="submit"
         disabled={loading}
-        className="px-5 py-2 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-mono text-xs tracking-wider uppercase transition-all disabled:opacity-50"
+        className="px-5 py-2 rounded-lg bg-gold text-white font-semibold text-xs tracking-wide uppercase transition-[filter] hover:brightness-110 disabled:opacity-50"
       >
         {loading ? '...' : 'Log'}
       </button>
@@ -202,7 +208,7 @@ function JournalForm() {
           value={location}
           onChange={e => setLocation(e.target.value)}
           placeholder="Location (e.g. Phyang Monastery)"
-          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm flex-1 min-w-40 focus:border-gold/50 outline-none"
+          className="rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm flex-1 min-w-40 focus:border-gold-mid outline-none"
         />
       </div>
       <textarea
@@ -211,7 +217,7 @@ function JournalForm() {
         placeholder="What happened today? How did you feel? What surprised you?"
         rows={4}
         required
-        className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none resize-none leading-relaxed"
+        className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none resize-none leading-relaxed"
       />
       <div className="flex gap-3 items-end">
         <div className="flex flex-col gap-1 flex-1">
@@ -221,13 +227,13 @@ function JournalForm() {
             value={highlights}
             onChange={e => setHighlights(e.target.value)}
             placeholder="Saw masked dances, best momos ever, made it to 5000m"
-            className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none"
+            className="rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-2 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-mono text-xs tracking-wider uppercase transition-all disabled:opacity-50"
+          className="px-5 py-2 rounded-lg bg-gold text-white font-semibold text-xs tracking-wide uppercase transition-[filter] hover:brightness-110 disabled:opacity-50"
         >
           {loading ? '...' : 'Save'}
         </button>
