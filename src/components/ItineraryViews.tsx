@@ -189,7 +189,7 @@ function TimelineView({ days, weather }: { days: ViewDay[]; weather: Record<numb
         if (weekDays.length === 0) return null
         const done = weekDays.length
         return (
-          <Collapsible key={week} title={WEEK_LABELS[week]} meta={`${done} days`} dotColor="var(--gold)" defaultOpen={week === 1}>
+          <Collapsible key={week} title={WEEK_LABELS[week]} meta={`${done} days`} tags={groupTags(weekDays)} defaultOpen={week === 1}>
             <div className="space-y-3 pt-1">
               {weekDays.map(day => <DayCard key={day.id} day={day} weather={weather} />)}
             </div>
@@ -202,42 +202,47 @@ function TimelineView({ days, weather }: { days: ViewDay[]; weather: Record<numb
 
 /* A single clean day row — the colour-coded badge is the only indicator. */
 function DayRow({ day, weather }: { day: ViewDay; weather: Record<number, DayWeatherData | null> }) {
-  const { color, label } = dayMeta(day)
+  const { color } = dayMeta(day)
   const w = weather[day.dayNumber]
   const loc = DAY_LOCATIONS[day.dayNumber]
   return (
     <div className="flex items-center gap-3 border-t border-border py-2.5 first:border-0">
-      <span className="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-lg leading-none"
-            style={{ background: FLAG_TINT[color] }}>
-        <span className="text-[0.5rem] font-bold uppercase tracking-wide" style={{ color: FLAG[color] }}>D</span>
-        <span className="text-sm font-extrabold" style={{ color: FLAG[color] }}>{day.dayNumber}</span>
-      </span>
+      <span className="w-8 shrink-0 text-center text-sm font-extrabold tabular-nums" style={{ color: FLAG[color] }}>{day.dayNumber}</span>
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-semibold text-cream">{day.title}</div>
-        <div className="flex items-center gap-1.5 text-[0.68rem] text-stone">
-          <span>{day.dayOfWeek}</span>
-          {loc && <span className="inline-flex items-center gap-0.5 truncate"><MapPin className="h-2.5 w-2.5 shrink-0" /> {loc.name}</span>}
-          <span className="font-medium" style={{ color: FLAG[color] }}>· {label}</span>
-        </div>
+        <div className="truncate text-[0.68rem] text-stone">{day.dayOfWeek}{loc ? ` · ${loc.name}` : ''}</div>
       </div>
       {w && <div className="shrink-0 text-[0.72rem] text-stone">{w.icon} {w.tempMax}°/{w.tempMin}°</div>}
     </div>
   )
 }
 
-/* Collapsible section to keep the week / place views uncluttered. */
+// Distinct category icons present in a group — shown on the section title bar.
+function groupTags(days: ViewDay[]): { Icon: LucideIcon; color: FlagColor }[] {
+  const order: FlagColor[] = ['blue', 'green', 'red', 'yellow', 'ink']
+  const seen = new Map<FlagColor, LucideIcon>()
+  for (const d of days) {
+    const { color, Icon } = dayMeta(d)
+    if (!seen.has(color)) seen.set(color, Icon)
+  }
+  return order.filter(c => seen.has(c)).map(c => ({ color: c, Icon: seen.get(c)! }))
+}
+
+/* Collapsible section — category icons live on the title bar, not in the rows. */
 function Collapsible({
-  title, meta, dotColor, defaultOpen = false, children,
+  title, meta, tags = [], defaultOpen = false, children,
 }: {
-  title: string; meta: string; dotColor: string; defaultOpen?: boolean; children: React.ReactNode
+  title: string; meta: string; tags?: { Icon: LucideIcon; color: FlagColor }[]; defaultOpen?: boolean; children: React.ReactNode
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
     <div className="overflow-hidden card-base">
       <button onClick={() => setOpen(v => !v)} className="flex w-full items-center gap-2.5 px-4 py-3 text-left">
-        <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: dotColor }} />
-        <span className="text-sm font-bold text-cream">{title}</span>
-        <span className="ml-auto rounded-full bg-[#f1efe9] px-2 py-0.5 text-[0.62rem] font-semibold text-stone">{meta}</span>
+        <span className="truncate text-sm font-bold text-cream">{title}</span>
+        <span className="ml-auto flex shrink-0 items-center gap-1.5">
+          {tags.map((t, i) => <t.Icon key={i} className="h-4 w-4" style={{ color: FLAG[t.color] }} strokeWidth={2.2} />)}
+        </span>
+        <span className="shrink-0 rounded-full bg-[#f1efe9] px-2 py-0.5 text-[0.62rem] font-semibold text-stone">{meta}</span>
         <ChevronDown className={`h-4 w-4 shrink-0 text-muted transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && <div className="px-4 pb-2">{children}</div>}
@@ -261,7 +266,7 @@ function CalendarView({ days, weather }: { days: ViewDay[]; weather: Record<numb
             key={week}
             title={WEEK_LABELS[week]}
             meta={`${weekDays.length} days`}
-            dotColor="var(--gold)"
+            tags={groupTags(weekDays)}
             defaultOpen={week === 1}
           >
             {weekDays.map(day => <DayRow key={day.id} day={day} weather={weather} />)}
@@ -294,7 +299,7 @@ function LocationView({ days, weather }: { days: ViewDay[]; weather: Record<numb
             key={g.name}
             title={g.name}
             meta={`${g.days.length} ${g.days.length === 1 ? 'day' : 'days'}${loc ? ` · ${loc.altitudeM.toLocaleString()}m` : ''}`}
-            dotColor={FLAG.blue}
+            tags={groupTags(g.days)}
             defaultOpen={i === 0}
           >
             {g.days.map(day => <DayRow key={day.id} day={day} weather={weather} />)}
