@@ -4,8 +4,10 @@ import { format } from 'date-fns'
 import { ReviewLinks } from '@/components/ReviewLinks'
 import { CategoryHero } from '@/components/Photo'
 import { MiniMap } from '@/components/MiniMap'
+import { FestivalGallery, type FestImage } from '@/components/FestivalGallery'
 import { getCategoryImage } from '@/lib/imagery'
-import { PartyPopper } from 'lucide-react'
+import { fetchWikiImage } from '@/lib/trekMedia'
+import { PartyPopper, MapPin, Car, Lightbulb, Ticket } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 const TYPE_COLORS: Record<string, string> = {
@@ -17,11 +19,47 @@ const TYPE_COLORS: Record<string, string> = {
   ASTRONOMY: 'pill-sky',
 }
 
+// Wikipedia titles to source 3–4 indicative photos per festival.
+function festivalWikiTitles(name: string): string[] {
+  const n = name.toLowerCase()
+  const specific: string[] = []
+  if (n.includes('hemis')) specific.push('Hemis Festival', 'Hemis Monastery')
+  if (n.includes('phyang')) specific.push('Phyang Monastery')
+  if (n.includes('naropa')) specific.push('Naropa', 'Hemis Monastery')
+  if (n.includes('losar')) specific.push('Losar')
+  if (n.includes('dosmoche')) specific.push('Leh Palace')
+  if (n.includes('sindhu')) specific.push('Indus River')
+  if (n.includes('yuru') || n.includes('lamayuru')) specific.push('Lamayuru Monastery')
+  if (n.includes('saka dawa') || n.includes('buddha purnima')) specific.push('Vesak')
+  if (n.includes('thiksey') || n.includes('gustor')) specific.push('Thikse Monastery')
+  if (n.includes('matho')) specific.push('Matho Monastery')
+  if (n.includes('stok')) specific.push('Stok, Ladakh')
+  if (n.includes('ladakh') || n.includes('harvest')) specific.push('Ladakh', 'Leh')
+  // Generic, always-indicative Ladakh-festival imagery to round out the strip.
+  const generic = ['Cham dance', 'Thangka', 'Hemis Festival', 'Ladakh']
+  return Array.from(new Set([...specific, ...generic]))
+}
+
 export default async function EventsPage() {
   const [events, heroImg] = await Promise.all([
     db.event.findMany({ orderBy: { startDate: 'asc' } }),
     getCategoryImage('events'),
   ])
+
+  // Resolve up to 4 distinct photos per festival (Wikipedia, cached 1 day).
+  const eventImages: Record<string, FestImage[]> = {}
+  await Promise.all(
+    events.map(async ev => {
+      const imgs: FestImage[] = []
+      const seen = new Set<string>()
+      for (const title of festivalWikiTitles(ev.name)) {
+        if (imgs.length >= 4) break
+        const img = await fetchWikiImage(title)
+        if (img?.src && !seen.has(img.src)) { seen.add(img.src); imgs.push({ src: img.src, pageUrl: img.pageUrl }) }
+      }
+      eventImages[ev.id] = imgs
+    })
+  )
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
@@ -75,13 +113,21 @@ export default async function EventsPage() {
               </div>
             </div>
             <p className="text-muted text-sm leading-relaxed mb-3">{event.description}</p>
-            <div className="text-xs text-stone space-y-0.5">
-              <div>📍 {event.location}</div>
-              {event.distanceFromLehKm && <div>🚗 {event.distanceFromLehKm}km from Leh</div>}
-              {event.tips && <div>💡 {event.tips}</div>}
+
+            {/* Photo strip → opens a slideshow for this festival */}
+            {eventImages[event.id]?.length > 0 && (
+              <div className="mb-3">
+                <FestivalGallery title={event.name} images={eventImages[event.id]} />
+              </div>
+            )}
+
+            <div className="text-xs text-stone space-y-1">
+              <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 shrink-0 text-flag-red" /> {event.location}</div>
+              {event.distanceFromLehKm && <div className="flex items-center gap-1.5"><Car className="h-3.5 w-3.5 shrink-0 text-stone" /> {event.distanceFromLehKm}km from Leh</div>}
+              {event.tips && <div className="flex items-center gap-1.5"><Lightbulb className="h-3.5 w-3.5 shrink-0 text-gold" /> {event.tips}</div>}
               {event.ticketUrl && (
                 <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer"
-                   className="text-sky hover:underline">🎫 Get Tickets</a>
+                   className="inline-flex items-center gap-1.5 text-sky hover:underline"><Ticket className="h-3.5 w-3.5 shrink-0" /> Get Tickets</a>
               )}
             </div>
             <div className="mt-3">

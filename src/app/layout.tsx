@@ -3,6 +3,7 @@ import './globals.css'
 import { TabBar } from '@/components/TabBar'
 import { CommandBar } from '@/components/CommandBar'
 import { Toaster } from 'sonner'
+import { ensureSchema } from '@/lib/migrations'
 
 export const metadata: Metadata = {
   title: 'Leh Ladakh — Workation Manager',
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
   icons: { icon: '/favicon.ico' },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Self-heal the schema on first boot so deploys with new columns never 500.
+  await ensureSchema()
   return (
     <html lang="en">
       <head>
