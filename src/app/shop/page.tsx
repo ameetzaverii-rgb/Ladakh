@@ -1,5 +1,8 @@
 import { db } from '@/lib/db'
 import { ShopClient, type ShopItemT } from './ShopClient'
+import { CategoryHero } from '@/components/Photo'
+import { getCategoryImage } from '@/lib/imagery'
+import { ShoppingBag } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,14 +18,13 @@ export default async function ShopPage() {
     needsMigrate = true
   }
 
+  const heroImg = await getCategoryImage('shop')
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <div className="label-mono text-xs text-gold mb-2">Souvenir Repository</div>
-        <h1 className="section-title mb-1">The <em className="text-gold italic">Shopping List</em></h1>
-        <p className="text-stone text-sm">What to pick up — and where — across each part of Ladakh. Tick things off as you buy them.</p>
-        <a href="/contribute" className="inline-block mt-2 label-mono text-[0.6rem] text-sky hover:underline">🙋 Friends can add suggestions → share the Collaborate page</a>
-      </div>
+      <CategoryHero src={heroImg?.src ?? null} color="yellow" icon={ShoppingBag}
+        title="The Shopping List" subtitle="What to pick up — and where — across Ladakh. Tick things off as you buy them." />
+      <a href="/contribute" className="mb-6 inline-block label-mono text-[0.6rem] text-sky hover:underline">🙋 Friends can add suggestions → share the Collaborate page</a>
 
       {needsMigrate ? (
         <div className="warning-box p-5 text-sm text-muted">

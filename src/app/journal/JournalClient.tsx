@@ -5,7 +5,15 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { format, parseISO } from 'date-fns'
 import { FLAG, FLAG_TINT } from '@/lib/utils'
+import { PLACE_OPTIONS, WEATHER_OPTIONS, HIGHLIGHT_OPTIONS } from '@/lib/options'
 import { Plus, BookOpen, MapPin, ChevronDown, Pencil, Trash2 } from 'lucide-react'
+
+// Merge a tag into a comma-separated string without duplicates.
+function mergeTag(current: string, tag: string): string {
+  const arr = current.split(',').map(s => s.trim()).filter(Boolean)
+  if (!arr.includes(tag)) arr.push(tag)
+  return arr.join(', ')
+}
 
 type Entry = {
   id: string; tripDay: number; date: Date | string; title: string | null;
@@ -258,22 +266,26 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
     <form onSubmit={handleSubmit} className="card-base p-6 mb-6 space-y-4">
       <div className="label-mono text-xs text-gold">{entry ? 'Edit Entry' : 'New Journal Entry'}</div>
 
+      {/* Predictable pickers — choose from the list or type your own */}
+      <datalist id="place-opts">{PLACE_OPTIONS.map(p => <option key={p} value={p} />)}</datalist>
+      <datalist id="weather-opts">{WEATHER_OPTIONS.map(w => <option key={w} value={w} />)}</datalist>
+
       <div className="grid md:grid-cols-3 gap-3">
         <div>
           <label className="label-mono text-[0.55rem] block mb-1">Trip Day #</label>
           <input type="number" value={tripDay} onChange={e => setTripDay(e.target.value)} min="1" max="30"
-            className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
+            className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none tabular-nums" />
         </div>
         <div>
           <label className="label-mono text-[0.55rem] block mb-1">Location</label>
-          <input type="text" value={location} onChange={e => setLocation(e.target.value)}
-            placeholder="Phyang Monastery"
+          <input type="text" list="place-opts" value={location} onChange={e => setLocation(e.target.value)}
+            placeholder="Pick or type…"
             className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         </div>
         <div>
           <label className="label-mono text-[0.55rem] block mb-1">Weather</label>
-          <input type="text" value={weather} onChange={e => setWeather(e.target.value)}
-            placeholder="Sunny 24°C"
+          <input type="text" list="weather-opts" value={weather} onChange={e => setWeather(e.target.value)}
+            placeholder="Pick or type…"
             className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         </div>
       </div>
@@ -309,9 +321,17 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
 
       <div className="grid md:grid-cols-2 gap-3">
         <div>
-          <label className="label-mono text-[0.55rem] block mb-1">Highlights (comma-separated)</label>
+          <label className="label-mono text-[0.55rem] block mb-1">Highlights</label>
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            {HIGHLIGHT_OPTIONS.map(tag => (
+              <button key={tag} type="button" onClick={() => setHighlights(h => mergeTag(h, tag))}
+                className="press rounded-full border border-border bg-white px-2.5 py-1 text-[0.68rem] font-medium text-stone hover:border-gold-mid hover:text-cream">
+                + {tag}
+              </button>
+            ))}
+          </div>
           <input type="text" value={highlights} onChange={e => setHighlights(e.target.value)}
-            placeholder="Saw masked dances, amazing momos, 5000m!"
+            placeholder="Tap chips above, or type your own…"
             className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         </div>
         <div>

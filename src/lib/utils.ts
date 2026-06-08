@@ -6,9 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// Drop a trailing ".0" so amounts read cleanly (₹1.5L, ₹27K, ₹950).
+function trim(n: number): string {
+  return n.toFixed(1).replace(/\.0$/, '')
+}
 export function formatINR(amount: number): string {
-  if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`
-  if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}K`
+  if (amount >= 100000) return `₹${trim(amount / 100000)}L`
+  if (amount >= 1000) return `₹${trim(amount / 1000)}K`
   return `₹${amount.toLocaleString('en-IN')}`
 }
 

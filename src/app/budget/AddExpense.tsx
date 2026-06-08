@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { CATEGORY_ICONS } from '@/lib/utils'
+import { PLACE_OPTIONS } from '@/lib/options'
 
 const HIDDEN = ['FLIGHTS', 'ACCOMMODATION', 'PERMITS', 'GEAR', 'DOCUMENTS', 'WORK_SETUP', 'MONEY']
 
@@ -96,8 +97,9 @@ export function AddExpense() {
               <option value="upi">UPI</option>
               <option value="card">Card</option>
             </select>
-            <input type="text" value={place} onChange={e => setPlace(e.target.value)}
-              placeholder="Place (optional)" className={`md:col-span-3 ${inputCls}`} />
+            <input type="text" list="ae-place" value={place} onChange={e => setPlace(e.target.value)}
+              placeholder="Place — pick or type… (optional)" className={`md:col-span-3 ${inputCls}`} />
+            <datalist id="ae-place">{PLACE_OPTIONS.map(p => <option key={p} value={p} />)}</datalist>
           </div>
           <button type="submit" disabled={loading}
             className="px-5 py-2 rounded-lg bg-gold text-white font-semibold text-xs tracking-wide uppercase transition-[filter] hover:brightness-110 disabled:opacity-50">

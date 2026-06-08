@@ -1,6 +1,9 @@
 import { db } from '@/lib/db'
-import { PHASE_LABELS, PHASE_ORDER, CATEGORY_ICONS } from '@/lib/utils'
+import { PHASE_ORDER } from '@/lib/utils'
 import { PrepClient } from './PrepClient'
+import { CategoryHero } from '@/components/Photo'
+import { getCategoryImage } from '@/lib/imagery'
+import { ListChecks } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 async function getChecklistData() {
@@ -11,7 +14,7 @@ async function getChecklistData() {
 }
 
 export default async function PrepPage() {
-  const items = await getChecklistData()
+  const [items, heroImg] = await Promise.all([getChecklistData(), getCategoryImage('itinerary')])
 
   const byPhase = PHASE_ORDER.reduce((acc, phase) => {
     acc[phase] = items.filter(i => i.phase === phase)
@@ -24,25 +27,22 @@ export default async function PrepPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <div className="label-mono text-xs text-gold mb-2">Pre-Trip Preparation</div>
-        <h1 className="section-title mb-1">The <em className="text-gold italic">Prep</em> List</h1>
-        <p className="text-stone text-sm">Everything you need to book, pack, and sort before you fly.</p>
-      </div>
+      <CategoryHero src={heroImg?.src ?? null} color="blue" icon={ListChecks}
+        title="The Prep List" subtitle="Everything to book, pack, and sort before you fly." />
 
       {/* Progress bar */}
       <div className="card-base p-5 mb-8">
-        <div className="flex items-end justify-between mb-3">
+        <div className="mb-3 flex items-end justify-between">
           <div>
-            <div className="font-serif text-3xl text-gold">{totalDone}</div>
-            <div className="label-mono text-[0.55rem] text-stone">of {totalCount} completed</div>
+            <div className="text-3xl font-extrabold tabular-nums text-cream">{totalDone}<span className="text-lg text-stone">/{totalCount}</span></div>
+            <div className="text-[0.7rem] font-medium text-stone">completed</div>
           </div>
-          <div className="font-serif text-5xl text-gold/30 font-light">{pct}%</div>
+          <div className="text-5xl font-extrabold tabular-nums text-flag-blue">{pct}%</div>
         </div>
-        <div className="h-2 bg-[#eee9df] rounded-full overflow-hidden">
+        <div className="h-2.5 overflow-hidden rounded-full bg-[#eee9df]">
           <div
             className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #b85c38, #c9993a)' }}
+            style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #2f6db5, #3e9e6e)' }}
           />
         </div>
       </div>
