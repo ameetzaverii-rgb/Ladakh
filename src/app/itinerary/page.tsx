@@ -3,6 +3,10 @@ import { DAY_LOCATIONS } from '@/lib/locations'
 import { getDayWeather, type DayWeather as DayWeatherData } from '@/lib/weather'
 import { ItineraryMap, type MapDay } from '@/components/ItineraryMap'
 import { ItineraryViews, type ViewDay } from '@/components/ItineraryViews'
+import { CategoryHero } from '@/components/Photo'
+import { getCategoryImage } from '@/lib/imagery'
+import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
+import { CalendarDays, Laptop, Mountain, Camera, PartyPopper, type LucideIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,9 +18,10 @@ function isoForDay(start: Date, dayNumber: number): string {
 }
 
 export default async function ItineraryPage() {
-  const [days, tripConfig] = await Promise.all([
+  const [days, tripConfig, heroImg] = await Promise.all([
     db.itineraryDay.findMany({ orderBy: { dayNumber: 'asc' } }),
     db.tripConfig.findFirst().catch(() => null),
+    getCategoryImage('itinerary'),
   ])
 
   // Live weather for every day, fetched in parallel.
@@ -56,37 +61,38 @@ export default async function ItineraryPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <div className="label-mono text-xs text-gold mb-2">21-Day Plan</div>
-        <h1 className="section-title mb-1">The <em className="text-gold italic">Blueprint</em></h1>
-        <p className="text-stone text-sm">Your day-by-day Ladakh workation schedule. Work mornings, explore afternoons.</p>
-      </div>
+      <CategoryHero src={heroImg?.src ?? null} color="blue" icon={CalendarDays}
+        title="The 21-Day Plan" subtitle="Work mornings, explore afternoons — your day-by-day Ladakh workation." />
 
       {/* Legend */}
-      <div className="flex gap-3 flex-wrap mb-8 card-base p-3">
-        {[
-          { icon: '🖥', label: 'Work Day' },
-          { icon: '🥾', label: 'Trek' },
-          { icon: '🌄', label: 'Excursion' },
-          { icon: '🎭', label: 'Festival' },
-        ].map(l => (
-          <span key={l.label} className="label-mono text-[0.6rem] text-stone flex items-center gap-1.5">
-            <span>{l.icon}</span>{l.label}
-          </span>
-        ))}
+      <div className="mb-7 flex flex-wrap gap-2">
+        {([
+          { Icon: Laptop, label: 'Work day', color: 'blue' },
+          { Icon: Mountain, label: 'Trek', color: 'green' },
+          { Icon: Camera, label: 'Excursion', color: 'yellow' },
+          { Icon: PartyPopper, label: 'Festival', color: 'red' },
+        ] as { Icon: LucideIcon; label: string; color: FlagColor }[]).map(l => {
+          const Icon = l.Icon
+          return (
+            <span key={l.label} className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.68rem] font-semibold"
+                  style={{ background: FLAG_TINT[l.color], color: FLAG[l.color] }}>
+              <Icon className="h-3.5 w-3.5" /> {l.label}
+            </span>
+          )
+        })}
       </div>
 
       {/* Route map */}
       {mapDays.length > 0 && (
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-serif text-xl text-cream">Where you'll be</h2>
-            <span className="label-mono text-[0.55rem] text-stone">
-              <span className="text-gold">●</span> Leh base &nbsp;·&nbsp; <span className="text-rust">●</span> Excursions
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-extrabold text-cream">Where you&apos;ll be</h2>
+            <span className="text-[0.62rem] font-medium text-stone">
+              <span style={{ color: FLAG.blue }}>●</span> Leh base &nbsp;·&nbsp; <span style={{ color: FLAG.red }}>●</span> Excursions
             </span>
           </div>
           <ItineraryMap days={mapDays} />
-          <p className="text-muted text-[0.7rem] mt-2">Tap a pin to see which days are spent there.</p>
+          <p className="mt-2 text-[0.7rem] text-muted">Tap a pin to see which days are spent there.</p>
         </div>
       )}
 
