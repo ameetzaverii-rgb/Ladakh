@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { SHOP_IDEAS, type ShopIdea } from '@/lib/shopSuggestions'
 import { catIcon } from '@/lib/categoryIcons'
-import { Heart, X, RotateCcw, Check, Sparkles } from 'lucide-react'
+import { Heart, X, RotateCcw, Sparkles, MapPin } from 'lucide-react'
 
 const SEEN_KEY = 'shopIdeasSeen'
 
@@ -16,7 +16,7 @@ function saveSeen(ids: string[]) {
   try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids)) } catch {}
 }
 
-export function ShopDiscover({ existingNames }: { existingNames: string[] }) {
+export function ShopDiscover({ existingNames, images = {} }: { existingNames: string[]; images?: Record<string, string> }) {
   const router = useRouter()
   const have = useMemo(() => new Set(existingNames.map(n => n.toLowerCase())), [existingNames])
   const [seen, setSeen] = useState<string[]>([])
@@ -90,35 +90,50 @@ export function ShopDiscover({ existingNames }: { existingNames: string[] }) {
   const rot = drag / 18
   const keepHint = Math.max(0, Math.min(1, drag / 110))
   const skipHint = Math.max(0, Math.min(1, -drag / 110))
+  const photo = images[current.id]
 
   return (
     <div className="select-none">
       <p className="mb-3 text-center text-xs text-stone">Swipe right to keep · left to skip</p>
-      <div className="relative mx-auto h-[360px] max-w-sm">
-        {/* peek of next card */}
-        {deck[1] && <div className="absolute inset-x-3 top-3 h-full rounded-2xl border border-border bg-white/70" />}
+      <div className="relative mx-auto h-[460px] max-w-[20rem]">
+        {/* peek of the next polaroid, tucked behind */}
+        {deck[1] && <div className="absolute inset-x-4 top-4 h-full rounded-[3px] bg-white shadow-soft" style={{ transform: 'rotate(3deg)' }} />}
+
+        {/* Polaroid card */}
         <div
           onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
-          className="absolute inset-0 cursor-grab touch-none rounded-2xl border border-border bg-white shadow-soft active:cursor-grabbing"
-          style={{ transform: `translateX(${drag}px) rotate(${rot}deg)`, transition: startX.current == null ? 'transform 0.25s var(--ease-out-soft)' : 'none' }}
+          className="absolute inset-0 flex cursor-grab touch-none flex-col rounded-[3px] bg-white p-3 pb-4 shadow-soft active:cursor-grabbing"
+          style={{
+            transform: `translateX(${drag}px) rotate(${rot - 1.2}deg)`,
+            transition: startX.current == null ? 'transform 0.28s var(--ease-out-soft)' : 'none',
+            boxShadow: '0 10px 30px -8px rgba(26,18,8,0.28)',
+          }}
         >
-          <div className="flex h-full flex-col p-5">
-            <div className="flex items-center gap-2">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-tint-yellow">
-                <Icon className="h-5 w-5 text-flag-yellow" strokeWidth={2.2} />
-              </span>
-              <div>
-                <div className="text-[0.62rem] font-bold uppercase tracking-wide text-stone">{current.area} · {current.category}</div>
-                <div className="text-base font-extrabold leading-tight text-cream">{current.name}</div>
-              </div>
-              <span className="ml-auto rounded-full bg-[#f1efe9] px-2.5 py-1 text-sm font-bold tabular-nums text-cream">₹{current.estPriceINR.toLocaleString('en-IN')}</span>
-            </div>
-            <p className="mt-4 flex-1 text-sm leading-relaxed text-sand">{current.blurb}</p>
-            <div className="rounded-xl bg-[#f7f5ef] px-3 py-2 text-xs text-stone"><span className="font-semibold text-sand">Where:</span> {current.whereToBuy}</div>
+          {/* photo window */}
+          <div className="relative aspect-square w-full overflow-hidden rounded-[2px] bg-tint-yellow">
+            {photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={photo} alt={current.name} draggable={false} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center"><Icon className="h-16 w-16 text-flag-yellow/70" strokeWidth={1.6} /></div>
+            )}
+            {/* price tag */}
+            <span className="absolute right-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-sm font-extrabold tabular-nums text-cream shadow-soft">₹{current.estPriceINR.toLocaleString('en-IN')}</span>
+            {/* drag stamps */}
+            <div className="pointer-events-none absolute left-3 top-3 rounded-md border-[3px] border-sage px-2 py-0.5 text-base font-extrabold uppercase tracking-wide text-sage" style={{ opacity: keepHint, transform: 'rotate(-14deg)' }}>Keep</div>
+            <div className="pointer-events-none absolute right-3 top-3 rounded-md border-[3px] border-rust px-2 py-0.5 text-base font-extrabold uppercase tracking-wide text-rust" style={{ opacity: skipHint, transform: 'rotate(14deg)' }}>Skip</div>
+          </div>
 
-            {/* drag hints */}
-            <div className="pointer-events-none absolute left-4 top-4 rounded-lg border-2 border-sage px-2 py-0.5 text-xs font-extrabold uppercase text-sage" style={{ opacity: keepHint, transform: 'rotate(-12deg)' }}>Keep</div>
-            <div className="pointer-events-none absolute right-4 top-4 rounded-lg border-2 border-rust px-2 py-0.5 text-xs font-extrabold uppercase text-rust" style={{ opacity: skipHint, transform: 'rotate(12deg)' }}>Skip</div>
+          {/* caption — the white polaroid foot */}
+          <div className="flex flex-1 flex-col px-1 pt-3">
+            <h3 className="font-serif text-xl font-bold leading-tight text-cream">{current.name}</h3>
+            <div className="mt-1 flex items-center gap-1.5 text-[0.7rem] font-semibold text-stone">
+              <span className="inline-flex items-center gap-1 rounded-full bg-tint-yellow px-2 py-0.5 text-flag-yellow"><MapPin className="h-3 w-3" /> {current.area}</span>
+              <span className="text-muted">·</span>
+              <Icon className="h-3.5 w-3.5 text-stone" /> {current.category}
+            </div>
+            <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-muted">{current.blurb}</p>
+            <p className="mt-auto pt-2 text-[0.68rem] text-stone"><span className="font-semibold text-sand">Where:</span> {current.whereToBuy}</p>
           </div>
         </div>
       </div>
