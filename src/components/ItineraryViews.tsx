@@ -8,7 +8,7 @@ import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
 import type { DayWeather as DayWeatherData } from '@/lib/weather'
 import {
   List, LayoutGrid, MapPin, Laptop, Mountain, PartyPopper, Camera,
-  Coffee, Sun, Moon, UtensilsCrossed, Car, NotebookPen, ArrowUpRight,
+  UtensilsCrossed, Car, NotebookPen, ArrowUpRight,
   ChevronDown, type LucideIcon,
 } from 'lucide-react'
 
@@ -131,56 +131,52 @@ export function ItineraryViews({
   )
 }
 
-/* Elegant week-divider with a warm colour patch. */
-function WeekHeader({ week }: { week: number }) {
-  return (
-    <div className="mb-4 flex items-center gap-3">
-      <span className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, #e8e3d8)' }} />
-      <span
-        className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.7rem] font-bold tracking-wide"
-        style={{ background: 'linear-gradient(135deg, var(--tint-yellow), #fff)', color: '#8a6500', border: '1px solid rgba(176,122,22,0.2)' }}
-      >
-        <span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--gold)' }} />
-        {WEEK_LABELS[week]}
-      </span>
-      <span className="h-px flex-1" style={{ background: 'linear-gradient(to left, transparent, #e8e3d8)' }} />
-    </div>
-  )
-}
-
-/* Compact day badge — replaces the wide left number column. */
-function DayBadge({ day }: { day: ViewDay }) {
-  const { color } = dayMeta(day)
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5" style={{ background: FLAG_TINT[color] }}>
-      <span className="text-[0.7rem] font-extrabold leading-none" style={{ color: FLAG[color] }}>Day {day.dayNumber}</span>
-      <span className="text-[0.6rem] font-bold uppercase tracking-wide text-stone">{day.dayOfWeek}</span>
-    </span>
-  )
-}
-
 function MealNotes({ day }: { day: ViewDay }) {
   if (!day.breakfastNote && !day.lunchNote && !day.dinnerNote) return null
-  const rows: { Icon: LucideIcon; label: string; note: string }[] = []
-  if (day.breakfastNote) rows.push({ Icon: Coffee, label: 'Breakfast', note: day.breakfastNote })
-  if (day.lunchNote) rows.push({ Icon: Sun, label: 'Lunch', note: day.lunchNote })
-  if (day.dinnerNote) rows.push({ Icon: Moon, label: 'Dinner', note: day.dinnerNote })
+  const rows: { label: string; note: string }[] = []
+  if (day.breakfastNote) rows.push({ label: 'Breakfast', note: day.breakfastNote })
+  if (day.lunchNote) rows.push({ label: 'Lunch', note: day.lunchNote })
+  if (day.dinnerNote) rows.push({ label: 'Dinner', note: day.dinnerNote })
   return (
     <div className="mt-3 space-y-1 border-t border-border pt-2.5 text-xs text-stone">
-      {rows.map(r => {
-        const Icon = r.Icon
-        return (
-          <div key={r.label} className="flex gap-1.5">
-            <Icon className="mt-0.5 h-3 w-3 shrink-0 text-gold" />
-            <span><span className="font-semibold text-sand">{r.label}: </span>{r.note}</span>
-          </div>
-        )
-      })}
+      {rows.map(r => (
+        <div key={r.label}><span className="font-semibold text-sand">{r.label}: </span>{r.note}</div>
+      ))}
     </div>
   )
 }
 
-/* ---------- Timeline (the detailed default) ---------- */
+/* A full day card with an elegant colour band (day + category). */
+function DayCard({ day, weather }: { day: ViewDay; weather: Record<number, DayWeatherData | null> }) {
+  const { color, label, Icon } = dayMeta(day)
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-white">
+      {/* elegant band */}
+      <div className="flex items-center justify-between px-4 py-2" style={{ background: FLAG_TINT[color] }}>
+        <span className="text-sm font-extrabold" style={{ color: FLAG[color] }}>
+          Day {day.dayNumber}
+          <span className="ml-2 text-[0.62rem] font-bold uppercase tracking-wide text-stone">{day.dayOfWeek}</span>
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.62rem] font-bold text-white" style={{ background: FLAG[color] }}>
+          <Icon className="h-3 w-3" /> {label}
+        </span>
+      </div>
+      <div className="p-4">
+        <h3 className="text-[0.95rem] font-bold leading-snug text-cream">{day.title}</h3>
+        {DAY_LOCATIONS[day.dayNumber] && (
+          <div className="mt-1.5">
+            <DayWeather weather={weather[day.dayNumber] ?? null} location={DAY_LOCATIONS[day.dayNumber]} />
+          </div>
+        )}
+        <p className="mt-1.5 text-xs leading-relaxed text-muted">{day.description}</p>
+        <MealNotes day={day} />
+        <DayLinkChips day={day} />
+      </div>
+    </div>
+  )
+}
+
+/* ---------- Timeline (collapsible by week) ---------- */
 function TimelineView({ days, weather }: { days: ViewDay[]; weather: Record<number, DayWeatherData | null> }) {
   const weeks = [1, 2, 3].map(w => ({
     week: w,
@@ -188,44 +184,19 @@ function TimelineView({ days, weather }: { days: ViewDay[]; weather: Record<numb
   }))
 
   return (
-    <>
+    <div className="space-y-3">
       {weeks.map(({ week, days: weekDays }) => {
         if (weekDays.length === 0) return null
+        const done = weekDays.length
         return (
-          <div key={week} className="mb-9">
-            <WeekHeader week={week} />
-            <div className="space-y-2.5">
-              {weekDays.map(day => {
-                const { color, label, Icon } = dayMeta(day)
-                return (
-                  <div key={day.id} className="relative overflow-hidden card-base p-4 pl-5">
-                    <span className="absolute left-0 top-0 h-full w-1.5" style={{ background: FLAG[color] }} />
-                    <div className="mb-2 flex items-center gap-2">
-                      <DayBadge day={day} />
-                      <span
-                        className="ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.62rem] font-bold"
-                        style={{ background: FLAG_TINT[color], color: FLAG[color] }}
-                      >
-                        <Icon className="h-3 w-3" /> {label}
-                      </span>
-                    </div>
-                    <h3 className="text-[0.95rem] font-bold leading-snug text-cream">{day.title}</h3>
-                    {DAY_LOCATIONS[day.dayNumber] && (
-                      <div className="mt-1.5">
-                        <DayWeather weather={weather[day.dayNumber] ?? null} location={DAY_LOCATIONS[day.dayNumber]} />
-                      </div>
-                    )}
-                    <p className="mt-1.5 text-xs leading-relaxed text-muted">{day.description}</p>
-                    <MealNotes day={day} />
-                    <DayLinkChips day={day} />
-                  </div>
-                )
-              })}
+          <Collapsible key={week} title={WEEK_LABELS[week]} meta={`${done} days`} dotColor="var(--gold)" defaultOpen={week === 1}>
+            <div className="space-y-3 pt-1">
+              {weekDays.map(day => <DayCard key={day.id} day={day} weather={weather} />)}
             </div>
-          </div>
+          </Collapsible>
         )
       })}
-    </>
+    </div>
   )
 }
 

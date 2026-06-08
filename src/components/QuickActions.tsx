@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { Wallet, BookOpen, type LucideIcon } from 'lucide-react'
 import { PLACE_OPTIONS, HIGHLIGHT_OPTIONS } from '@/lib/options'
+import { MOODS } from '@/lib/moods'
 
 type Tab = 'expense' | 'journal'
 
@@ -193,24 +194,25 @@ function JournalForm() {
     }
   }
 
-  const MOODS = ['😔', '😐', '🙂', '😊', '🤩']
-
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="flex gap-3 flex-wrap items-center">
         <div className="flex gap-1.5">
-          {MOODS.map((emoji, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setMood(String(i + 1))}
-              className={`text-xl w-9 h-9 flex items-center justify-center rounded transition-all border ${
-                mood === String(i + 1) ? 'border-gold bg-gold/10' : 'border-transparent hover:border-gold/30'
-              }`}
-            >
-              {emoji}
-            </button>
-          ))}
+          {MOODS.map(m => {
+            const on = mood === String(m.value)
+            return (
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => setMood(String(m.value))}
+                title={m.label}
+                className={`flex h-9 w-9 items-center justify-center rounded-lg border transition-all ${on ? 'border-transparent' : 'border-border hover:border-gold-mid'}`}
+                style={on ? { background: m.color } : undefined}
+              >
+                <m.Icon className="h-5 w-5" style={{ color: on ? '#fff' : m.color }} />
+              </button>
+            )
+          })}
         </div>
         <input
           type="text"
