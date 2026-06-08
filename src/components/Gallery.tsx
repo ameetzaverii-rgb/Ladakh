@@ -1,9 +1,18 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { X, ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, MapPin, Star, BookOpen } from 'lucide-react'
 import { FLAG, type FlagColor } from '@/lib/utils'
-import { MiniMap } from '@/components/MiniMap'
+
+// External links for the lightbox action menu.
+function mapHref(it: GalleryItem) {
+  return typeof it.lat === 'number' && typeof it.lng === 'number'
+    ? `https://www.google.com/maps/search/?api=1&query=${it.lat},${it.lng}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(it.name + ' Ladakh')}`
+}
+function reviewHref(it: GalleryItem) {
+  return `https://www.google.com/search?q=${encodeURIComponent(it.name + ' Ladakh reviews')}`
+}
 
 export interface GalleryItem {
   id: string
@@ -120,15 +129,23 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
                 <span className="ml-auto text-xs text-white/70">{items[open].when} · {items[open].region}</span>
               </div>
               <p className="mt-1.5 text-sm leading-relaxed text-white/80">{items[open].blurb}</p>
-              <div className="mt-3">
-                <MiniMap lat={items[open].lat} lng={items[open].lng} label={items[open].name} height={150} />
-              </div>
-              {items[open].pageUrl && items[open].pageUrl.startsWith('http') && (
-                <a href={items[open].pageUrl} target="_blank" rel="noopener noreferrer"
-                   className="mt-2 inline-block text-xs font-semibold text-white/60 underline-offset-2 hover:underline">
-                  Learn more ↗
+              {/* Action menu: reviews · map · wiki */}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a href={mapHref(items[open])} target="_blank" rel="noopener noreferrer"
+                   className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">
+                  <MapPin className="h-3.5 w-3.5" /> Map
                 </a>
-              )}
+                <a href={reviewHref(items[open])} target="_blank" rel="noopener noreferrer"
+                   className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">
+                  <Star className="h-3.5 w-3.5" /> Reviews
+                </a>
+                {items[open].pageUrl && items[open].pageUrl.startsWith('http') && (
+                  <a href={items[open].pageUrl} target="_blank" rel="noopener noreferrer"
+                     className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">
+                    <BookOpen className="h-3.5 w-3.5" /> Wikipedia
+                  </a>
+                )}
+              </div>
               <div className="mt-2 text-center text-[0.65rem] text-white/40">{open + 1} / {items.length}</div>
             </figcaption>
           </figure>
