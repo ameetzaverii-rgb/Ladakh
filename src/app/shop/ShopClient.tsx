@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import {
+  Check, MapPin, Store, ShoppingBag, Plus, X, Pencil, Trash2,
+  Shirt, UtensilsCrossed, Hammer, Gem, Sparkles, Package, type LucideIcon,
+} from 'lucide-react'
 
 export type ShopItemT = {
   id: string; name: string; area: string; category: string;
@@ -13,8 +17,8 @@ export type ShopItemT = {
 const AREAS = ['Leh', 'Nubra', 'Pangong', 'Sham', 'Turtuk', 'General']
 const CATEGORIES = ['Textiles', 'Food', 'Handicraft', 'Jewellery', 'Spiritual', 'Misc']
 
-const CATEGORY_ICONS: Record<string, string> = {
-  Textiles: '🧣', Food: '🫙', Handicraft: '🪔', Jewellery: '📿', Spiritual: '🏵', Misc: '🛍',
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  Textiles: Shirt, Food: UtensilsCrossed, Handicraft: Hammer, Jewellery: Gem, Spiritual: Sparkles, Misc: Package,
 }
 const PRIORITY: Record<string, { label: string; cls: string }> = {
   must: { label: 'Must-buy', cls: 'pill-rust' },
@@ -77,7 +81,6 @@ export function ShopClient({ items }: { items: ShopItemT[] }) {
     toast.success('Removed')
   }
 
-  // Group filtered items by area for display.
   const groups = AREAS
     .map(area => ({ area, items: filtered.filter(i => i.area === area) }))
     .filter(g => g.items.length > 0)
@@ -85,50 +88,42 @@ export function ShopClient({ items }: { items: ShopItemT[] }) {
   return (
     <div>
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="card-base p-3 sm:p-4 text-center">
-          <div className="label-mono text-[0.55rem] text-stone mb-1">Items</div>
-          <div className="font-serif text-2xl text-cream">{acquired}/{items.length}</div>
-          <div className="label-mono text-[0.5rem] text-stone mt-0.5">bought</div>
+      <div className="mb-6 grid grid-cols-3 gap-3">
+        <div className="card-base p-3 text-center sm:p-4">
+          <div className="mb-1 text-[0.6rem] font-semibold uppercase tracking-wide text-stone">Items</div>
+          <div className="text-2xl font-extrabold tabular-nums text-cream">{acquired}/{items.length}</div>
+          <div className="mt-0.5 text-[0.6rem] text-stone">bought</div>
         </div>
-        <div className="card-base p-3 sm:p-4 text-center">
-          <div className="label-mono text-[0.55rem] text-stone mb-1">Est. total</div>
-          <div className="font-serif text-lg sm:text-2xl text-gold">{inr(estTotal)}</div>
+        <div className="card-base p-3 text-center sm:p-4">
+          <div className="mb-1 text-[0.6rem] font-semibold uppercase tracking-wide text-stone">Est. total</div>
+          <div className="text-lg font-extrabold tabular-nums text-gold sm:text-2xl">{inr(estTotal)}</div>
         </div>
-        <div className="card-base p-3 sm:p-4 text-center">
-          <div className="label-mono text-[0.55rem] text-stone mb-1">Spent so far</div>
-          <div className="font-serif text-lg sm:text-2xl text-rust">{inr(spent)}</div>
+        <div className="card-base p-3 text-center sm:p-4">
+          <div className="mb-1 text-[0.6rem] font-semibold uppercase tracking-wide text-stone">Spent so far</div>
+          <div className="text-lg font-extrabold tabular-nums text-rust sm:text-2xl">{inr(spent)}</div>
         </div>
       </div>
 
       {/* Filters + add */}
-      <div className="flex items-center gap-2 flex-wrap mb-5">
-        <button onClick={() => setFilterArea(null)}
-          className={`pill ${!filterArea ? 'pill-gold' : 'border border-gold/20 text-stone hover:text-gold'}`}>
-          All areas
-        </button>
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <Chip active={!filterArea} onClick={() => setFilterArea(null)} label="All areas" />
         {AREAS.filter(a => items.some(i => i.area === a)).map(a => (
-          <button key={a} onClick={() => setFilterArea(filterArea === a ? null : a)}
-            className={`pill ${filterArea === a ? 'pill-gold' : 'border border-gold/20 text-stone hover:text-gold'}`}>
-            {a}
-          </button>
+          <Chip key={a} active={filterArea === a} onClick={() => setFilterArea(filterArea === a ? null : a)} label={a} />
         ))}
-        <button onClick={() => { setShowForm(v => !v); setEditItem(null) }} className="pill pill-sky ml-auto">
-          + Add item
+        <button onClick={() => { setShowForm(v => !v); setEditItem(null) }}
+          className="press ml-auto inline-flex items-center gap-1 rounded-full bg-flag-yellow px-3 py-1.5 text-xs font-bold text-white">
+          <Plus className="h-3.5 w-3.5" /> Add item
         </button>
       </div>
 
       {(showForm || editItem) && (
-        <ItemForm
-          item={editItem}
-          onClose={() => { setShowForm(false); setEditItem(null) }}
-        />
+        <ItemForm item={editItem} onClose={() => { setShowForm(false); setEditItem(null) }} />
       )}
 
       {items.length === 0 && !showForm && (
-        <div className="text-center py-16 text-stone">
-          <div className="text-4xl mb-3">🛍</div>
-          <p className="font-serif text-cream text-lg mb-2">Nothing on the list yet</p>
+        <div className="py-16 text-center text-stone">
+          <ShoppingBag className="mx-auto mb-3 h-9 w-9 text-muted" />
+          <p className="mb-1 text-lg font-bold text-cream">Nothing on the list yet</p>
           <p className="text-sm">Add items above, or run the seed to load classic Ladakh buys.</p>
         </div>
       )}
@@ -136,8 +131,9 @@ export function ShopClient({ items }: { items: ShopItemT[] }) {
       <div className="space-y-6">
         {groups.map(g => (
           <div key={g.area}>
-            <div className="label-mono text-[0.65rem] text-gold border-l-2 border-gold pl-3 mb-3">
-              📍 {g.area} <span className="text-stone">· {g.items.length}</span>
+            <div className="mb-3 flex items-center gap-1.5 text-sm font-bold text-cream">
+              <MapPin className="h-4 w-4 text-flag-yellow" /> {g.area}
+              <span className="text-xs font-medium text-stone">· {g.items.length}</span>
             </div>
             <div className="space-y-2">
               {g.items.map(item => (
@@ -157,44 +153,59 @@ export function ShopClient({ items }: { items: ShopItemT[] }) {
   )
 }
 
+function Chip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`press rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+        active ? 'border-transparent text-white' : 'border-border bg-white text-stone hover:text-cream'
+      }`}
+      style={active ? { background: '#2a3140' } : undefined}
+    >
+      {label}
+    </button>
+  )
+}
+
 function ItemRow({ item, onToggle, onEdit, onDelete }: {
   item: ShopItemT; onToggle: () => void; onEdit: () => void; onDelete: () => void
 }) {
   const pr = PRIORITY[item.priority] ?? PRIORITY.nice
+  const Icon = CATEGORY_ICON[item.category] ?? Package
   return (
-    <div className={`card-base p-4 flex gap-3 group ${item.acquired ? 'opacity-60' : ''}`}>
+    <div className={`group card-base flex gap-3 p-4 ${item.acquired ? 'opacity-60' : ''}`}>
       <button
         onClick={onToggle}
         aria-label={item.acquired ? 'Mark as not bought' : 'Mark as bought'}
-        className={`shrink-0 w-6 h-6 rounded-full border flex items-center justify-center text-xs transition-colors ${
-          item.acquired ? 'bg-sage/30 border-sage text-sage' : 'border-gold/30 text-transparent hover:border-gold'
+        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
+          item.acquired ? 'border-sage bg-sage text-white' : 'border-border text-transparent hover:border-gold-mid'
         }`}
       >
-        ✓
+        <Check className="h-3.5 w-3.5" strokeWidth={3} />
       </button>
 
       {item.photo && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={item.photo} alt="" className="w-12 h-12 object-cover rounded border border-gold/20 shrink-0" />
+        <img src={item.photo} alt="" className="h-12 w-12 shrink-0 rounded-lg border border-border object-cover" />
       )}
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-base">{CATEGORY_ICONS[item.category] ?? '🛍'}</span>
-          <span className={`font-serif text-cream text-base ${item.acquired ? 'line-through' : ''}`}>{item.name}</span>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <Icon className="h-4 w-4 shrink-0 text-flag-yellow" />
+          <span className={`text-base font-bold text-cream ${item.acquired ? 'line-through' : ''}`}>{item.name}</span>
           <span className={`pill ${pr.cls}`}>{pr.label}</span>
-          {item.estPriceINR != null && <span className="label-mono text-[0.55rem] text-gold">{inr(item.estPriceINR)}</span>}
+          {item.estPriceINR != null && <span className="text-xs font-bold tabular-nums text-gold">{inr(item.estPriceINR)}</span>}
         </div>
-        <div className="flex items-center gap-2 mt-1 flex-wrap">
-          <span className="label-mono text-[0.5rem] text-stone">{item.category}</span>
-          {item.whereToBuy && <span className="label-mono text-[0.5rem] text-sky">🏪 {item.whereToBuy}</span>}
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-[0.7rem] text-stone">
+          <span>{item.category}</span>
+          {item.whereToBuy && <span className="inline-flex items-center gap-0.5 text-sky"><Store className="h-3 w-3" /> {item.whereToBuy}</span>}
         </div>
-        {item.notes && <p className="text-muted text-xs mt-1 leading-relaxed">{item.notes}</p>}
+        {item.notes && <p className="mt-1 text-xs leading-relaxed text-muted">{item.notes}</p>}
       </div>
 
-      <div className="flex flex-col items-end gap-1 shrink-0">
-        <button onClick={onEdit} className="label-mono text-[0.5rem] text-sky hover:underline opacity-0 group-hover:opacity-100 transition-opacity">edit</button>
-        <button onClick={onDelete} className="label-mono text-[0.5rem] text-rust/60 hover:text-rust opacity-0 group-hover:opacity-100 transition-opacity">delete</button>
+      <div className="flex shrink-0 flex-col items-end gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+        <button onClick={onEdit} aria-label="Edit" className="text-muted hover:text-cream"><Pencil className="h-3.5 w-3.5" /></button>
+        <button onClick={onDelete} aria-label="Delete" className="text-muted hover:text-rust"><Trash2 className="h-3.5 w-3.5" /></button>
       </div>
     </div>
   )
@@ -231,9 +242,7 @@ function ItemForm({ item, onClose }: { item: ShopItemT | null; onClose: () => vo
     e.preventDefault()
     setLoading(true)
     const payload = {
-      name,
-      area,
-      category,
+      name, area, category,
       estPriceINR: estPrice ? parseInt(estPrice) : null,
       whereToBuy: whereToBuy || null,
       priority,
@@ -257,24 +266,24 @@ function ItemForm({ item, onClose }: { item: ShopItemT | null; onClose: () => vo
     }
   }
 
-  const inputCls = 'bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none'
+  const inputCls = 'rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none'
 
   return (
-    <form onSubmit={handleSubmit} className="card-base p-5 mb-6 space-y-3">
-      <div className="label-mono text-xs text-gold">{item ? 'Edit item' : 'Add item'}</div>
-      <div className="grid md:grid-cols-2 gap-3">
+    <form onSubmit={handleSubmit} className="card-base mb-6 space-y-3 p-5">
+      <div className="text-sm font-bold text-cream">{item ? 'Edit item' : 'Add item'}</div>
+      <div className="grid gap-3 md:grid-cols-2">
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Item name *" required className={`md:col-span-2 ${inputCls}`} />
         <select value={area} onChange={e => setArea(e.target.value)} className={inputCls}>
-          {AREAS.map(a => <option key={a} value={a}>📍 {a}</option>)}
+          {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
         <select value={category} onChange={e => setCategory(e.target.value)} className={inputCls}>
-          {CATEGORIES.map(c => <option key={c} value={c}>{CATEGORY_ICONS[c]} {c}</option>)}
+          {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <input type="number" value={estPrice} onChange={e => setEstPrice(e.target.value)} placeholder="Est. price ₹" min="0" className={inputCls} />
+        <input type="number" value={estPrice} onChange={e => setEstPrice(e.target.value)} placeholder="Est. price ₹" min="0" className={`tabular-nums ${inputCls}`} />
         <select value={priority} onChange={e => setPriority(e.target.value)} className={inputCls}>
-          <option value="must">🔴 Must-buy</option>
-          <option value="nice">🟡 Nice to have</option>
-          <option value="maybe">⚪ Maybe</option>
+          <option value="must">Must-buy</option>
+          <option value="nice">Nice to have</option>
+          <option value="maybe">Maybe</option>
         </select>
         <input value={whereToBuy} onChange={e => setWhereToBuy(e.target.value)} placeholder="Where to buy (shop / market)" className={`md:col-span-2 ${inputCls}`} />
         <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Notes (haggle hard, check for GI tag…)" rows={2} className={`md:col-span-2 resize-none ${inputCls}`} />
@@ -282,26 +291,28 @@ function ItemForm({ item, onClose }: { item: ShopItemT | null; onClose: () => vo
 
       <div className="flex items-center gap-3">
         {photo && (
-          <div className="relative w-16 h-16">
+          <div className="relative h-16 w-16">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photo} alt="" className="w-full h-full object-cover rounded border border-gold/20" />
+            <img src={photo} alt="" className="h-full w-full rounded-lg border border-border object-cover" />
             <button type="button" onClick={() => setPhoto(null)} aria-label="Remove photo"
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rust text-white text-xs flex items-center justify-center">✕</button>
+              className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-rust text-white">
+              <X className="h-3 w-3" />
+            </button>
           </div>
         )}
-        <label className="pill border border-gold/30 text-stone hover:text-gold cursor-pointer">
-          {uploading ? 'Adding…' : photo ? 'Replace photo' : '+ Photo'}
+        <label className="press inline-flex cursor-pointer items-center gap-1 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-stone hover:text-cream">
+          <Plus className="h-3.5 w-3.5" /> {uploading ? 'Adding…' : photo ? 'Replace photo' : 'Photo'}
           <input type="file" accept="image/*" onChange={handleFile} disabled={uploading} className="hidden" />
         </label>
       </div>
 
       <div className="flex gap-3 pt-1">
         <button type="submit" disabled={loading}
-          className="px-5 py-2 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-mono text-xs tracking-wider uppercase transition-all disabled:opacity-50">
+          className="press rounded-lg bg-flag-yellow px-5 py-2 text-xs font-bold uppercase tracking-wide text-white transition-[filter] hover:brightness-110 disabled:opacity-50">
           {loading ? '...' : (item ? 'Update' : 'Add')}
         </button>
         <button type="button" onClick={onClose}
-          className="px-5 py-2 border border-gold/10 text-stone font-mono text-xs tracking-wider uppercase hover:text-gold transition-all">
+          className="rounded-lg border border-border px-5 py-2 text-xs font-semibold uppercase tracking-wide text-stone hover:text-cream">
           Cancel
         </button>
       </div>

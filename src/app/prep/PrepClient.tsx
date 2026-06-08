@@ -4,6 +4,8 @@ import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { PHASE_LABELS, PHASE_ORDER, CATEGORY_ICONS } from '@/lib/utils'
+import { catIcon } from '@/lib/categoryIcons'
+import { Check, ChevronDown } from 'lucide-react'
 
 type Item = {
   id: string; title: string; category: string; phase: string;
@@ -40,31 +42,25 @@ export function PrepClient({ items, byPhase }: { items: Item[]; byPhase: Record<
   return (
     <div>
       {/* Phase filter tabs */}
-      <div className="flex gap-2 flex-wrap mb-6">
-        <button
-          onClick={() => setActivePhase(null)}
-          className={`pill transition-all ${!activePhase ? 'pill-gold' : 'border border-gold/20 text-stone hover:text-gold'}`}
-        >
-          All ({items.length})
-        </button>
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <PhaseChip active={!activePhase} onClick={() => setActivePhase(null)} label={`All (${items.length})`} />
         {PHASES.map(phase => {
           const count = byPhase[phase]?.length ?? 0
           const done = byPhase[phase]?.filter(i => i.completed).length ?? 0
           return (
-            <button
+            <PhaseChip
               key={phase}
+              active={activePhase === phase}
               onClick={() => setActivePhase(activePhase === phase ? null : phase)}
-              className={`pill transition-all ${activePhase === phase ? 'pill-gold' : 'border border-gold/20 text-stone hover:text-gold'}`}
-            >
-              {PHASE_LABELS[phase]} ({done}/{count})
-            </button>
+              label={`${PHASE_LABELS[phase]} (${done}/${count})`}
+            />
           )
         })}
         <button
           onClick={() => setShowAddForm(v => !v)}
-          className="pill pill-sky ml-auto"
+          className="press ml-auto inline-flex items-center gap-1 rounded-full bg-flag-blue px-3 py-1.5 text-xs font-bold text-white"
         >
-          + Add Item
+          + Add item
         </button>
       </div>
 
@@ -100,45 +96,56 @@ export function PrepClient({ items, byPhase }: { items: Item[]; byPhase: Record<
   )
 }
 
+function PhaseChip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`press rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+        active ? 'border-transparent text-white' : 'border-border bg-white text-stone hover:text-cream'
+      }`}
+      style={active ? { background: '#2a3140' } : undefined}
+    >
+      {label}
+    </button>
+  )
+}
+
 function ChecklistItemRow({
   item, onToggle, onDelete
 }: { item: Item; onToggle: () => void; onDelete: () => void }) {
   const [expanded, setExpanded] = useState(false)
-  const icon = CATEGORY_ICONS[item.category] ?? '📌'
-  const priorityColors = ['', 'text-rust', 'text-gold', 'text-stone']
+  const Icon = catIcon(item.category)
 
   return (
-    <div
-      className={`card-base transition-all ${item.completed ? 'opacity-50' : ''}`}
-    >
+    <div className={`card-base transition-all ${item.completed ? 'opacity-50' : ''}`}>
       <div className="flex items-center gap-3 px-4 py-3">
         <button
           onClick={onToggle}
-          className={`w-5 h-5 shrink-0 border-2 rounded-sm flex items-center justify-center transition-all ${
-            item.completed
-              ? 'bg-sage border-sage text-white'
-              : 'border-gold/30 hover:border-gold'
+          aria-label={item.completed ? 'Mark incomplete' : 'Mark done'}
+          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
+            item.completed ? 'border-sage bg-sage text-white' : 'border-border text-transparent hover:border-gold-mid'
           }`}
         >
-          {item.completed && <span className="text-[0.6rem] leading-none">✓</span>}
+          <Check className="h-3 w-3" strokeWidth={3} />
         </button>
-        <span className="text-base shrink-0">{icon}</span>
-        <div className="flex-1 min-w-0">
-          <div className={`text-sm ${item.completed ? 'line-through text-stone' : 'text-sand'}`}>
+        <Icon className="h-4 w-4 shrink-0 text-flag-blue" />
+        <div className="min-w-0 flex-1">
+          <div className={`text-sm font-medium ${item.completed ? 'text-stone line-through' : 'text-sand'}`}>
             {item.title}
           </div>
           {item.bookingRef && (
-            <div className="label-mono text-[0.55rem] text-sky">Ref: {item.bookingRef}</div>
+            <div className="text-[0.62rem] font-medium text-sky">Ref: {item.bookingRef}</div>
           )}
         </div>
         {item.costINR && (
-          <span className="label-mono text-[0.55rem] text-gold shrink-0">₹{item.costINR.toLocaleString()}</span>
+          <span className="shrink-0 text-xs font-bold tabular-nums text-gold">₹{item.costINR.toLocaleString()}</span>
         )}
         <button
           onClick={() => setExpanded(v => !v)}
-          className="text-stone hover:text-gold text-xs ml-1 shrink-0"
+          aria-label="Toggle details"
+          className="ml-1 shrink-0 text-muted hover:text-cream"
         >
-          {expanded ? '▲' : '▼'}
+          <ChevronDown className={`h-4 w-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
@@ -211,37 +218,37 @@ function AddItemForm({ onClose }: { onClose: () => void }) {
             onChange={e => setTitle(e.target.value)}
             placeholder="e.g. Book Delhi–Leh flight"
             required
-            className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none"
+            className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none"
           />
         </div>
         <select value={category} onChange={e => setCategory(e.target.value)}
-          className="bg-dark border border-gold/20 text-sand px-3 py-2 text-sm focus:border-gold/50 outline-none">
+          className="rounded-lg border border-border bg-white text-sand px-3 py-2 text-sm focus:border-gold-mid outline-none">
           {Object.keys(CATEGORY_ICONS).map(c => (
-            <option key={c} value={c}>{CATEGORY_ICONS[c]} {c}</option>
+            <option key={c} value={c}>{c}</option>
           ))}
         </select>
         <select value={phase} onChange={e => setPhase(e.target.value)}
-          className="bg-dark border border-gold/20 text-sand px-3 py-2 text-sm focus:border-gold/50 outline-none">
+          className="rounded-lg border border-border bg-white text-sand px-3 py-2 text-sm focus:border-gold-mid outline-none">
           {PHASE_ORDER.map(p => (
             <option key={p} value={p}>{PHASE_LABELS[p]}</option>
           ))}
         </select>
         <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
           placeholder="Notes (optional)"
-          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
+          className="rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         <input type="number" value={costINR} onChange={e => setCostINR(e.target.value)}
           placeholder="Cost ₹ (optional)"
-          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
+          className="rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         <input type="text" value={bookingRef} onChange={e => setBookingRef(e.target.value)}
           placeholder="Booking ref (optional)"
-          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
+          className="rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         <input type="url" value={url} onChange={e => setUrl(e.target.value)}
           placeholder="Booking URL (optional)"
-          className="bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
+          className="rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
       </div>
       <div className="flex gap-3 pt-1">
         <button type="submit" disabled={loading}
-          className="px-5 py-2 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-mono text-xs tracking-wider uppercase transition-all disabled:opacity-50">
+          className="px-5 py-2 rounded-lg bg-gold text-white font-semibold text-xs tracking-wide uppercase transition-[filter] hover:brightness-110 disabled:opacity-50">
           {loading ? '...' : 'Add Item'}
         </button>
         <button type="button" onClick={onClose}

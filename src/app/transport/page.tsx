@@ -52,7 +52,7 @@ export default async function TransportPage() {
                   <tr key={r.id} className="border-b border-gold/6 hover:bg-white/[0.02]">
                     <td className="py-3 px-3 text-sand text-sm">{r.destination}</td>
                     <td className="py-3 px-3 text-muted text-xs text-right">{r.distanceKm}km</td>
-                    <td className="py-3 px-3 text-gold font-mono text-sm text-right">₹{r.rateINR.toLocaleString()}</td>
+                    <td className="py-3 px-3 text-cream font-bold tabular-nums text-sm text-right">₹{r.rateINR.toLocaleString()}</td>
                     <td className="py-3 px-3">
                       <span className="pill pill-sky">{r.rateType}</span>
                     </td>

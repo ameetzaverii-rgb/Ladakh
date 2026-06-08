@@ -4,7 +4,7 @@ import { PhotoTile } from '@/components/Photo'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, BedDouble, UtensilsCrossed,
   Car, ShoppingBag, Plane, BookOpen, NotebookPen, ListChecks, UserPlus, Settings, Images,
-  type LucideIcon,
+  ShieldAlert, type LucideIcon,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -14,6 +14,7 @@ type Item = { href: string; label: string; icon: LucideIcon; color: FlagColor; i
 
 const ITEMS: Item[] = [
   { href: '/gallery', label: 'Places', icon: Images, color: 'blue', img: 'gallery' },
+  { href: '/emergency', label: 'Emergency', icon: ShieldAlert, color: 'red' },
   { href: '/itinerary', label: 'Itinerary', icon: CalendarDays, color: 'blue', img: 'itinerary' },
   { href: '/events', label: 'Festivals', icon: PartyPopper, color: 'red', img: 'events' },
   { href: '/treks', label: 'Treks', icon: Mountain, color: 'green', img: 'treks' },
