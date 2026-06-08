@@ -17,6 +17,8 @@ export default async function GalleryPage() {
     span: p.span,
     src: p.image?.src ?? null,
     pageUrl: p.image?.pageUrl ?? '',
+    lat: p.lat,
+    lng: p.lng,
   }))
 
   const withPhotos = items.filter(i => i.src).length

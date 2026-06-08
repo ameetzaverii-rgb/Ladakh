@@ -3,6 +3,7 @@ import { formatINR } from '@/lib/utils'
 import { getTrekImage, getTrekMediaConfig, youtubeSearchUrl, type TrekImage } from '@/lib/trekMedia'
 import { ReviewLinks } from '@/components/ReviewLinks'
 import { CategoryHero } from '@/components/Photo'
+import { MiniMap } from '@/components/MiniMap'
 import { getCategoryImage } from '@/lib/imagery'
 import { Mountain } from 'lucide-react'
 import Link from 'next/link'
@@ -146,6 +147,9 @@ export default async function TreksPage() {
                   )}
                 </div>
               )}
+            </div>
+            <div className="mt-3">
+              <MiniMap label={trek.name} query={`${trek.name} trek`} />
             </div>
             <div className="mt-3 pt-3 border-t border-gold/10">
               <ReviewLinks name={trek.name} context="Ladakh trek" />
