@@ -260,7 +260,7 @@ function ChecklistRow({ item }: { item: any }) {
     WEEK_BEFORE: 'pill-sky',
   }
   return (
-    <div className="card-base flex items-center gap-3 px-4 py-3">
+    <Link href="/prep" className="press card-base flex items-center gap-3 px-4 py-3">
       <div className={`h-2.5 w-2.5 shrink-0 rounded-full ${item.completed ? 'bg-sage' : 'bg-rust'}`} />
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium text-sand">{item.title}</div>
@@ -269,7 +269,8 @@ function ChecklistRow({ item }: { item: any }) {
       <span className={`pill ${phaseColors[item.phase] ?? 'pill-gold'} shrink-0`}>
         {item.phase.replace('_', ' ').replace('BEFORE', '').trim()}
       </span>
-    </div>
+      <ChevronRight className="h-4 w-4 shrink-0 text-muted" />
+    </Link>
   )
 }
 

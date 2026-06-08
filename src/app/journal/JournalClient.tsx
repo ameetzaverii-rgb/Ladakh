@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { format, parseISO } from 'date-fns'
 import { FLAG, FLAG_TINT } from '@/lib/utils'
 import { PLACE_OPTIONS, WEATHER_OPTIONS, HIGHLIGHT_OPTIONS } from '@/lib/options'
+import { MOODS, moodFor } from '@/lib/moods'
 import { Plus, BookOpen, MapPin, ChevronDown, Pencil, Trash2 } from 'lucide-react'
 
 // Merge a tag into a comma-separated string without duplicates.
@@ -20,8 +21,6 @@ type Entry = {
   content: string; mood: number | null; highlights: string[]; lowlights: string[];
   photos: string[]; location: string | null; weather: string | null;
 }
-
-const MOODS = ['😔', '😐', '🙂', '😊', '🤩']
 
 export function JournalClient({ entries }: { entries: Entry[] }) {
   const [showForm, setShowForm] = useState(false)
@@ -80,7 +79,7 @@ function JournalEntryCard({
   entry, onEdit, onDelete
 }: { entry: Entry; onEdit: () => void; onDelete: () => void }) {
   const [expanded, setExpanded] = useState(false)
-  const mood = entry.mood ? MOODS[entry.mood - 1] : null
+  const mood = moodFor(entry.mood)
   const dateStr = typeof entry.date === 'string'
     ? format(parseISO(entry.date), 'EEE, MMM d yyyy')
     : format(entry.date, 'EEE, MMM d yyyy')
@@ -100,7 +99,7 @@ function JournalEntryCard({
           <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.7rem] text-stone">
             <span className="font-semibold text-sky">{dateStr}</span>
             {entry.location && <span className="inline-flex items-center gap-0.5"><MapPin className="h-3 w-3" /> {entry.location}</span>}
-            {mood && <span className="text-base leading-none">{mood}</span>}
+            {mood && <span className="inline-flex items-center gap-1 font-medium" style={{ color: mood.color }}><mood.Icon className="h-3.5 w-3.5" /> {mood.label}</span>}
             {entry.weather && <span>{entry.weather}</span>}
           </div>
           {entry.title && <div className="mb-1 text-lg font-bold text-cream">{entry.title}</div>}
@@ -293,14 +292,16 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
       <div>
         <label className="label-mono text-[0.55rem] block mb-1">Mood</label>
         <div className="flex gap-2">
-          {MOODS.map((emoji, i) => (
-            <button key={i} type="button" onClick={() => setMood(String(i + 1))}
-              className={`text-xl w-10 h-10 flex items-center justify-center border rounded transition-all ${
-                mood === String(i + 1) ? 'border-gold bg-gold/10' : 'border-transparent hover:border-gold/30'
-              }`}>
-              {emoji}
-            </button>
-          ))}
+          {MOODS.map(m => {
+            const on = mood === String(m.value)
+            return (
+              <button key={m.value} type="button" onClick={() => setMood(String(m.value))} title={m.label}
+                className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-all ${on ? 'border-transparent' : 'border-border hover:border-gold-mid'}`}
+                style={on ? { background: m.color } : undefined}>
+                <m.Icon className="h-5 w-5" style={{ color: on ? '#fff' : m.color }} />
+              </button>
+            )
+          })}
         </div>
       </div>
 
