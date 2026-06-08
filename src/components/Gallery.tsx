@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { X, ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
 import { FLAG, type FlagColor } from '@/lib/utils'
+import { MiniMap } from '@/components/MiniMap'
 
 export interface GalleryItem {
   id: string
@@ -14,6 +15,8 @@ export interface GalleryItem {
   span?: 'wide' | 'tall' | 'big'
   src: string | null
   pageUrl: string
+  lat?: number
+  lng?: number
 }
 
 const SPAN: Record<string, string> = {
@@ -117,6 +120,9 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
                 <span className="ml-auto text-xs text-white/70">{items[open].when} · {items[open].region}</span>
               </div>
               <p className="mt-1.5 text-sm leading-relaxed text-white/80">{items[open].blurb}</p>
+              <div className="mt-3">
+                <MiniMap lat={items[open].lat} lng={items[open].lng} label={items[open].name} height={150} />
+              </div>
               {items[open].pageUrl && items[open].pageUrl.startsWith('http') && (
                 <a href={items[open].pageUrl} target="_blank" rel="noopener noreferrer"
                    className="mt-2 inline-block text-xs font-semibold text-white/60 underline-offset-2 hover:underline">

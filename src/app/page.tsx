@@ -3,6 +3,7 @@ import { daysUntil, formatINR, FLAG, FLAG_TINT, type FlagColor } from '@/lib/uti
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
+import { DailyAlert } from '@/components/DailyAlert'
 import { PhotoTile } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
 import { getCurrentWeather } from '@/lib/weather'
@@ -42,10 +43,16 @@ async function getDashboardData() {
     !i.completed && (i.phase === 'ASAP' || i.phase === 'MONTH_BEFORE')
   ).slice(0, 5)
 
+  // While on the trip, today's itinerary day powers the daily alert banner.
+  const currentDay = isOnTrip ? 1 - daysToTrip : null
+  const todayPlan = currentDay
+    ? await db.itineraryDay.findUnique({ where: { dayNumber: currentDay } }).catch(() => null)
+    : null
+
   return {
     tripStart, tripEnd, budget, totalSpent,
     checklistTotal: checklistItems.length, checklistDone,
-    daysToTrip, isOnTrip, urgentItems,
+    daysToTrip, isOnTrip, urgentItems, todayPlan,
     recentJournal: journalEntries, nextEvents,
   }
 }
@@ -71,7 +78,7 @@ export default async function Dashboard() {
 
   const {
     tripStart, budget, totalSpent, checklistTotal, checklistDone,
-    daysToTrip, isOnTrip, urgentItems, recentJournal, nextEvents,
+    daysToTrip, isOnTrip, urgentItems, todayPlan, recentJournal, nextEvents,
   } = data
 
   const checklistPct = checklistTotal > 0 ? Math.round((checklistDone / checklistTotal) * 100) : 0
@@ -79,6 +86,18 @@ export default async function Dashboard() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-7">
+
+      {/* On-trip daily reminder */}
+      {todayPlan && (
+        <DailyAlert plan={{
+          day: todayPlan.dayNumber,
+          title: todayPlan.title,
+          isWorkDay: todayPlan.isWorkDay,
+          isTrekDay: todayPlan.isTrekDay,
+          isFestivalDay: todayPlan.isFestivalDay,
+          isExcursionDay: todayPlan.isExcursionDay,
+        }} />
+      )}
 
       {/* Greeting + weather */}
       <div className="mb-5 flex items-start justify-between gap-3">

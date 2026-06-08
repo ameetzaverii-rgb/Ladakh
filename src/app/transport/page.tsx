@@ -1,6 +1,8 @@
 import { db } from '@/lib/db'
 import { CategoryHero } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
+import { ItineraryMap, type MapDay } from '@/components/ItineraryMap'
+import { DAY_LOCATIONS } from '@/lib/locations'
 import { Car } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -10,10 +12,22 @@ export default async function TransportPage() {
     getCategoryImage('transport'),
   ])
 
+  // Unique locations across the plan for the route map.
+  const seen = new Set<string>()
+  const mapDays: MapDay[] = Object.entries(DAY_LOCATIONS)
+    .map(([num, loc]) => ({ dayNumber: Number(num), title: loc.name, name: loc.name, lat: loc.lat, lng: loc.lng }))
+    .filter(d => (seen.has(d.name) ? false : (seen.add(d.name), true)))
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
       <CategoryHero src={heroImg?.src ?? null} color="blue" icon={Car}
         title="Transport Guide" subtitle="Fixed Union rates, permits, bike rentals, and getting here." />
+
+      <div className="mb-8">
+        <h2 className="mb-3 text-lg font-extrabold text-cream">Where you&apos;ll go</h2>
+        <ItineraryMap days={mapDays} />
+        <p className="mt-2 text-[0.7rem] text-muted">Every base &amp; excursion on the plan — tap a pin for the place.</p>
+      </div>
 
       <div className="warning-box p-4 mb-8 text-sm text-muted leading-relaxed">
         <strong className="label-mono text-[0.65rem] text-rust block mb-2">⚠️ No Self-Drive Rentals</strong>
