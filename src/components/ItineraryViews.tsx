@@ -49,6 +49,15 @@ async function patchDay(id: string, data: Record<string, unknown>) {
 }
 const uid = () => Math.random().toString(36).slice(2, 9)
 
+// Strip leading/embedded emoji from seeded titles so the rows stay clean.
+// (No /u flag — tsconfig targets ES5; covers surrogate-pair emoji + symbols.)
+function cleanTitle(t: string): string {
+  return t
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[←-⇿☀-➿⬀-⯿]|️|‍/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
 type View = 'timeline' | 'calendar' | 'location'
 
 const WEEK_LABELS: Record<number, string> = {
@@ -263,7 +272,7 @@ function DayCard({ day, weather, editing }: { day: ViewDay; weather: Record<numb
         </div>
       </div>
       <div className="p-4">
-        <h3 className="text-[0.95rem] font-bold leading-snug text-cream">{day.title}</h3>
+        <h3 className="text-[0.95rem] font-bold leading-snug text-cream">{cleanTitle(day.title)}</h3>
         {loc && (
           <div className="mt-1.5">
             <DayWeather weather={weather[day.dayNumber] ?? null} location={loc} />
@@ -446,7 +455,7 @@ function DayRow({ day, weather }: { day: ViewDay; weather: Record<number, DayWea
     <div className="flex items-center gap-3 border-t border-border py-2.5 first:border-0">
       <span className="w-8 shrink-0 text-center text-sm font-extrabold tabular-nums" style={{ color: FLAG[color] }}>{day.dayNumber}</span>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold text-cream">{day.title}</div>
+        <div className="truncate text-sm font-semibold text-cream">{cleanTitle(day.title)}</div>
         <div className="truncate text-[0.68rem] text-stone">{day.dayOfWeek}{loc ? ` · ${loc.name}` : ''}</div>
       </div>
       {w && <div className="shrink-0 text-[0.72rem] text-stone">{w.icon} {w.tempMax}°/{w.tempMin}°</div>}
