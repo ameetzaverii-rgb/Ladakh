@@ -2,6 +2,8 @@ import { db } from '@/lib/db'
 import { ShopClient, type ShopItemT } from './ShopClient'
 import { CategoryHero } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
+import { fetchWikiImage } from '@/lib/trekMedia'
+import { SHOP_IDEAS } from '@/lib/shopSuggestions'
 import { ShoppingBag } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -17,6 +19,17 @@ export default async function ShopPage() {
     // Table not created yet — prompt to run the migration.
     needsMigrate = true
   }
+
+  // Resolve a Polaroid photo for each shop idea (Wikipedia, cached 1 day).
+  const ideaImages: Record<string, string> = {}
+  await Promise.all(
+    SHOP_IDEAS.map(async idea => {
+      for (const title of idea.wiki) {
+        const img = await fetchWikiImage(title)
+        if (img?.src) { ideaImages[idea.id] = img.src; break }
+      }
+    })
+  )
 
   const heroImg = await getCategoryImage('shop')
 
@@ -34,7 +47,7 @@ export default async function ShopPage() {
           <code className="text-gold">/api/seed?token=ladakh2026</code> to load the starter list, and refresh this page.
         </div>
       ) : (
-        <ShopClient items={items} />
+        <ShopClient items={items} ideaImages={ideaImages} />
       )}
     </div>
   )

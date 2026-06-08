@@ -56,11 +56,12 @@ function resizeImage(file: File, maxDim = 1000, quality = 0.7): Promise<string> 
   })
 }
 
-export function ShopClient({ items }: { items: ShopItemT[] }) {
+export function ShopClient({ items, ideaImages = {} }: { items: ShopItemT[]; ideaImages?: Record<string, string> }) {
   const [filterArea, setFilterArea] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editItem, setEditItem] = useState<ShopItemT | null>(null)
-  const [tab, setTab] = useState<'list' | 'discover'>('list')
+  // Start on the swipe deck when the list is still empty.
+  const [tab, setTab] = useState<'list' | 'discover'>(items.length ? 'list' : 'discover')
   const router = useRouter()
 
   const filtered = filterArea ? items.filter(i => i.area === filterArea) : items
@@ -102,7 +103,7 @@ export function ShopClient({ items }: { items: ShopItemT[] }) {
       </div>
 
       {tab === 'discover' ? (
-        <ShopDiscover existingNames={items.map(i => i.name)} />
+        <ShopDiscover existingNames={items.map(i => i.name)} images={ideaImages} />
       ) : (
       <>
       {/* Stats */}
@@ -142,7 +143,11 @@ export function ShopClient({ items }: { items: ShopItemT[] }) {
         <div className="py-16 text-center text-stone">
           <ShoppingBag className="mx-auto mb-3 h-9 w-9 text-muted" />
           <p className="mb-1 text-lg font-bold text-cream">Nothing on the list yet</p>
-          <p className="text-sm">Add items above, or run the seed to load classic Ladakh buys.</p>
+          <p className="mb-4 text-sm">Swipe through classic Ladakh buys and keep the ones you want.</p>
+          <button onClick={() => setTab('discover')}
+            className="press inline-flex items-center gap-1.5 rounded-full bg-flag-yellow px-4 py-2 text-sm font-bold text-white">
+            <Heart className="h-4 w-4" /> Discover ideas
+          </button>
         </div>
       )}
 
