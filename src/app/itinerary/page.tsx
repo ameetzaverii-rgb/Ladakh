@@ -19,29 +19,39 @@ function isoForDay(start: Date, dayNumber: number): string {
 
 export default async function ItineraryPage() {
   const [days, tripConfig, heroImg] = await Promise.all([
-    db.itineraryDay.findMany({ orderBy: { dayNumber: 'asc' } }),
+    db.itineraryDay.findMany({ orderBy: [{ sortOrder: 'asc' }, { dayNumber: 'asc' }] }),
     db.tripConfig.findFirst().catch(() => null),
     getCategoryImage('itinerary'),
   ])
+
+  // Coordinates for a day: seeded days use the fixed location map, custom days
+  // use their own optional location.
+  const coordsFor = (d: (typeof days)[number]) => {
+    if (d.isCustom) return d.customLat != null && d.customLng != null
+      ? { lat: d.customLat, lng: d.customLng, name: d.customName ?? d.title } : null
+    const loc = DAY_LOCATIONS[d.dayNumber]
+    return loc ? { lat: loc.lat, lng: loc.lng, name: loc.name } : null
+  }
 
   // Live weather for every day, fetched in parallel.
   const startDate = tripConfig?.tripStartDate ?? new Date('2026-07-22')
   const weather: Record<number, DayWeatherData | null> = {}
   await Promise.all(
     days.map(async day => {
-      const loc = DAY_LOCATIONS[day.dayNumber]
-      if (!loc) return
-      weather[day.dayNumber] = await getDayWeather(loc.lat, loc.lng, isoForDay(startDate, day.dayNumber))
+      const c = coordsFor(day)
+      if (!c) return
+      const baseDay = day.isCustom ? Math.max(1, Math.floor(day.sortOrder ?? 1)) : day.dayNumber
+      weather[day.dayNumber] = await getDayWeather(c.lat, c.lng, isoForDay(startDate, baseDay))
     })
   )
 
   // Locations for the route map.
   const mapDays: MapDay[] = days
-    .filter(d => DAY_LOCATIONS[d.dayNumber])
     .map(d => {
-      const loc = DAY_LOCATIONS[d.dayNumber]
-      return { dayNumber: d.dayNumber, title: d.title, name: loc.name, lat: loc.lat, lng: loc.lng }
+      const c = coordsFor(d)
+      return c ? { dayNumber: d.dayNumber, title: d.title, name: c.name, lat: c.lat, lng: c.lng } : null
     })
+    .filter((d): d is MapDay => d !== null)
 
   // Plain serialisable day data for the client view switcher.
   const viewDays: ViewDay[] = days.map(d => ({
@@ -57,6 +67,12 @@ export default async function ItineraryPage() {
     breakfastNote: d.breakfastNote,
     lunchNote: d.lunchNote,
     dinnerNote: d.dinnerNote,
+    activities: Array.isArray(d.activities) ? (d.activities as unknown as ViewDay['activities']) : [],
+    isCustom: d.isCustom,
+    sortOrder: d.sortOrder ?? d.dayNumber,
+    customName: d.customName,
+    customLat: d.customLat,
+    customLng: d.customLng,
   }))
 
   return (

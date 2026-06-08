@@ -41,6 +41,16 @@ export async function GET(req: Request) {
     await db.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "ShopItem_acquired_idx" ON "ShopItem" ("acquired");`)
     ran.push('ShopItem indexes')
 
+    // Itinerary customisation: per-day activities + custom "extra stop" days.
+    await db.$executeRawUnsafe(`ALTER TABLE "ItineraryDay" ADD COLUMN IF NOT EXISTS "activities" JSONB NOT NULL DEFAULT '[]';`)
+    await db.$executeRawUnsafe(`ALTER TABLE "ItineraryDay" ADD COLUMN IF NOT EXISTS "isCustom" BOOLEAN NOT NULL DEFAULT false;`)
+    await db.$executeRawUnsafe(`ALTER TABLE "ItineraryDay" ADD COLUMN IF NOT EXISTS "sortOrder" DOUBLE PRECISION;`)
+    await db.$executeRawUnsafe(`ALTER TABLE "ItineraryDay" ADD COLUMN IF NOT EXISTS "customName" TEXT;`)
+    await db.$executeRawUnsafe(`ALTER TABLE "ItineraryDay" ADD COLUMN IF NOT EXISTS "customLat" DOUBLE PRECISION;`)
+    await db.$executeRawUnsafe(`ALTER TABLE "ItineraryDay" ADD COLUMN IF NOT EXISTS "customLng" DOUBLE PRECISION;`)
+    await db.$executeRawUnsafe(`UPDATE "ItineraryDay" SET "sortOrder" = "dayNumber" WHERE "sortOrder" IS NULL;`)
+    ran.push('ItineraryDay customisation columns')
+
     return NextResponse.json({ ok: true, ran })
   } catch (err) {
     return NextResponse.json(

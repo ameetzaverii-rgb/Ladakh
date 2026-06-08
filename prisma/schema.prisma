@@ -214,6 +214,13 @@ model ItineraryDay {
   breakfastNote   String?
   lunchNote       String?
   dinnerNote      String?
+  // Personal customisation
+  activities      Json     @default("[]") // [{id,text,done}] per-day checklist
+  isCustom        Boolean  @default(false) // user-added "extra stop"
+  sortOrder       Float?   // ordering; seeded = dayNumber, custom = fractional
+  customName      String?  // optional place name for custom days (map/weather)
+  customLat       Float?
+  customLng       Float?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

@@ -42,7 +42,7 @@ export default async function DiaryPage() {
   ])
 
   const startDate = config?.tripStartDate ?? new Date('2026-07-22')
-  const totalDays = Math.max(itinerary.length, 21)
+  const totalDays = Math.max(itinerary.filter((d: any) => !d.isCustom).length, 21)
 
   // Live weather per day (parallel, same as the itinerary page).
   const weather: Record<number, DayWeather | null> = {}
