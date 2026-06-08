@@ -5,8 +5,9 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import {
   Check, MapPin, Store, ShoppingBag, Plus, X, Pencil, Trash2,
-  Shirt, UtensilsCrossed, Hammer, Gem, Sparkles, Package, type LucideIcon,
+  Shirt, UtensilsCrossed, Hammer, Gem, Sparkles, Package, Heart, type LucideIcon,
 } from 'lucide-react'
+import { ShopDiscover } from './ShopDiscover'
 
 export type ShopItemT = {
   id: string; name: string; area: string; category: string;
@@ -59,6 +60,7 @@ export function ShopClient({ items }: { items: ShopItemT[] }) {
   const [filterArea, setFilterArea] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editItem, setEditItem] = useState<ShopItemT | null>(null)
+  const [tab, setTab] = useState<'list' | 'discover'>('list')
   const router = useRouter()
 
   const filtered = filterArea ? items.filter(i => i.area === filterArea) : items
@@ -87,6 +89,22 @@ export function ShopClient({ items }: { items: ShopItemT[] }) {
 
   return (
     <div>
+      {/* Tabs: my list vs discover ideas */}
+      <div className="mb-6 inline-flex gap-1 rounded-full bg-[#f1efe9] p-1">
+        <button onClick={() => setTab('list')}
+          className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${tab === 'list' ? 'bg-white text-cream shadow-soft' : 'text-stone hover:text-cream'}`}>
+          <ShoppingBag className="h-3.5 w-3.5" strokeWidth={2.2} /> My list
+        </button>
+        <button onClick={() => setTab('discover')}
+          className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${tab === 'discover' ? 'bg-white text-cream shadow-soft' : 'text-stone hover:text-cream'}`}>
+          <Heart className="h-3.5 w-3.5" strokeWidth={2.2} /> Discover ideas
+        </button>
+      </div>
+
+      {tab === 'discover' ? (
+        <ShopDiscover existingNames={items.map(i => i.name)} />
+      ) : (
+      <>
       {/* Stats */}
       <div className="mb-6 grid grid-cols-3 gap-3">
         <div className="card-base p-3 text-center sm:p-4">
@@ -149,6 +167,8 @@ export function ShopClient({ items }: { items: ShopItemT[] }) {
           </div>
         ))}
       </div>
+      </>
+      )}
     </div>
   )
 }
