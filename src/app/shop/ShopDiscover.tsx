@@ -48,6 +48,7 @@ export function ShopDiscover({ existingNames, images = {} }: { existingNames: st
         body: JSON.stringify({
           name: current.name, area: current.area, category: current.category,
           estPriceINR: current.estPriceINR, whereToBuy: current.whereToBuy, priority: 'nice',
+          photo: images[current.id] ?? null,
         }),
       })
       toast.success(`Kept · ${current.name}`)

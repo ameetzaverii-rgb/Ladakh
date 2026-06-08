@@ -123,6 +123,26 @@ export function ShopClient({ items, ideaImages = {} }: { items: ShopItemT[]; ide
         </div>
       </div>
 
+      {/* Collage of your picks */}
+      {items.some(i => i.photo) && (
+        <div className="mb-6">
+          <div className="label-mono mb-2 border-l-2 border-gold pl-3 text-[0.65rem] text-gold">Your picks</div>
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {items.filter(i => i.photo).map(i => (
+              <div key={i.id} className="group/c relative aspect-square overflow-hidden rounded-xl border border-border">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={i.photo!} alt={i.name} className="h-full w-full object-cover transition-transform duration-300 group-hover/c:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                <span className="absolute inset-x-1.5 bottom-1 line-clamp-2 text-[0.6rem] font-bold leading-tight text-white">{i.name}</span>
+                {i.acquired && (
+                  <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-sage text-white"><Check className="h-2.5 w-2.5" strokeWidth={3} /></span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Filters + add */}
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <Chip active={!filterArea} onClick={() => setFilterArea(null)} label="All areas" />

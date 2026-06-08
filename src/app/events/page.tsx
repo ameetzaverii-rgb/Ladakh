@@ -19,25 +19,40 @@ const TYPE_COLORS: Record<string, string> = {
   ASTRONOMY: 'pill-sky',
 }
 
-// Wikipedia titles to source 3–4 indicative photos per festival.
+// A varied pool of distinct Ladakh imagery to round out each strip. Rotated by
+// a hash of the festival name so different festivals don't share the same fill.
+const FEST_POOL = [
+  'Cham dance', 'Thangka', 'Hemis Festival', 'Diskit Monastery', 'Lamayuru Monastery',
+  'Thikse Monastery', 'Leh Palace', 'Shanti Stupa', 'Prayer flag', 'Stok Monastery',
+  'Likir Monastery', 'Ladakh',
+]
+function hashStr(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0
+  return Math.abs(h)
+}
+
+// Wikipedia titles to source ~4 distinct photos per festival — curated leads
+// first, then a name-rotated slice of the pool so each festival looks different.
 function festivalWikiTitles(name: string): string[] {
   const n = name.toLowerCase()
-  const specific: string[] = []
-  if (n.includes('hemis')) specific.push('Hemis Festival', 'Hemis Monastery')
-  if (n.includes('phyang')) specific.push('Phyang Monastery')
-  if (n.includes('naropa')) specific.push('Naropa', 'Hemis Monastery')
-  if (n.includes('losar')) specific.push('Losar')
-  if (n.includes('dosmoche')) specific.push('Leh Palace')
-  if (n.includes('sindhu')) specific.push('Indus River')
-  if (n.includes('yuru') || n.includes('lamayuru')) specific.push('Lamayuru Monastery')
-  if (n.includes('saka dawa') || n.includes('buddha purnima')) specific.push('Vesak')
-  if (n.includes('thiksey') || n.includes('gustor')) specific.push('Thikse Monastery')
-  if (n.includes('matho')) specific.push('Matho Monastery')
-  if (n.includes('stok')) specific.push('Stok, Ladakh')
-  if (n.includes('ladakh') || n.includes('harvest')) specific.push('Ladakh', 'Leh')
-  // Generic, always-indicative Ladakh-festival imagery to round out the strip.
-  const generic = ['Cham dance', 'Thangka', 'Hemis Festival', 'Ladakh']
-  return Array.from(new Set([...specific, ...generic]))
+  let base: string[] = []
+  if (n.includes('phyang')) base = ['Phyang Monastery', 'Cham dance']
+  else if (n.includes('korzok') || n.includes('gustor') || n.includes('moriri')) base = ['Tso Moriri', 'Korzok', 'Changthang']
+  else if (n.includes('naropa')) base = ['Naropa', 'Hemis Monastery']
+  else if (n.includes('hemis')) base = ['Hemis Festival', 'Hemis Monastery']
+  else if (n.includes('thiksey') || n.includes('thikse')) base = ['Thikse Monastery', 'Maitreya']
+  else if (n.includes('dosmoche')) base = ['Leh Palace', 'Cham dance']
+  else if (n.includes('losar')) base = ['Losar']
+  else if (n.includes('sindhu')) base = ['Indus River', 'Leh']
+  else if (n.includes('yuru') || n.includes('lamayuru')) base = ['Lamayuru Monastery', 'Cham dance']
+  else if (n.includes('matho')) base = ['Matho Monastery']
+  else if (n.includes('stok')) base = ['Stok Monastery', 'Stok Kangri']
+  else if (n.includes('ladakh') || n.includes('polo') || n.includes('harvest')) base = ['Ladakh', 'Polo', 'Leh']
+
+  const off = hashStr(name) % FEST_POOL.length
+  const rotated = [...FEST_POOL.slice(off), ...FEST_POOL.slice(0, off)]
+  return Array.from(new Set([...base, ...rotated]))
 }
 
 export default async function EventsPage() {
