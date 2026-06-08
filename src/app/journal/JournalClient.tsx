@@ -4,7 +4,8 @@ import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { format, parseISO } from 'date-fns'
-import { MOOD_LABELS } from '@/lib/utils'
+import { FLAG, FLAG_TINT } from '@/lib/utils'
+import { Plus, BookOpen, MapPin, ChevronDown, Pencil, Trash2 } from 'lucide-react'
 
 type Entry = {
   id: string; tripDay: number; date: Date | string; title: string | null;
@@ -28,12 +29,13 @@ export function JournalClient({ entries }: { entries: Entry[] }) {
 
   return (
     <div>
-      <div className="flex justify-end mb-6">
+      <div className="mb-6 flex justify-end">
         <button
           onClick={() => { setShowForm(true); setEditEntry(null) }}
-          className="pill pill-gold"
+          className="press inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold text-white transition-[filter] hover:brightness-110"
+          style={{ background: FLAG.ink }}
         >
-          + New Entry
+          <Plus className="h-4 w-4" /> New entry
         </button>
       </div>
 
@@ -45,9 +47,9 @@ export function JournalClient({ entries }: { entries: Entry[] }) {
       )}
 
       {entries.length === 0 && (
-        <div className="text-center py-16 text-stone">
-          <div className="text-4xl mb-3">📔</div>
-          <p className="font-serif text-xl text-cream mb-2">No entries yet</p>
+        <div className="py-16 text-center text-stone">
+          <BookOpen className="mx-auto mb-3 h-9 w-9 text-muted" />
+          <p className="mb-1 text-xl font-bold text-cream">No entries yet</p>
           <p className="text-sm">Start writing when your journey begins.</p>
         </div>
       )}
@@ -78,30 +80,29 @@ function JournalEntryCard({
   return (
     <div className="card-base">
       <div
-        className="flex items-start gap-4 p-5 cursor-pointer"
+        className="flex cursor-pointer items-start gap-3.5 p-5"
         onClick={() => setExpanded(v => !v)}
       >
-        <div className="shrink-0 text-center">
-          <div className="font-serif text-3xl text-gold/40 font-light leading-none">{entry.tripDay}</div>
-          <div className="label-mono text-[0.5rem] text-stone">day</div>
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="label-mono text-[0.55rem] text-sky">{dateStr}</span>
-            {entry.location && <span className="label-mono text-[0.5rem] text-stone">📍 {entry.location}</span>}
-            {mood && <span className="text-lg">{mood}</span>}
-            {entry.weather && <span className="label-mono text-[0.5rem] text-stone">{entry.weather}</span>}
+        <span className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl leading-none"
+              style={{ background: FLAG_TINT.ink }}>
+          <span className="text-[0.55rem] font-bold uppercase tracking-wide text-stone">Day</span>
+          <span className="text-lg font-extrabold" style={{ color: FLAG.ink }}>{entry.tripDay}</span>
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.7rem] text-stone">
+            <span className="font-semibold text-sky">{dateStr}</span>
+            {entry.location && <span className="inline-flex items-center gap-0.5"><MapPin className="h-3 w-3" /> {entry.location}</span>}
+            {mood && <span className="text-base leading-none">{mood}</span>}
+            {entry.weather && <span>{entry.weather}</span>}
           </div>
-          {entry.title && (
-            <div className="font-serif text-cream text-lg mb-1">{entry.title}</div>
-          )}
-          <p className="text-muted text-sm leading-relaxed line-clamp-2">{entry.content}</p>
+          {entry.title && <div className="mb-1 text-lg font-bold text-cream">{entry.title}</div>}
+          <p className="line-clamp-2 text-sm leading-relaxed text-muted">{entry.content}</p>
         </div>
-        <div className="text-stone text-xs shrink-0">{expanded ? '▲' : '▼'}</div>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-muted transition-transform ${expanded ? 'rotate-180' : ''}`} />
       </div>
 
       {expanded && (
-        <div className="px-5 pb-5 border-t border-gold/10 pt-4">
+        <div className="border-t border-border px-5 pb-5 pt-4">
           <p className="text-sand text-sm leading-relaxed whitespace-pre-wrap mb-4">{entry.content}</p>
           {entry.highlights.length > 0 && (
             <div className="mb-3">
@@ -136,9 +137,13 @@ function JournalEntryCard({
               </div>
             </div>
           )}
-          <div className="flex gap-3 mt-2">
-            <button onClick={onEdit} className="label-mono text-[0.55rem] text-sky hover:underline">Edit</button>
-            <button onClick={onDelete} className="label-mono text-[0.55rem] text-rust/60 hover:text-rust">Delete</button>
+          <div className="mt-2 flex gap-2">
+            <button onClick={onEdit} className="press inline-flex items-center gap-1 rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-stone hover:text-cream">
+              <Pencil className="h-3 w-3" /> Edit
+            </button>
+            <button onClick={onDelete} className="press inline-flex items-center gap-1 rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-stone hover:border-rust hover:text-rust">
+              <Trash2 className="h-3 w-3" /> Delete
+            </button>
           </div>
         </div>
       )}
@@ -257,19 +262,19 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
         <div>
           <label className="label-mono text-[0.55rem] block mb-1">Trip Day #</label>
           <input type="number" value={tripDay} onChange={e => setTripDay(e.target.value)} min="1" max="30"
-            className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
+            className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         </div>
         <div>
           <label className="label-mono text-[0.55rem] block mb-1">Location</label>
           <input type="text" value={location} onChange={e => setLocation(e.target.value)}
             placeholder="Phyang Monastery"
-            className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
+            className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         </div>
         <div>
           <label className="label-mono text-[0.55rem] block mb-1">Weather</label>
           <input type="text" value={weather} onChange={e => setWeather(e.target.value)}
             placeholder="Sunny 24°C"
-            className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
+            className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         </div>
       </div>
 
@@ -291,7 +296,7 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
         <label className="label-mono text-[0.55rem] block mb-1">Title (optional)</label>
         <input type="text" value={title} onChange={e => setTitle(e.target.value)}
           placeholder="Day I crossed Khardung La"
-          className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
+          className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
       </div>
 
       <div>
@@ -299,7 +304,7 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
         <textarea value={content} onChange={e => setContent(e.target.value)}
           placeholder="Write about your day..."
           rows={6} required
-          className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none resize-none leading-relaxed" />
+          className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none resize-none leading-relaxed" />
       </div>
 
       <div className="grid md:grid-cols-2 gap-3">
@@ -307,13 +312,13 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
           <label className="label-mono text-[0.55rem] block mb-1">Highlights (comma-separated)</label>
           <input type="text" value={highlights} onChange={e => setHighlights(e.target.value)}
             placeholder="Saw masked dances, amazing momos, 5000m!"
-            className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
+            className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         </div>
         <div>
           <label className="label-mono text-[0.55rem] block mb-1">Lowlights (comma-separated)</label>
           <input type="text" value={lowlights} onChange={e => setLowlights(e.target.value)}
             placeholder="Altitude headache, poor WiFi"
-            className="w-full bg-dark border border-gold/20 text-cream px-3 py-2 text-sm focus:border-gold/50 outline-none" />
+            className="w-full rounded-lg border border-border bg-white text-cream px-3 py-2 text-sm focus:border-gold-mid outline-none" />
         </div>
       </div>
 
@@ -354,7 +359,7 @@ function EntryForm({ entry, onClose }: { entry: Entry | null; onClose: () => voi
 
       <div className="flex gap-3 pt-1">
         <button type="submit" disabled={loading}
-          className="px-5 py-2 bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold font-mono text-xs tracking-wider uppercase transition-all disabled:opacity-50">
+          className="px-5 py-2 rounded-lg bg-gold text-white font-semibold text-xs tracking-wide uppercase transition-[filter] hover:brightness-110 disabled:opacity-50">
           {loading ? '...' : (entry ? 'Update' : 'Save Entry')}
         </button>
         <button type="button" onClick={onClose}

@@ -9,7 +9,7 @@ import type { DayWeather as DayWeatherData } from '@/lib/weather'
 import {
   List, LayoutGrid, MapPin, Laptop, Mountain, PartyPopper, Camera,
   Coffee, Sun, Moon, UtensilsCrossed, Car, NotebookPen, ArrowUpRight,
-  type LucideIcon,
+  ChevronDown, type LucideIcon,
 } from 'lucide-react'
 
 export interface ViewDay {
@@ -229,7 +229,52 @@ function TimelineView({ days, weather }: { days: ViewDay[]; weather: Record<numb
   )
 }
 
-/* ---------- Calendar / weeks grid ---------- */
+/* A single clean day row — the colour-coded badge is the only indicator. */
+function DayRow({ day, weather }: { day: ViewDay; weather: Record<number, DayWeatherData | null> }) {
+  const { color, label } = dayMeta(day)
+  const w = weather[day.dayNumber]
+  const loc = DAY_LOCATIONS[day.dayNumber]
+  return (
+    <div className="flex items-center gap-3 border-t border-border py-2.5 first:border-0">
+      <span className="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-lg leading-none"
+            style={{ background: FLAG_TINT[color] }}>
+        <span className="text-[0.5rem] font-bold uppercase tracking-wide" style={{ color: FLAG[color] }}>D</span>
+        <span className="text-sm font-extrabold" style={{ color: FLAG[color] }}>{day.dayNumber}</span>
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-semibold text-cream">{day.title}</div>
+        <div className="flex items-center gap-1.5 text-[0.68rem] text-stone">
+          <span>{day.dayOfWeek}</span>
+          {loc && <span className="inline-flex items-center gap-0.5 truncate"><MapPin className="h-2.5 w-2.5 shrink-0" /> {loc.name}</span>}
+          <span className="font-medium" style={{ color: FLAG[color] }}>· {label}</span>
+        </div>
+      </div>
+      {w && <div className="shrink-0 text-[0.72rem] text-stone">{w.icon} {w.tempMax}°/{w.tempMin}°</div>}
+    </div>
+  )
+}
+
+/* Collapsible section to keep the week / place views uncluttered. */
+function Collapsible({
+  title, meta, dotColor, defaultOpen = false, children,
+}: {
+  title: string; meta: string; dotColor: string; defaultOpen?: boolean; children: React.ReactNode
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div className="overflow-hidden card-base">
+      <button onClick={() => setOpen(v => !v)} className="flex w-full items-center gap-2.5 px-4 py-3 text-left">
+        <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: dotColor }} />
+        <span className="text-sm font-bold text-cream">{title}</span>
+        <span className="ml-auto rounded-full bg-[#f1efe9] px-2 py-0.5 text-[0.62rem] font-semibold text-stone">{meta}</span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-muted transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && <div className="px-4 pb-2">{children}</div>}
+    </div>
+  )
+}
+
+/* ---------- Calendar / weeks (collapsible) ---------- */
 function CalendarView({ days, weather }: { days: ViewDay[]; weather: Record<number, DayWeatherData | null> }) {
   const weeks = [1, 2, 3].map(w => ({
     week: w,
@@ -237,44 +282,26 @@ function CalendarView({ days, weather }: { days: ViewDay[]; weather: Record<numb
   }))
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {weeks.map(({ week, days: weekDays }) => {
         if (weekDays.length === 0) return null
         return (
-          <div key={week}>
-            <WeekHeader week={week} />
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-              {weekDays.map(day => {
-                const w = weather[day.dayNumber]
-                const loc = DAY_LOCATIONS[day.dayNumber]
-                const { color, Icon } = dayMeta(day)
-                return (
-                  <div key={day.id} className="relative flex min-h-[7rem] flex-col overflow-hidden card-base p-2.5">
-                    <span className="absolute left-0 top-0 h-full w-1" style={{ background: FLAG[color] }} />
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-extrabold leading-none" style={{ color: FLAG[color] }}>{day.dayNumber}</span>
-                      <span className="text-[0.55rem] font-bold uppercase tracking-wide text-stone">{day.dayOfWeek}</span>
-                    </div>
-                    {w && <div className="mt-1 text-[0.65rem] text-sand">{w.icon} {w.tempMax}°/{w.tempMin}°</div>}
-                    <div className="mt-1 line-clamp-3 flex-1 text-[0.68rem] font-medium leading-snug text-cream">{day.title}</div>
-                    {loc && (
-                      <div className="mt-1 flex items-center gap-0.5 truncate text-[0.55rem] text-stone">
-                        <MapPin className="h-2.5 w-2.5 shrink-0" /> {loc.name}
-                      </div>
-                    )}
-                    <Icon className="mt-1 h-3.5 w-3.5" style={{ color: FLAG[color] }} />
-                  </div>
-                )
-              })}
-            </div>
-          </div>
+          <Collapsible
+            key={week}
+            title={WEEK_LABELS[week]}
+            meta={`${weekDays.length} days`}
+            dotColor="var(--gold)"
+            defaultOpen={week === 1}
+          >
+            {weekDays.map(day => <DayRow key={day.id} day={day} weather={weather} />)}
+          </Collapsible>
         )
       })}
     </div>
   )
 }
 
-/* ---------- By location ---------- */
+/* ---------- By location (collapsible) ---------- */
 function LocationView({ days, weather }: { days: ViewDay[]; weather: Record<number, DayWeatherData | null> }) {
   const groups: { name: string; days: ViewDay[] }[] = []
   const index = new Map<string, number>()
@@ -288,39 +315,19 @@ function LocationView({ days, weather }: { days: ViewDay[]; weather: Record<numb
   }
 
   return (
-    <div className="space-y-4">
-      {groups.map(g => {
+    <div className="space-y-3">
+      {groups.map((g, i) => {
         const loc = DAY_LOCATIONS[g.days[0].dayNumber]
         return (
-          <div key={g.name} className="card-base p-4">
-            <div className="mb-3 flex items-center justify-between gap-2">
-              <h3 className="flex items-center gap-1.5 text-base font-bold text-cream">
-                <MapPin className="h-4 w-4 text-sky" /> {g.name}
-              </h3>
-              <span className="rounded-full bg-[#f1efe9] px-2.5 py-0.5 text-[0.62rem] font-semibold text-stone">
-                {g.days.length} {g.days.length === 1 ? 'day' : 'days'}{loc ? ` · ${loc.altitudeM.toLocaleString()}m` : ''}
-              </span>
-            </div>
-            <div className="space-y-2">
-              {g.days.map(day => {
-                const w = weather[day.dayNumber]
-                const { color, Icon } = dayMeta(day)
-                return (
-                  <div key={day.id} className="flex items-center gap-3 border-t border-border pt-2 first:border-0 first:pt-0">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-extrabold"
-                          style={{ background: FLAG_TINT[color], color: FLAG[color] }}>
-                      {day.dayNumber}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-sand">{day.title}</div>
-                    </div>
-                    {w && <div className="shrink-0 text-[0.7rem] text-stone">{w.icon} {w.tempMax}°/{w.tempMin}°</div>}
-                    <Icon className="h-4 w-4 shrink-0" style={{ color: FLAG[color] }} />
-                  </div>
-                )
-              })}
-            </div>
-          </div>
+          <Collapsible
+            key={g.name}
+            title={g.name}
+            meta={`${g.days.length} ${g.days.length === 1 ? 'day' : 'days'}${loc ? ` · ${loc.altitudeM.toLocaleString()}m` : ''}`}
+            dotColor={FLAG.blue}
+            defaultOpen={i === 0}
+          >
+            {g.days.map(day => <DayRow key={day.id} day={day} weather={weather} />)}
+          </Collapsible>
         )
       })}
     </div>

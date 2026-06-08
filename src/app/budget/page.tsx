@@ -3,6 +3,9 @@ import { formatINR, formatINRFull } from '@/lib/utils'
 import { BudgetClient } from './BudgetClient'
 import { AddExpense } from './AddExpense'
 import { CategoryBudgets } from './CategoryBudgets'
+import { CategoryHero } from '@/components/Photo'
+import { getCategoryImage } from '@/lib/imagery'
+import { Wallet } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,9 +23,10 @@ const DEFAULT_BREAKDOWN: Record<string, number> = {
 }
 
 export default async function BudgetPage() {
-  const [expenses, config] = await Promise.all([
+  const [expenses, config, heroImg] = await Promise.all([
     db.expense.findMany({ orderBy: { date: 'desc' } }),
     db.tripConfig.findFirst().catch(() => null),
+    getCategoryImage('budget'),
   ])
 
   const totalBudget = config?.totalBudgetINR ?? 150000
@@ -44,11 +48,8 @@ export default async function BudgetPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <div className="label-mono text-xs text-gold mb-2">Finance Tracker</div>
-        <h1 className="section-title mb-1">Budget <em className="text-gold italic">Tracker</em></h1>
-        <p className="text-stone text-sm">Live spend vs estimate. Every rupee accounted for.</p>
-      </div>
+      <CategoryHero src={heroImg?.src ?? null} color="yellow" icon={Wallet}
+        title="Budget Tracker" subtitle="Live spend vs estimate — every rupee accounted for." />
 
       {/* Add expense — pinned to the top */}
       <AddExpense />

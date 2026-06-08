@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { formatINR, CATEGORY_COLORS, CATEGORY_ICONS } from '@/lib/utils'
+import { formatINR, CATEGORY_COLORS } from '@/lib/utils'
+import { catIcon } from '@/lib/categoryIcons'
 
 // Editable per-category budget targets. Reads from trip settings (categoryBudgets)
 // and saves changes back via PATCH /api/tripconfig, so the breakdown is no longer
@@ -64,19 +65,22 @@ export function CategoryBudgets({
           const spent = spendByCategory[cat] ?? 0
           const pct = budgeted > 0 ? Math.min((spent / budgeted) * 100, 100) : 0
           const over = spent > budgeted && budgeted > 0
-          const color = CATEGORY_COLORS[cat] ?? '#666'
+          const color = CATEGORY_COLORS[cat] ?? '#8c92a0'
+          const Icon = catIcon(cat)
           return (
             <div key={cat} className="flex items-center gap-3">
-              <span className="text-base w-6 shrink-0">{CATEGORY_ICONS[cat] ?? '📌'}</span>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg" style={{ background: `${color}1a` }}>
+                <Icon className="h-4 w-4" style={{ color }} strokeWidth={2.2} />
+              </span>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between mb-1 items-center">
-                  <span className="label-mono text-[0.6rem] text-sand">{cat}</span>
+                  <span className="text-[0.72rem] font-bold uppercase tracking-wide text-sand">{cat}</span>
                   {editing ? (
                     <input
                       type="number"
                       value={draft[cat] ?? '0'}
                       onChange={e => setDraft(d => ({ ...d, [cat]: e.target.value }))}
-                      className="w-24 bg-dark border border-gold/20 text-cream px-2 py-0.5 text-xs text-right focus:border-gold/50 outline-none"
+                      className="w-24 rounded-lg border border-border bg-white text-cream px-2 py-0.5 text-xs text-right focus:border-gold-mid outline-none"
                     />
                   ) : (
                     <span className={`label-mono text-[0.55rem] ${over ? 'text-rust' : 'text-stone'}`}>
@@ -85,7 +89,7 @@ export function CategoryBudgets({
                   )}
                 </div>
                 <div className="h-1.5 bg-[#eee9df] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: over ? '#b85c38' : color }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: over ? '#d24b3e' : color }} />
                 </div>
               </div>
             </div>

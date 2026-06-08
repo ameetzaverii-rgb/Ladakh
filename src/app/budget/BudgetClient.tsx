@@ -4,15 +4,13 @@ import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { format, parseISO } from 'date-fns'
-import { CATEGORY_ICONS, CATEGORY_COLORS, formatINRFull } from '@/lib/utils'
+import { CATEGORY_COLORS, formatINRFull } from '@/lib/utils'
+import { catIcon, PAYMENT_ICON } from '@/lib/categoryIcons'
+import { Trash2, type LucideIcon } from 'lucide-react'
 
 type Expense = {
   id: string; tripDay: number; date: Date | string; amountINR: number;
   category: string; description: string; place: string | null; paymentMode: string;
-}
-
-const PAYMENT_ICONS: Record<string, string> = {
-  cash: '💵', upi: '📱', card: '💳',
 }
 
 export function BudgetClient({ expenses }: { expenses: Expense[] }) {
@@ -21,7 +19,6 @@ export function BudgetClient({ expenses }: { expenses: Expense[] }) {
   const router = useRouter()
 
   const categories = Array.from(new Set(expenses.map(e => e.category)))
-
   const filtered = filterCat ? expenses.filter(e => e.category === filterCat) : expenses
 
   async function deleteExpense(id: string) {
@@ -32,59 +29,61 @@ export function BudgetClient({ expenses }: { expenses: Expense[] }) {
 
   return (
     <div>
-      <div className="flex items-center gap-2 flex-wrap mb-4">
-        <button
-          onClick={() => setFilterCat(null)}
-          className={`pill transition-all ${!filterCat ? 'pill-gold' : 'border border-gold/20 text-stone hover:text-gold'}`}
-        >
-          All
-        </button>
-        {categories.map(cat => (
-          <button key={cat} onClick={() => setFilterCat(filterCat === cat ? null : cat)}
-            className={`pill transition-all ${filterCat === cat ? 'pill-gold' : 'border border-gold/20 text-stone hover:text-gold'}`}>
-            {CATEGORY_ICONS[cat]} {cat}
-          </button>
-        ))}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <FilterChip active={!filterCat} onClick={() => setFilterCat(null)} label="All" />
+        {categories.map(cat => {
+          const Icon = catIcon(cat)
+          const color = CATEGORY_COLORS[cat] ?? '#8c92a0'
+          return (
+            <FilterChip
+              key={cat}
+              active={filterCat === cat}
+              onClick={() => setFilterCat(filterCat === cat ? null : cat)}
+              label={cat.charAt(0) + cat.slice(1).toLowerCase()}
+              Icon={Icon}
+              color={color}
+            />
+          )
+        })}
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-12 text-stone">
-          <div className="text-3xl mb-3">💰</div>
-          <p className="font-serif text-cream text-lg">No expenses logged yet</p>
-          <p className="text-sm mt-1">Use the form above or ⌘K → "spent 350 food tibetan kitchen"</p>
+        <div className="py-12 text-center text-stone">
+          <p className="text-lg font-bold text-cream">No expenses logged yet</p>
+          <p className="mt-1 text-sm">Use the form above, or ⌘K → &quot;spent 350 food tibetan kitchen&quot;</p>
         </div>
       )}
 
       <div className="space-y-2">
         {filtered.map(expense => {
-          const color = CATEGORY_COLORS[expense.category] ?? '#666'
+          const color = CATEGORY_COLORS[expense.category] ?? '#8c92a0'
+          const Icon = catIcon(expense.category)
+          const Pay = PAYMENT_ICON[expense.paymentMode]
           const dateStr = typeof expense.date === 'string'
             ? format(parseISO(expense.date), 'MMM d')
             : format(expense.date, 'MMM d')
           return (
-            <div key={expense.id} className="card-base flex items-center gap-3 px-4 py-3 group">
-              <div className="w-1 h-8 rounded-full shrink-0" style={{ background: color }} />
-              <div className="w-10 text-center shrink-0">
-                <div className="label-mono text-[0.5rem] text-stone">Day</div>
-                <div className="font-serif text-gold text-sm">{expense.tripDay}</div>
-              </div>
-              <div className="text-base shrink-0">{CATEGORY_ICONS[expense.category] ?? '📌'}</div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm text-sand">{expense.description}</div>
-                <div className="flex items-center gap-2 mt-0.5">
-                  {expense.place && <span className="label-mono text-[0.5rem] text-stone">{expense.place}</span>}
-                  <span className="label-mono text-[0.5rem] text-stone">{dateStr}</span>
-                  <span className="text-xs">{PAYMENT_ICONS[expense.paymentMode] ?? ''}</span>
+            <div key={expense.id} className="group card-base flex items-center gap-3 px-3 py-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                    style={{ background: `${color}1a` }}>
+                <Icon className="h-[18px] w-[18px]" style={{ color }} strokeWidth={2.2} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-semibold text-cream">{expense.description}</div>
+                <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.7rem] text-stone">
+                  <span className="font-medium" style={{ color }}>Day {expense.tripDay}</span>
+                  {expense.place && <span>· {expense.place}</span>}
+                  <span>· {dateStr}</span>
+                  {Pay && <Pay className="h-3 w-3" />}
                 </div>
               </div>
-              <div className="font-mono text-sm text-cream shrink-0">
-                {formatINRFull(expense.amountINR)}
-              </div>
+              <div className="shrink-0 text-sm font-bold text-cream">{formatINRFull(expense.amountINR)}</div>
               <button
                 onClick={() => deleteExpense(expense.id)}
-                className="text-stone/40 hover:text-rust text-xs opacity-0 group-hover:opacity-100 transition-all shrink-0"
+                aria-label="Delete expense"
+                className="shrink-0 text-muted opacity-0 transition-all hover:text-rust group-hover:opacity-100"
               >
-                ×
+                <Trash2 className="h-4 w-4" />
               </button>
             </div>
           )
@@ -93,11 +92,32 @@ export function BudgetClient({ expenses }: { expenses: Expense[] }) {
 
       {filtered.length > 0 && (
         <div className="mt-4 flex justify-end">
-          <div className="label-mono text-[0.6rem] text-gold">
+          <div className="rounded-full bg-[#f1efe9] px-3 py-1 text-xs font-bold text-cream">
             Total: ₹{filtered.reduce((s, e) => s + e.amountINR, 0).toLocaleString('en-IN')}
           </div>
         </div>
       )}
     </div>
+  )
+}
+
+function FilterChip({
+  active, onClick, label, Icon, color,
+}: {
+  active: boolean; onClick: () => void; label: string
+  Icon?: LucideIcon
+  color?: string
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`press inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+        active ? 'border-transparent bg-cream text-white' : 'border-border bg-white text-stone hover:text-cream'
+      }`}
+      style={active ? { background: '#2a3140' } : undefined}
+    >
+      {Icon && <Icon className="h-3.5 w-3.5" style={!active && color ? { color } : undefined} />}
+      {label}
+    </button>
   )
 }
