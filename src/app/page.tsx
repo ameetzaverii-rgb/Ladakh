@@ -11,7 +11,7 @@ import { DAY_LOCATIONS } from '@/lib/locations'
 import { activeDestinationId, getActiveContext } from '@/lib/destination'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, ListChecks, BookOpen,
-  ChevronRight, Images, type LucideIcon,
+  ChevronRight, Images, MapPin, ChevronsUpDown, type LucideIcon,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -115,16 +115,28 @@ export default async function Dashboard() {
               : `${format(new Date(), 'EEE, MMM d')} · ${daysToTrip > 0 ? daysToTrip : 0} days to ${destName}`}
           </p>
         </div>
-        {currentWeather && (
+        <div className="flex shrink-0 items-center gap-2">
+          {/* Switch / start a new trip */}
           <Link
-            href="/itinerary"
-            className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold"
-            style={{ background: FLAG_TINT.blue, color: '#235a98' }}
+            href="/start"
+            title="Switch destination or start a new trip"
+            className="flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-bold text-cream shadow-soft transition-colors hover:border-gold-mid"
           >
-            <span className="text-base leading-none">{currentWeather.icon}</span>
-            {currentWeather.temp}°
+            <MapPin className="h-3.5 w-3.5 text-flag-red" />
+            <span className="max-w-[7.5rem] truncate">{destName}</span>
+            <ChevronsUpDown className="h-3.5 w-3.5 text-stone" />
           </Link>
-        )}
+          {currentWeather && (
+            <Link
+              href="/itinerary"
+              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold"
+              style={{ background: FLAG_TINT.blue, color: '#235a98' }}
+            >
+              <span className="text-base leading-none">{currentWeather.icon}</span>
+              {currentWeather.temp}°
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Countdown banner */}
