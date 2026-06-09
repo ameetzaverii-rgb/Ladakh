@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { TabBar } from '@/components/TabBar'
 import { CommandBar } from '@/components/CommandBar'
+import { Providers } from '@/components/Providers'
 import { Toaster } from 'sonner'
 import { ensureSchema } from '@/lib/migrations'
 import { ensureContent } from '@/lib/seedContent'
@@ -26,21 +27,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="bg-dark text-sand font-sans antialiased min-h-screen">
-        <main className="min-h-screen pb-24">
-          {children}
-        </main>
-        <TabBar />
-        <CommandBar />
-        <Toaster
-          theme="light"
-          toastOptions={{
-            style: {
-              background: '#ffffff',
-              border: '1px solid #e8e3d8',
-              color: '#2a3140',
-            },
-          }}
-        />
+        <Providers>
+          <main className="min-h-screen pb-24">
+            {children}
+          </main>
+          <TabBar />
+          <CommandBar />
+          <Toaster
+            theme="light"
+            toastOptions={{
+              style: {
+                background: '#ffffff',
+                border: '1px solid #e8e3d8',
+                color: '#2a3140',
+              },
+            }}
+          />
+        </Providers>
       </body>
     </html>
   )

@@ -1,51 +1,47 @@
 // src/lib/auth.ts
 import { NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import GoogleProvider from 'next-auth/providers/google'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { db } from './db'
-import bcrypt from 'bcryptjs'
+
+// Build the provider list from whatever is configured. Google is the primary
+// social login; it is only added when its credentials are present, so the app
+// keeps building/running before the env vars are set in Vercel.
+function buildProviders() {
+  const providers: NextAuthOptions['providers'] = []
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    providers.push(
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        allowDangerousEmailAccountLinking: true,
+      })
+    )
+  }
+  return providers
+}
+
+/** True when at least one social provider is configured (used to show sign-in UI). */
+export const authConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
   session: { strategy: 'jwt' },
-  pages: {
-    signIn: '/admin/login',
-  },
-  providers: [
-    CredentialsProvider({
-      name: 'credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
-
-        // Simple single-admin auth using env vars
-        // For multi-user, swap this for a DB lookup
-        const adminEmail = process.env.ADMIN_EMAIL
-        const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH
-
-        if (!adminEmail || !adminPasswordHash) return null
-        if (credentials.email !== adminEmail) return null
-
-        const passwordMatch = await bcrypt.compare(
-          credentials.password,
-          adminPasswordHash
-        )
-        if (!passwordMatch) return null
-
-        return { id: 'admin', email: adminEmail, name: 'Admin', role: 'ADMIN' }
-      },
-    }),
-  ],
+  pages: { signIn: '/signin' },
+  providers: buildProviders(),
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = (user as any).role
+      if (user) {
+        token.uid = (user as any).id
+        token.role = (user as any).role ?? 'VIEWER'
+      }
       return token
     },
     async session({ session, token }) {
-      if (session.user) (session.user as any).role = token.role
+      if (session.user) {
+        ;(session.user as any).id = token.uid
+        ;(session.user as any).role = token.role
+      }
       return session
     },
   },
