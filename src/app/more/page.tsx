@@ -1,14 +1,16 @@
+import { db } from '@/lib/db'
 import { FLAG, type FlagColor } from '@/lib/utils'
 import { getCategoryImageFor } from '@/lib/imagery'
 import { getActiveContext } from '@/lib/destination'
 import { authConfigured } from '@/lib/auth'
 import { PhotoTile } from '@/components/Photo'
 import { AccountButton } from '@/components/AccountButton'
+import { DestinationSwitcher, TripTypeToggle } from '@/components/TripControls'
 import Link from 'next/link'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, BedDouble, UtensilsCrossed,
   Car, ShoppingBag, Plane, BookOpen, NotebookPen, ListChecks, UserPlus, Settings, Images,
-  ShieldAlert, MapPin, type LucideIcon,
+  ShieldAlert, type LucideIcon,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -46,6 +48,7 @@ const LEGEND: { color: FlagColor; label: string }[] = [
 
 export default async function MorePage() {
   const ctx = await getActiveContext()
+  const destinations = await db.destination.findMany({ orderBy: { sortOrder: 'asc' }, select: { id: true, slug: true, name: true } })
   const items = ITEMS.filter(it => !it.menu || ctx.enabledMenus.includes(it.menu))
   const srcs = await Promise.all(
     items.map(it => (it.img ? getCategoryImageFor(it.img, ctx.dest?.slug, ctx.dest?.heroWiki) : Promise.resolve(null)))
@@ -59,12 +62,17 @@ export default async function MorePage() {
       {/* Account */}
       <div className="mb-4"><AccountButton configured={authConfigured} /></div>
 
-      {/* Active destination + switch */}
-      <Link href="/start" className="mb-6 flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-soft hover:border-gold-mid">
-        <MapPin className="h-4 w-4 text-flag-red" />
-        <span className="font-bold text-cream">{ctx.dest?.name ?? 'Choose a destination'}</span>
-        <span className="ml-auto text-xs font-semibold text-sky">Switch / new trip →</span>
-      </Link>
+      {/* Trip settings — switch destination & format without rebuilding */}
+      <div className="mb-6 space-y-3 rounded-2xl border border-border bg-white/60 p-4">
+        <div>
+          <div className="mb-1.5 text-[0.62rem] font-bold uppercase tracking-wide text-stone">Destination</div>
+          <DestinationSwitcher destinations={destinations} activeId={ctx.dest?.id ?? null} variant="block" />
+        </div>
+        <div>
+          <div className="mb-1.5 text-[0.62rem] font-bold uppercase tracking-wide text-stone">Trip type</div>
+          <TripTypeToggle value={ctx.tripType} />
+        </div>
+      </div>
 
       {/* Colour legend */}
       <div className="mb-6 flex flex-wrap gap-x-4 gap-y-2 rounded-xl border border-border bg-white px-4 py-3">

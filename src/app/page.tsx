@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
 import { AccountButton } from '@/components/AccountButton'
+import { DestinationSwitcher } from '@/components/TripControls'
 import { authConfigured } from '@/lib/auth'
 import { DailyAlert } from '@/components/DailyAlert'
 import { PhotoTile } from '@/components/Photo'
@@ -13,7 +14,7 @@ import { DAY_LOCATIONS } from '@/lib/locations'
 import { activeDestinationId, getActiveContext } from '@/lib/destination'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, ListChecks, BookOpen,
-  ChevronRight, Images, MapPin, ChevronsUpDown, type LucideIcon,
+  ChevronRight, Images, type LucideIcon,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -74,6 +75,7 @@ function greeting() {
 
 export default async function Dashboard() {
   const ctx = await getActiveContext()
+  const destinations = await db.destination.findMany({ orderBy: { sortOrder: 'asc' }, select: { id: true, slug: true, name: true } })
   const destName = ctx.dest?.name ?? 'Ladakh'
   const destLat = ctx.dest?.lat ?? LEH.lat
   const destLng = ctx.dest?.lng ?? LEH.lng
@@ -116,15 +118,7 @@ export default async function Dashboard() {
       {/* Masthead — row 1: trip chip + weather · row 2: greeting · row 3: date/countdown */}
       <div className="mb-5">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <Link
-            href="/start"
-            title="Switch destination or start a new trip"
-            className="flex min-w-0 items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-bold text-cream shadow-soft transition-colors hover:border-gold-mid"
-          >
-            <MapPin className="h-3.5 w-3.5 shrink-0 text-flag-red" />
-            <span className="truncate">{destName}</span>
-            <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-stone" />
-          </Link>
+          <DestinationSwitcher destinations={destinations} activeId={ctx.dest?.id ?? null} variant="chip" />
           <div className="flex shrink-0 items-center gap-2">
             {currentWeather && (
               <Link
