@@ -46,7 +46,7 @@ async function getDashboardData() {
   // While on the trip, today's itinerary day powers the daily alert banner.
   const currentDay = isOnTrip ? 1 - daysToTrip : null
   const todayPlan = currentDay
-    ? await db.itineraryDay.findUnique({ where: { dayNumber: currentDay } }).catch(() => null)
+    ? await db.itineraryDay.findFirst({ where: { dayNumber: currentDay } }).catch(() => null)
     : null
 
   return {

@@ -12,6 +12,29 @@ datasource db {
 }
 
 // ─────────────────────────────────────────
+// DESTINATIONS (multi-destination support)
+// ─────────────────────────────────────────
+
+model Destination {
+  id          String   @id @default(cuid())
+  slug        String   @unique // "ladakh" | "kashmir" | "pokhara" | "spiti"
+  name        String   // "Leh Ladakh"
+  tagline     String   // short subtitle for the picker card
+  region      String   // "North India · 3,500m"
+  color       String   @default("blue") // FlagColor key for accents
+  heroWiki    String[] // Wikipedia titles for the hero/category images
+  heroSrc     String?  // optional manual hero image override
+  lat         Float    @default(34.1526)
+  lng         Float    @default(77.5771)
+  currency    String   @default("INR")
+  intro       String?  @db.Text
+  isCustom    Boolean  @default(false) // user-created destination
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────
 // FLIGHTS
 // ─────────────────────────────────────────
 
@@ -28,10 +51,12 @@ model Flight {
   available     Boolean   @default(true)
   bookingUrl    String?
   notes         String?   // "Book 6-8 weeks ahead for July"
+  destinationId String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   @@index([origin, available])
+  @@index([destinationId])
 }
 
 // ─────────────────────────────────────────
@@ -56,10 +81,12 @@ model Stay {
   description      String      @db.Text
   highlights       String[]    // ["Great WiFi", "Mountain View", "Coworking"]
   priceUpdated     DateTime    @default(now())
+  destinationId    String?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
   @@index([type, available])
+  @@index([destinationId])
 }
 
 enum StayType {
@@ -91,8 +118,11 @@ model Trek {
   description    String         @db.Text
   highlights     String[]
   season         String         @default("June–September")
+  destinationId  String?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+
+  @@index([destinationId])
 }
 
 enum TrekDifficulty {
@@ -120,10 +150,12 @@ model Event {
   description    String    @db.Text
   tips           String?   // "Arrive early morning"
   distanceFromLehKm Int?
+  destinationId  String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   @@index([startDate])
+  @@index([destinationId])
 }
 
 enum EventType {
@@ -155,8 +187,11 @@ model Transport {
   contactName      String?       // Recommended driver name
   contactPhone     String?
   rateUpdated      DateTime      @default(now())
+  destinationId    String?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+
+  @@index([destinationId])
 }
 
 enum TransportType {
@@ -185,8 +220,11 @@ model Place {
   phone         String?
   mapsUrl       String?
   tags          String[]  // ["Best Views", "Work-Friendly", "Local Food"]
+  destinationId String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@index([destinationId])
 }
 
 enum PlaceType {
@@ -203,7 +241,8 @@ enum PlaceType {
 
 model ItineraryDay {
   id              String   @id @default(cuid())
-  dayNumber       Int      @unique // 1–21
+  dayNumber       Int      // 1–21 (unique per destination)
+  destinationId   String?
   dayOfWeek       String   // "Sat" | "Sun" | "Mon" etc.
   title           String   // "🛬 Arrive Leh — Absolute Rest Day"
   description     String   @db.Text
@@ -221,10 +260,18 @@ model ItineraryDay {
   customName      String?  // optional place name for custom days (map/weather)
   customLat       Float?
   customLng       Float?
+  // Per-day geographic anchor (weather + map). Seeded per destination; for the
+  // original Ladakh days this falls back to lib/locations when null.
+  lat             Float?
+  lng             Float?
+  altitudeM       Int?
+  locationName    String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  @@unique([destinationId, dayNumber])
   @@index([dayNumber])
+  @@index([destinationId])
 }
 
 // ─────────────────────────────────────────
@@ -240,6 +287,10 @@ model TripConfig {
   travelerName   String   @default("Amit")
   notes          String?  @db.Text
   categoryBudgets Json?   // Per-category budget targets, editable from the Budget page
+  // Multi-destination: the active trip + which menus are enabled for it.
+  activeDestinationId String?
+  enabledMenus   Json?    // string[] of menu keys; null = all enabled
+  onboarded      Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -258,11 +309,13 @@ model ShopItem {
   acquired     Boolean  @default(false)
   notes        String?  @db.Text
   photo        String?  @db.Text            // optional data URL / image link
+  destinationId String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   @@index([area])
   @@index([acquired])
+  @@index([destinationId])
 }
 
 // ─────────────────────────────────────────
@@ -282,8 +335,11 @@ model ChecklistItem {
   bookingRef  String?
   costINR     Int?
   url         String?
+  destinationId String?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
+
+  @@index([destinationId])
 }
 
 enum ChecklistCategory {
@@ -324,11 +380,13 @@ model JournalEntry {
   photos     String[] // URLs
   location   String?
   weather    String?
+  destinationId String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@index([tripDay])
   @@index([date])
+  @@index([destinationId])
 }
 
 // ─────────────────────────────────────────
@@ -345,12 +403,14 @@ model Expense {
   place       String?
   paymentMode String          @default("cash") // "cash" | "upi" | "card"
   receipt     String?
+  destinationId String?
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
   @@index([tripDay])
   @@index([date])
   @@index([category])
+  @@index([destinationId])
 }
 
 enum ExpenseCategory {
