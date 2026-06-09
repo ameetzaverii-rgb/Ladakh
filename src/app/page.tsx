@@ -108,26 +108,18 @@ export default async function Dashboard() {
         }} />
       )}
 
-      {/* Masthead — row 1: greeting + selected trip · row 2: countdown + weather */}
+      {/* Masthead — row 1: trip chip + weather · row 2: greeting · row 3: date/countdown */}
       <div className="mb-5">
-        <div className="flex items-center justify-between gap-2">
-          <h1 className="min-w-0 flex-1 truncate text-2xl font-extrabold tracking-tight text-cream">{greeting()}, {travelerName}</h1>
+        <div className="mb-3 flex items-center justify-between gap-2">
           <Link
             href="/start"
             title="Switch destination or start a new trip"
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-bold text-cream shadow-soft transition-colors hover:border-gold-mid"
+            className="flex min-w-0 items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-bold text-cream shadow-soft transition-colors hover:border-gold-mid"
           >
-            <MapPin className="h-3.5 w-3.5 text-flag-red" />
-            <span className="max-w-[7.5rem] truncate">{destName}</span>
-            <ChevronsUpDown className="h-3.5 w-3.5 text-stone" />
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-flag-red" />
+            <span className="truncate">{destName}</span>
+            <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-stone" />
           </Link>
-        </div>
-        <div className="mt-1.5 flex items-center justify-between gap-2">
-          <p className="min-w-0 flex-1 truncate text-sm text-stone">
-            {isOnTrip
-              ? `You're in ${destName} · ${format(new Date(), 'EEE, MMM d')}`
-              : `${format(new Date(), 'EEE, MMM d')} · ${daysToTrip > 0 ? daysToTrip : 0} days to ${destName}`}
-          </p>
           {currentWeather && (
             <Link
               href="/weather"
@@ -140,6 +132,12 @@ export default async function Dashboard() {
             </Link>
           )}
         </div>
+        <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-cream">{greeting()}, {travelerName}</h1>
+        <p className="mt-1 text-sm text-stone">
+          {isOnTrip
+            ? `You're in ${destName} · ${format(new Date(), 'EEE, MMM d')}`
+            : `${format(new Date(), 'EEE, MMM d')} · ${daysToTrip > 0 ? daysToTrip : 0} days to ${destName}`}
+        </p>
       </div>
 
       {/* Countdown banner */}
