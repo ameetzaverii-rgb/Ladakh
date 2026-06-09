@@ -58,7 +58,7 @@ export default async function MorePage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-4 flex justify-center">
-        <Link href="/" aria-label="Tarcho home"><TarchoLogo size="sm" layout="inline" /></Link>
+        <Link href="/" aria-label="Tarcho home"><TarchoLogo size="sm" layout="stacked" /></Link>
       </div>
       <h1 className="section-title mb-1">Everything</h1>
       <p className="mb-4 text-sm text-stone">Every part of your {ctx.dest?.name ?? 'trip'}, colour-coded.</p>
