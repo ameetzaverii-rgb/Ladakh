@@ -1,11 +1,12 @@
 import { db } from '@/lib/db'
 import { format } from 'date-fns'
 import { formatINR } from '@/lib/utils'
+import { activeDestinationId } from '@/lib/destination'
 
 export const dynamic = 'force-dynamic'
 
 export default async function FlightsPage() {
-  const flights = await db.flight.findMany({ orderBy: { priceINR: 'asc' } })
+  const flights = await db.flight.findMany({ where: { destinationId: await activeDestinationId() }, orderBy: { priceINR: 'asc' } })
 
   const skyscannerUrl = `https://www.skyscanner.co.in/routes/del/ixl/`
 

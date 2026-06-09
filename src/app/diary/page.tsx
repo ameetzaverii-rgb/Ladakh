@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { DAY_LOCATIONS } from '@/lib/locations'
 import { getDayWeather, type DayWeather } from '@/lib/weather'
+import { activeDestinationId } from '@/lib/destination'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,10 +35,11 @@ type Expense = { id: string; tripDay: number; amountINR: number; category: strin
 const MOODS = ['😔', '😐', '🙂', '😊', '🤩']
 
 export default async function DiaryPage() {
+  const destinationId = await activeDestinationId()
   const [itinerary, journals, expenses, config] = await Promise.all([
-    db.itineraryDay.findMany({ orderBy: { dayNumber: 'asc' } }),
-    db.journalEntry.findMany({ orderBy: { date: 'asc' } }) as unknown as Promise<Journal[]>,
-    db.expense.findMany() as unknown as Promise<Expense[]>,
+    db.itineraryDay.findMany({ where: { destinationId }, orderBy: { dayNumber: 'asc' } }),
+    db.journalEntry.findMany({ where: { destinationId }, orderBy: { date: 'asc' } }) as unknown as Promise<Journal[]>,
+    db.expense.findMany({ where: { destinationId } }) as unknown as Promise<Expense[]>,
     db.tripConfig.findFirst().catch(() => null),
   ])
 

@@ -2,13 +2,15 @@ import { db } from '@/lib/db'
 import { formatINR } from '@/lib/utils'
 import { CategoryHero } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
+import { activeDestinationId } from '@/lib/destination'
 import { BedDouble } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 export default async function StaysPage() {
+  const destinationId = await activeDestinationId()
   const [stays, heroImg] = await Promise.all([
-    db.stay.findMany({ orderBy: { pricePerNightINR: 'asc' } }),
+    db.stay.findMany({ where: { destinationId }, orderBy: { pricePerNightINR: 'asc' } }),
     getCategoryImage('stays'),
   ])
 

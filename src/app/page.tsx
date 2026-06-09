@@ -8,6 +8,7 @@ import { PhotoTile } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
 import { getCurrentWeather } from '@/lib/weather'
 import { DAY_LOCATIONS } from '@/lib/locations'
+import { activeDestinationId } from '@/lib/destination'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, ListChecks, BookOpen,
   ChevronRight, Images, type LucideIcon,
@@ -18,13 +19,14 @@ export const dynamic = 'force-dynamic'
 const LEH = DAY_LOCATIONS[1]
 
 async function getDashboardData() {
+  const destinationId = await activeDestinationId()
   const [config, checklistItems, expenses, journalEntries, nextEvents] = await Promise.all([
     db.tripConfig.findFirst().catch(() => null),
-    db.checklistItem.findMany({ orderBy: [{ phase: 'asc' }, { priority: 'asc' }] }),
-    db.expense.findMany({ orderBy: { date: 'desc' } }),
-    db.journalEntry.findMany({ orderBy: { date: 'desc' }, take: 3 }),
+    db.checklistItem.findMany({ where: { destinationId }, orderBy: [{ phase: 'asc' }, { priority: 'asc' }] }),
+    db.expense.findMany({ where: { destinationId }, orderBy: { date: 'desc' } }),
+    db.journalEntry.findMany({ where: { destinationId }, orderBy: { date: 'desc' }, take: 3 }),
     db.event.findMany({
-      where: { startDate: { gte: new Date() } },
+      where: { destinationId, startDate: { gte: new Date() } },
       orderBy: { startDate: 'asc' },
       take: 3,
     }),
@@ -46,7 +48,7 @@ async function getDashboardData() {
   // While on the trip, today's itinerary day powers the daily alert banner.
   const currentDay = isOnTrip ? 1 - daysToTrip : null
   const todayPlan = currentDay
-    ? await db.itineraryDay.findFirst({ where: { dayNumber: currentDay } }).catch(() => null)
+    ? await db.itineraryDay.findFirst({ where: { dayNumber: currentDay, destinationId } }).catch(() => null)
     : null
 
   return {

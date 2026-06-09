@@ -3,6 +3,7 @@ import { ReviewLinks } from '@/components/ReviewLinks'
 import { CategoryHero } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
 import { fetchWikiImage } from '@/lib/trekMedia'
+import { activeDestinationId } from '@/lib/destination'
 import { UtensilsCrossed, Coffee, Soup, Croissant, Sandwich, Laptop, Wifi, type LucideIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -37,7 +38,7 @@ function foodWikiTitles(place: any): string[] {
 
 export default async function FoodPage() {
   const [places, heroImg] = await Promise.all([
-    db.place.findMany({ orderBy: { laptopFriendly: 'desc' } }),
+    db.place.findMany({ where: { destinationId: await activeDestinationId() }, orderBy: { laptopFriendly: 'desc' } }),
     getCategoryImage('food'),
   ])
 

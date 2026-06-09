@@ -7,6 +7,7 @@ import { MiniMap } from '@/components/MiniMap'
 import { FestivalGallery, type FestImage } from '@/components/FestivalGallery'
 import { getCategoryImage } from '@/lib/imagery'
 import { fetchWikiImage } from '@/lib/trekMedia'
+import { activeDestinationId } from '@/lib/destination'
 import { PartyPopper, MapPin, Car, Lightbulb, Ticket } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -57,7 +58,7 @@ function festivalWikiTitles(name: string): string[] {
 
 export default async function EventsPage() {
   const [events, heroImg] = await Promise.all([
-    db.event.findMany({ orderBy: { startDate: 'asc' } }),
+    db.event.findMany({ where: { destinationId: await activeDestinationId() }, orderBy: { startDate: 'asc' } }),
     getCategoryImage('events'),
   ])
 

@@ -3,11 +3,13 @@ import { PHASE_ORDER } from '@/lib/utils'
 import { PrepClient } from './PrepClient'
 import { CategoryHero } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
+import { activeDestinationId } from '@/lib/destination'
 import { ListChecks } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 async function getChecklistData() {
   const items = await db.checklistItem.findMany({
+    where: { destinationId: await activeDestinationId() },
     orderBy: [{ phase: 'asc' }, { priority: 'asc' }, { createdAt: 'asc' }],
   })
   return items

@@ -1,6 +1,7 @@
 // src/app/api/stays/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { activeDestinationId } from '@/lib/destination'
 
 export const revalidate = 3600
 
@@ -12,6 +13,7 @@ export async function GET(req: NextRequest) {
 
     const stays = await db.stay.findMany({
       where: {
+        destinationId: await activeDestinationId(),
         available: true,
         ...(type && { type: type as any }),
         ...(coworking !== undefined && { hasCoworking: coworking }),
@@ -28,7 +30,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const stay = await db.stay.create({ data: body })
+    const stay = await db.stay.create({ data: { ...body, destinationId: body.destinationId ?? await activeDestinationId() } })
     return NextResponse.json({ stay }, { status: 201 })
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create stay' }, { status: 500 })
