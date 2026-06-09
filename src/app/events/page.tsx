@@ -20,39 +20,56 @@ const TYPE_COLORS: Record<string, string> = {
   ASTRONOMY: 'pill-sky',
 }
 
-// A varied pool of distinct Ladakh imagery to round out each strip. Rotated by
-// a hash of the festival name so different festivals don't share the same fill.
-const FEST_POOL = [
-  'Cham dance', 'Thangka', 'Hemis Festival', 'Diskit Monastery', 'Lamayuru Monastery',
-  'Thikse Monastery', 'Leh Palace', 'Shanti Stupa', 'Prayer flag', 'Stok Monastery',
-  'Likir Monastery', 'Ladakh',
-]
+// Per-destination fill pool so a festival's extra photos stay in the right
+// place (never Ladakh monasteries on a Kashmir/Pokhara/Spiti festival).
+const FEST_POOL_BY_SLUG: Record<string, string[]> = {
+  ladakh: ['Cham dance', 'Thangka', 'Hemis Festival', 'Diskit Monastery', 'Lamayuru Monastery', 'Thikse Monastery', 'Leh Palace', 'Shanti Stupa', 'Prayer flag', 'Likir Monastery'],
+  kashmir: ['Dal Lake', 'Hazratbal Shrine', 'Nishat Bagh', 'Shankaracharya Temple', 'Jamia Masjid, Srinagar', 'Pari Mahal', 'Gulmarg', 'Kashmir Valley'],
+  pokhara: ['Phewa Lake', 'Tal Barahi Temple', 'World Peace Pagoda, Pokhara', 'Bindhyabasini Temple', 'Pokhara', 'Annapurna Massif', 'Machhapuchhre'],
+  spiti: ['Key Monastery', 'Cham dance', 'Tabo Monastery', 'Dhankar Monastery', 'Kibber', 'Spiti Valley', 'Chandra Taal'],
+}
 function hashStr(s: string): number {
   let h = 0
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0
   return Math.abs(h)
 }
 
-// Wikipedia titles to source ~4 distinct photos per festival — curated leads
-// first, then a name-rotated slice of the pool so each festival looks different.
-function festivalWikiTitles(name: string): string[] {
+// Curated lead photos for a festival (by name keyword), then a name-rotated
+// slice of the destination's pool so each festival looks distinct and on-place.
+function festivalWikiTitles(name: string, slug = 'ladakh', fallbackWiki: string[] = []): string[] {
   const n = name.toLowerCase()
   let base: string[] = []
+  // Ladakh
   if (n.includes('phyang')) base = ['Phyang Monastery', 'Cham dance']
   else if (n.includes('korzok') || n.includes('gustor') || n.includes('moriri')) base = ['Tso Moriri', 'Korzok', 'Changthang']
   else if (n.includes('naropa')) base = ['Naropa', 'Hemis Monastery']
   else if (n.includes('hemis')) base = ['Hemis Festival', 'Hemis Monastery']
   else if (n.includes('thiksey') || n.includes('thikse')) base = ['Thikse Monastery', 'Maitreya']
   else if (n.includes('dosmoche')) base = ['Leh Palace', 'Cham dance']
-  else if (n.includes('losar')) base = ['Losar']
   else if (n.includes('sindhu')) base = ['Indus River', 'Leh']
   else if (n.includes('yuru') || n.includes('lamayuru')) base = ['Lamayuru Monastery', 'Cham dance']
   else if (n.includes('matho')) base = ['Matho Monastery']
-  else if (n.includes('stok')) base = ['Stok Monastery', 'Stok Kangri']
-  else if (n.includes('ladakh') || n.includes('polo') || n.includes('harvest')) base = ['Ladakh', 'Polo', 'Leh']
+  // Kashmir
+  else if (n.includes('tulip')) base = ['Indira Gandhi Memorial Tulip Garden', 'Dal Lake']
+  else if (n.includes('shikara')) base = ['Dal Lake', 'Shikara']
+  else if (n.includes('gurez')) base = ['Gurez', 'Kishanganga River']
+  else if (n.includes('hazratbal')) base = ['Hazratbal Shrine']
+  // Pokhara
+  else if (n.includes('fewa') || n.includes('phewa') || n.includes('street festival')) base = ['Phewa Lake', 'Pokhara']
+  else if (n.includes('dashain')) base = ['Dashain']
+  else if (n.includes('tihar')) base = ['Tihar', 'Diwali']
+  else if (n.includes('maghe') || n.includes('sankranti')) base = ["Devi's Fall", 'Pokhara']
+  // Spiti
+  else if (n.includes('losar')) base = ['Losar', slug === 'spiti' ? 'Key Monastery' : 'Cham dance']
+  else if (n.includes('ladarcha')) base = ['Kaza, Himachal Pradesh', 'Spiti Valley']
+  else if (n.includes('chaam') || n.includes('cham')) base = ['Key Monastery', 'Cham dance']
+  else if (n.includes('pin valley') || n.includes('kungri')) base = ['Pin Valley National Park', 'Spiti Valley']
+  // generic
+  else if (n.includes('ladakh') || n.includes('polo') || n.includes('harvest')) base = ['Ladakh', 'Leh']
 
-  const off = hashStr(name) % FEST_POOL.length
-  const rotated = [...FEST_POOL.slice(off), ...FEST_POOL.slice(0, off)]
+  const pool = FEST_POOL_BY_SLUG[slug] ?? (fallbackWiki.length ? fallbackWiki : ['Himalayas'])
+  const off = hashStr(name) % pool.length
+  const rotated = [...pool.slice(off), ...pool.slice(0, off)]
   return Array.from(new Set([...base, ...rotated]))
 }
 
@@ -69,7 +86,7 @@ export default async function EventsPage() {
     events.map(async ev => {
       const imgs: FestImage[] = []
       const seen = new Set<string>()
-      for (const title of festivalWikiTitles(ev.name)) {
+      for (const title of festivalWikiTitles(ev.name, ctx.dest?.slug, ctx.dest?.heroWiki)) {
         if (imgs.length >= 4) break
         const img = await fetchWikiImage(title)
         if (img?.src && !seen.has(img.src)) { seen.add(img.src); imgs.push({ src: img.src, pageUrl: img.pageUrl }) }
