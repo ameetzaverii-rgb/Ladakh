@@ -119,8 +119,10 @@ export async function getCategoryImageFor(
   fallbackWiki?: string[],
 ): Promise<TrekImage | null> {
   if (slug && slug !== 'ladakh') {
-    const titles = DEST_CATEGORY[slug]?.[key] ?? fallbackWiki
-    if (titles && titles.length) return resolvePhoto({ wiki: titles })
+    // Category-specific titles first, then the destination's own landmarks, so
+    // the hero always resolves to an on-place photo (never a Ladakh fallback).
+    const titles = [...(DEST_CATEGORY[slug]?.[key] ?? []), ...(fallbackWiki ?? [])]
+    if (titles.length) return resolvePhoto({ wiki: titles })
   }
   const ref = CATEGORY_IMAGES[key]
   return ref ? resolvePhoto(ref) : null

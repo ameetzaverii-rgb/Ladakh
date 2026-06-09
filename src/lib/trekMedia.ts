@@ -58,7 +58,17 @@ export async function fetchWikiImage(title: string): Promise<TrekImage | null> {
   try {
     const res = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
-      { signal: controller.signal, next: { revalidate: 86400 } } // cache 1 day
+      {
+        signal: controller.signal,
+        next: { revalidate: 86400 }, // cache 1 day
+        // Wikimedia requires a descriptive User-Agent; generic ones get 403'd,
+        // which would silently drop every image across the app.
+        headers: {
+          'User-Agent': 'LadakhWorkationGuide/1.0 (https://ladakh-sage.vercel.app; amitzave@gmail.com)',
+          'Api-User-Agent': 'LadakhWorkationGuide/1.0 (https://ladakh-sage.vercel.app; amitzave@gmail.com)',
+          Accept: 'application/json',
+        },
+      }
     )
     if (!res.ok) return null
     const d = await res.json()
