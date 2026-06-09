@@ -48,7 +48,9 @@ export function TarchoLogo({
   size?: Size; layout?: 'stacked' | 'inline'; className?: string; tone?: 'ink' | 'light'
 }) {
   const { flag, text } = SIZES[size]
-  const word = cn('font-display tracking-tight', text, tone === 'light' ? 'text-white' : 'text-cream')
+  // Marcellus ships in a single (regular) weight, so we add a touch of synthetic
+  // weight + open tracking to give the wordmark a heavier, more monumental presence.
+  const word = cn('font-display font-semibold tracking-[0.04em]', text, tone === 'light' ? 'text-white' : 'text-cream')
 
   if (layout === 'inline') {
     return (
