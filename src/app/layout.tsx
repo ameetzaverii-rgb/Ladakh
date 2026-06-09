@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { TabBar } from '@/components/TabBar'
+import { BrandHeader } from '@/components/BrandHeader'
 import { CommandBar } from '@/components/CommandBar'
 import { Providers } from '@/components/Providers'
 import { Toaster } from 'sonner'
@@ -28,6 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="bg-dark text-sand font-sans antialiased min-h-screen">
         <Providers>
+          <BrandHeader />
           <main className="min-h-screen pb-24">
             {children}
           </main>

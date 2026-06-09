@@ -4,7 +4,6 @@ import { format } from 'date-fns'
 import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
 import { AccountButton } from '@/components/AccountButton'
-import { TarchoLogo } from '@/components/Logo'
 import { DestinationSwitcher } from '@/components/TripControls'
 import { authConfigured } from '@/lib/auth'
 import { DailyAlert } from '@/components/DailyAlert'
@@ -103,11 +102,6 @@ export default async function Dashboard() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-7">
-
-      {/* Brand */}
-      <div className="mb-4 flex justify-center">
-        <Link href="/" aria-label="Tarcho home"><TarchoLogo size="sm" layout="inline" /></Link>
-      </div>
 
       {/* On-trip daily reminder */}
       {todayPlan && (
