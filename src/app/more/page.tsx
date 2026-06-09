@@ -1,32 +1,35 @@
 import { FLAG, type FlagColor } from '@/lib/utils'
 import { getCategoryImage } from '@/lib/imagery'
+import { getActiveContext } from '@/lib/destination'
 import { PhotoTile } from '@/components/Photo'
+import Link from 'next/link'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, BedDouble, UtensilsCrossed,
   Car, ShoppingBag, Plane, BookOpen, NotebookPen, ListChecks, UserPlus, Settings, Images,
-  ShieldAlert, type LucideIcon,
+  ShieldAlert, MapPin, type LucideIcon,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Everything · Leh Ladakh' }
 
-type Item = { href: string; label: string; icon: LucideIcon; color: FlagColor; img?: string }
+// `menu` ties a tile to a toggleable section; items without it are always shown.
+type Item = { href: string; label: string; icon: LucideIcon; color: FlagColor; img?: string; menu?: string }
 
 const ITEMS: Item[] = [
-  { href: '/gallery', label: 'Places', icon: Images, color: 'blue', img: 'gallery' },
-  { href: '/emergency', label: 'Emergency', icon: ShieldAlert, color: 'red' },
+  { href: '/gallery', label: 'Places', icon: Images, color: 'blue', img: 'gallery', menu: 'gallery' },
+  { href: '/emergency', label: 'Emergency', icon: ShieldAlert, color: 'red', menu: 'emergency' },
   { href: '/itinerary', label: 'Itinerary', icon: CalendarDays, color: 'blue', img: 'itinerary' },
-  { href: '/events', label: 'Festivals', icon: PartyPopper, color: 'red', img: 'events' },
-  { href: '/treks', label: 'Treks', icon: Mountain, color: 'green', img: 'treks' },
+  { href: '/events', label: 'Festivals', icon: PartyPopper, color: 'red', img: 'events', menu: 'events' },
+  { href: '/treks', label: 'Treks', icon: Mountain, color: 'green', img: 'treks', menu: 'treks' },
   { href: '/budget', label: 'Budget', icon: Wallet, color: 'yellow', img: 'budget' },
-  { href: '/stays', label: 'Stays', icon: BedDouble, color: 'blue', img: 'stays' },
-  { href: '/food', label: 'Food', icon: UtensilsCrossed, color: 'red', img: 'food' },
-  { href: '/transport', label: 'Transport', icon: Car, color: 'blue', img: 'transport' },
-  { href: '/shop', label: 'Shop', icon: ShoppingBag, color: 'yellow', img: 'shop' },
-  { href: '/flights', label: 'Flights', icon: Plane, color: 'blue', img: 'flights' },
+  { href: '/stays', label: 'Stays', icon: BedDouble, color: 'blue', img: 'stays', menu: 'stays' },
+  { href: '/food', label: 'Food', icon: UtensilsCrossed, color: 'red', img: 'food', menu: 'food' },
+  { href: '/transport', label: 'Transport', icon: Car, color: 'blue', img: 'transport', menu: 'transport' },
+  { href: '/shop', label: 'Shop', icon: ShoppingBag, color: 'yellow', img: 'shop', menu: 'shop' },
+  { href: '/flights', label: 'Flights', icon: Plane, color: 'blue', img: 'flights', menu: 'flights' },
   { href: '/journal', label: 'Journal', icon: BookOpen, color: 'ink', img: 'journal' },
-  { href: '/diary', label: 'Diary', icon: NotebookPen, color: 'ink', img: 'diary' },
-  { href: '/prep', label: 'Prep List', icon: ListChecks, color: 'blue' },
+  { href: '/diary', label: 'Diary', icon: NotebookPen, color: 'ink', img: 'diary', menu: 'diary' },
+  { href: '/prep', label: 'Prep List', icon: ListChecks, color: 'blue', menu: 'prep' },
   { href: '/contribute', label: 'Collaborate', icon: UserPlus, color: 'yellow' },
   { href: '/admin', label: 'Admin', icon: Settings, color: 'ink' },
 ]
@@ -40,14 +43,23 @@ const LEGEND: { color: FlagColor; label: string }[] = [
 ]
 
 export default async function MorePage() {
+  const ctx = await getActiveContext()
+  const items = ITEMS.filter(it => !it.menu || ctx.enabledMenus.includes(it.menu))
   const srcs = await Promise.all(
-    ITEMS.map(it => (it.img ? getCategoryImage(it.img) : Promise.resolve(null)))
+    items.map(it => (it.img ? getCategoryImage(it.img) : Promise.resolve(null)))
   )
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="section-title mb-1">Everything</h1>
-      <p className="mb-5 text-sm text-stone">Every part of your Ladakh workation, colour-coded.</p>
+      <p className="mb-4 text-sm text-stone">Every part of your {ctx.dest?.name ?? 'trip'}, colour-coded.</p>
+
+      {/* Active destination + switch */}
+      <Link href="/start" className="mb-6 flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-soft hover:border-gold-mid">
+        <MapPin className="h-4 w-4 text-flag-red" />
+        <span className="font-bold text-cream">{ctx.dest?.name ?? 'Choose a destination'}</span>
+        <span className="ml-auto text-xs font-semibold text-sky">Switch / new trip →</span>
+      </Link>
 
       {/* Colour legend */}
       <div className="mb-6 flex flex-wrap gap-x-4 gap-y-2 rounded-xl border border-border bg-white px-4 py-3">
@@ -60,7 +72,7 @@ export default async function MorePage() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {ITEMS.map((item, i) => (
+        {items.map((item, i) => (
           <PhotoTile
             key={item.href}
             href={item.href}
