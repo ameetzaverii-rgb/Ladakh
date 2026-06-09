@@ -12,11 +12,19 @@ export interface OnboardDestination {
   region: string; color: string; intro: string; image: string | null
 }
 
-type Step = 'pick' | 'menus' | 'custom'
+type Step = 'pick' | 'menus' | 'details' | 'custom'
 const COLORS: FlagColor[] = ['blue', 'green', 'red', 'yellow']
 
-export function Onboarding({ destinations, activeId, currentMenus }: {
+const todayISO = () => new Date().toISOString().slice(0, 10)
+function addDaysISO(iso: string, n: number): string {
+  const d = new Date(iso + 'T00:00:00Z')
+  d.setUTCDate(d.getUTCDate() + n)
+  return d.toISOString().slice(0, 10)
+}
+
+export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
   destinations: OnboardDestination[]; activeId: string | null; currentMenus: string[]
+  defaults?: { startDate?: string; days?: number; budget?: number; travelerName?: string }
 }) {
   const router = useRouter()
   const [step, setStep] = useState<Step>('pick')
@@ -24,6 +32,11 @@ export function Onboarding({ destinations, activeId, currentMenus }: {
   const [picked, setPicked] = useState<OnboardDestination | null>(null)
   const [menus, setMenus] = useState<Set<string>>(new Set(currentMenus.length ? currentMenus : ALL_MENU_KEYS))
   const [busy, setBusy] = useState(false)
+  // Trip preferences
+  const [startDate, setStartDate] = useState(defaults?.startDate || todayISO())
+  const [days, setDays] = useState(defaults?.days && defaults.days > 0 ? defaults.days : 10)
+  const [budget, setBudget] = useState(defaults?.budget && defaults.budget > 0 ? defaults.budget : 150000)
+  const [traveler, setTraveler] = useState(defaults?.travelerName || '')
 
   function choose(d: OnboardDestination) {
     setPicked(d)
@@ -34,9 +47,14 @@ export function Onboarding({ destinations, activeId, currentMenus }: {
   async function build() {
     if (!picked) return
     setBusy(true)
+    const tripEndDate = addDaysISO(startDate, Math.max(1, days) - 1)
     const res = await fetch('/api/trip', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ destinationId: picked.id, enabledMenus: Array.from(menus) }),
+      body: JSON.stringify({
+        destinationId: picked.id, enabledMenus: Array.from(menus),
+        tripStartDate: startDate, tripEndDate, totalBudgetINR: budget,
+        travelerName: traveler || undefined,
+      }),
     })
     setBusy(false)
     if (!res.ok) { toast.error('Could not build the trip'); return }
@@ -120,11 +138,59 @@ export function Onboarding({ destinations, activeId, currentMenus }: {
           })}
         </div>
         <div className="mt-7 flex items-center gap-3">
+          <button onClick={() => setStep('details')}
+            className="press inline-flex items-center gap-2 rounded-full bg-flag-blue px-6 py-3 text-sm font-bold text-white">
+            Next: trip details <ArrowRight className="h-4 w-4" />
+          </button>
+          <span className="text-xs text-muted">{menus.size} section{menus.size !== 1 ? 's' : ''} on</span>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Trip details (dates, length, budget) ──
+  if (step === 'details' && picked) {
+    const endDate = addDaysISO(startDate, Math.max(1, days) - 1)
+    const perDay = days > 0 ? Math.round(budget / days) : budget
+    const fmt = (iso: string) => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+    const input = 'w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-gold-mid'
+    return (
+      <div className="mx-auto max-w-md">
+        <button onClick={() => setStep('menus')} className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-stone hover:text-cream">
+          <ChevronLeft className="h-4 w-4" /> Back
+        </button>
+        <header className="mb-6">
+          <div className="label-mono mb-1 text-[0.6rem] text-gold">{picked.region}</div>
+          <h1 className="font-serif text-2xl font-bold text-cream">A few trip details</h1>
+          <p className="mt-1 text-sm text-stone">We’ll use these for the countdown, day-by-day plan and budget tracker. You can change them anytime in settings.</p>
+        </header>
+        <div className="space-y-4">
+          <div>
+            <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Your name (optional)</label>
+            <input value={traveler} onChange={e => setTraveler(e.target.value)} placeholder="e.g. Amit" className={input} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Travel start date</label>
+              <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className={input} />
+            </div>
+            <div>
+              <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Number of days</label>
+              <input type="number" min={1} max={120} value={days} onChange={e => setDays(parseInt(e.target.value) || 1)} className={input} />
+            </div>
+          </div>
+          <p className="-mt-1 text-xs text-muted">Ends <span className="font-semibold text-sand">{fmt(endDate)}</span> · {days} day{days !== 1 ? 's' : ''}</p>
+          <div>
+            <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Total budget (₹)</label>
+            <input type="number" min={0} step={1000} value={budget} onChange={e => setBudget(parseInt(e.target.value) || 0)} className={input} />
+            <p className="mt-1 text-xs text-muted">≈ {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(perDay)} / day</p>
+          </div>
+        </div>
+        <div className="mt-7 flex items-center gap-3">
           <button onClick={build} disabled={busy}
             className="press inline-flex items-center gap-2 rounded-full bg-flag-blue px-6 py-3 text-sm font-bold text-white disabled:opacity-50">
             <Sparkles className="h-4 w-4" /> {busy ? 'Building…' : `Build my ${picked.name} trip`}
           </button>
-          <span className="text-xs text-muted">{menus.size} section{menus.size !== 1 ? 's' : ''} on</span>
         </div>
       </div>
     )

@@ -34,6 +34,14 @@ export default async function StartPage() {
         destinations={withImages}
         activeId={ctx.dest?.id ?? null}
         currentMenus={ctx.enabledMenus}
+        defaults={{
+          startDate: ctx.cfg?.tripStartDate ? new Date(ctx.cfg.tripStartDate).toISOString().slice(0, 10) : undefined,
+          days: ctx.cfg?.tripStartDate && ctx.cfg?.tripEndDate
+            ? Math.max(1, Math.round((+new Date(ctx.cfg.tripEndDate) - +new Date(ctx.cfg.tripStartDate)) / 86400000) + 1)
+            : undefined,
+          budget: ctx.cfg?.totalBudgetINR ?? undefined,
+          travelerName: ctx.cfg?.travelerName ?? undefined,
+        }}
       />
     </div>
   )

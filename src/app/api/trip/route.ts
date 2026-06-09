@@ -10,8 +10,14 @@ export async function POST(req: NextRequest) {
 
   const enabledMenus: string[] = Array.isArray(body.enabledMenus) ? body.enabledMenus : ALL_MENU_KEYS
 
+  // Optional trip preferences captured during onboarding.
+  const data: Record<string, unknown> = { activeDestinationId: destinationId, enabledMenus, onboarded: true }
+  if (body.tripStartDate) data.tripStartDate = new Date(body.tripStartDate)
+  if (body.tripEndDate) data.tripEndDate = new Date(body.tripEndDate)
+  if (typeof body.totalBudgetINR === 'number' && body.totalBudgetINR > 0) data.totalBudgetINR = Math.round(body.totalBudgetINR)
+  if (typeof body.travelerName === 'string' && body.travelerName.trim()) data.travelerName = body.travelerName.trim()
+
   const existing = await db.tripConfig.findFirst()
-  const data = { activeDestinationId: destinationId, enabledMenus, onboarded: true }
   const cfg = existing
     ? await db.tripConfig.update({ where: { id: existing.id }, data })
     : await db.tripConfig.create({ data })
