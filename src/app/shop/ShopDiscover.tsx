@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { SHOP_IDEAS, type ShopIdea } from '@/lib/shopSuggestions'
+import { type ShopIdea } from '@/lib/shopSuggestions'
 import { catIcon } from '@/lib/categoryIcons'
 import { Heart, X, RotateCcw, Sparkles, MapPin } from 'lucide-react'
 
@@ -16,7 +16,7 @@ function saveSeen(ids: string[]) {
   try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids)) } catch {}
 }
 
-export function ShopDiscover({ existingNames, images = {} }: { existingNames: string[]; images?: Record<string, string> }) {
+export function ShopDiscover({ ideas, existingNames, images = {} }: { ideas: ShopIdea[]; existingNames: string[]; images?: Record<string, string> }) {
   const router = useRouter()
   const have = useMemo(() => new Set(existingNames.map(n => n.toLowerCase())), [existingNames])
   const [seen, setSeen] = useState<string[]>([])
@@ -27,7 +27,7 @@ export function ShopDiscover({ existingNames, images = {} }: { existingNames: st
   if (!ready && typeof window !== 'undefined') {
     const s = loadSeen()
     setSeen(s)
-    setDeck(SHOP_IDEAS.filter(i => !s.includes(i.id) && !have.has(i.name.toLowerCase())))
+    setDeck(ideas.filter(i => !s.includes(i.id) && !have.has(i.name.toLowerCase())))
     setReady(true)
   }
 
@@ -61,7 +61,7 @@ export function ShopDiscover({ existingNames, images = {} }: { existingNames: st
 
   function reset() {
     saveSeen([]); setSeen([])
-    setDeck(SHOP_IDEAS.filter(i => !have.has(i.name.toLowerCase())))
+    setDeck(ideas.filter(i => !have.has(i.name.toLowerCase())))
   }
 
   // pointer drag

@@ -1,11 +1,13 @@
-import { getPlacesWithImages } from '@/lib/imagery'
+import { getSightsForDestination } from '@/lib/imagery'
+import { getActiveContext } from '@/lib/destination'
 import { Gallery, type GalleryItem } from '@/components/Gallery'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Places · Leh Ladakh' }
+export const metadata = { title: 'Places' }
 
 export default async function GalleryPage() {
-  const places = await getPlacesWithImages()
+  const ctx = await getActiveContext()
+  const places = await getSightsForDestination(ctx.dest?.slug ?? 'ladakh')
 
   const items: GalleryItem[] = places.map(p => ({
     id: p.id,

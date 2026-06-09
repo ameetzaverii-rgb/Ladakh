@@ -5,6 +5,8 @@
 
 import { db } from './db'
 import { KASHMIR } from './content/kashmir'
+import { POKHARA } from './content/pokhara'
+import { SPITI } from './content/spiti'
 
 interface DestContent {
   stays: readonly any[]
@@ -18,6 +20,8 @@ interface DestContent {
 
 const CONTENT: Record<string, DestContent> = {
   kashmir: KASHMIR,
+  pokhara: POKHARA,
+  spiti: SPITI,
 }
 
 async function seedDestination(destinationId: string, c: DestContent) {
