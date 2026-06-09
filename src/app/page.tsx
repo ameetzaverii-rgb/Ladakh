@@ -74,6 +74,7 @@ export default async function Dashboard() {
   const destLng = ctx.dest?.lng ?? LEH.lng
   const slug = ctx.dest?.slug
   const hero = ctx.dest?.heroWiki
+  const travelerName = ctx.cfg?.travelerName || 'there'
   const [data, currentWeather, itinImg, festImg, trekImg, budgetImg, galleryImg] = await Promise.all([
     getDashboardData(),
     getCurrentWeather(destLat, destLng),
@@ -107,31 +108,31 @@ export default async function Dashboard() {
         }} />
       )}
 
-      {/* Greeting + weather */}
-      <div className="mb-5 flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-cream">{greeting()}, Amit</h1>
-          <p className="mt-0.5 text-sm text-stone">
-            {isOnTrip
-              ? `You're in ${destName} · ${format(new Date(), 'EEE, MMM d')}`
-              : `${format(new Date(), 'EEE, MMM d')} · ${daysToTrip > 0 ? daysToTrip : 0} days to ${destName}`}
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {/* Switch / start a new trip */}
+      {/* Masthead — row 1: greeting + selected trip · row 2: countdown + weather */}
+      <div className="mb-5">
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="min-w-0 flex-1 truncate text-2xl font-extrabold tracking-tight text-cream">{greeting()}, {travelerName}</h1>
           <Link
             href="/start"
             title="Switch destination or start a new trip"
-            className="flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-bold text-cream shadow-soft transition-colors hover:border-gold-mid"
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-bold text-cream shadow-soft transition-colors hover:border-gold-mid"
           >
             <MapPin className="h-3.5 w-3.5 text-flag-red" />
             <span className="max-w-[7.5rem] truncate">{destName}</span>
             <ChevronsUpDown className="h-3.5 w-3.5 text-stone" />
           </Link>
+        </div>
+        <div className="mt-1.5 flex items-center justify-between gap-2">
+          <p className="min-w-0 flex-1 truncate text-sm text-stone">
+            {isOnTrip
+              ? `You're in ${destName} · ${format(new Date(), 'EEE, MMM d')}`
+              : `${format(new Date(), 'EEE, MMM d')} · ${daysToTrip > 0 ? daysToTrip : 0} days to ${destName}`}
+          </p>
           {currentWeather && (
             <Link
-              href="/itinerary"
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold"
+              href="/weather"
+              title="See the day-by-day forecast"
+              className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold"
               style={{ background: FLAG_TINT.blue, color: '#235a98' }}
             >
               <span className="text-base leading-none">{currentWeather.icon}</span>
