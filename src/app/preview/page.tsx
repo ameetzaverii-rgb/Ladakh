@@ -16,9 +16,28 @@ const FLAGS = [
   { key: 'yellow', hex: '#e0a21b', tint: '#fbf0d8', label: 'Earth' },
 ]
 
+// Wordmark font candidates for the font lab. `note` is the vibe in a few words.
+const FONTS = [
+  { name: 'Fraunces', css: "'Fraunces', serif", note: 'warm, characterful serif' },
+  { name: 'Marcellus', css: "'Marcellus', serif", note: 'refined Roman caps — travel-luxe' },
+  { name: 'Playfair Display', css: "'Playfair Display', serif", note: 'high-contrast editorial' },
+  { name: 'Spectral', css: "'Spectral', serif", note: 'calm literary serif' },
+  { name: 'Cinzel', css: "'Cinzel', serif", note: 'engraved, monumental' },
+  { name: 'Syne', css: "'Syne', sans-serif", note: 'arty geometric display' },
+  { name: 'Space Grotesk', css: "'Space Grotesk', sans-serif", note: 'modern techy sans' },
+  { name: 'Unbounded', css: "'Unbounded', sans-serif", note: 'bold rounded display' },
+]
+
+// Google Fonts for the font lab (only loaded on /preview).
+const FONT_LAB_CSS =
+  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Marcellus&family=Playfair+Display:wght@700&family=Spectral:wght@600;700&family=Cinzel:wght@600;700&family=Syne:wght@700;800&family=Space+Grotesk:wght@600;700&family=Unbounded:wght@600;700&display=swap'
+
 export default function PreviewPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
+      {/* Fonts used only by the font lab below */}
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link rel="stylesheet" href={FONT_LAB_CSS} />
       <header className="mb-10 text-center">
         <div className="label-mono mb-2 text-[0.6rem] tracking-widest text-gold">BRAND EXPLORATION</div>
         <h1 className="font-serif text-3xl font-bold text-cream">Name &amp; home-screen options</h1>
@@ -35,7 +54,43 @@ export default function PreviewPage() {
 
       <NameBlock name="Tarcho" tagline="a string of prayer flags on the wind"
         logos={[<TarchoStringLogo key="a" />, <TarchoPoleLogo key="b" />, <TarchoBuntingLogo key="c" />]} />
+
+      <div className="my-12 h-px bg-border" />
+
+      {/* ── FONT LAB ── chosen layouts (bunting above the word), each in 8 fonts ── */}
+      <header className="mb-8 text-center">
+        <div className="label-mono mb-2 text-[0.6rem] tracking-widest text-gold">FONT LAB</div>
+        <h2 className="font-serif text-2xl font-bold text-cream">Pick the wordmark font</h2>
+        <p className="mx-auto mt-2 max-w-xl text-sm text-stone">
+          Your chosen layouts — <strong>Khora</strong> (bunting above) and <strong>Tarcho</strong> (string above) —
+          each rendered in eight fonts. Tell me the font name under any one and I&apos;ll lock it in.
+        </p>
+      </header>
+
+      <FontLab name="Khora" width={140} />
+      <div className="my-10 h-px bg-border" />
+      <FontLab name="Tarcho" width={150} />
     </div>
+  )
+}
+
+function FontLab({ name, width }: { name: string; width: number }) {
+  return (
+    <section>
+      <h3 className="mb-5 font-serif text-xl font-bold text-cream">{name}</h3>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {FONTS.map(f => (
+          <div key={f.name} className="flex min-h-[150px] flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-white p-5 shadow-soft">
+            <div className="flex flex-1 flex-col items-center justify-center gap-1.5">
+              <FlagBunting width={width} />
+              <span className="text-3xl font-bold tracking-tight text-cream" style={{ fontFamily: f.css }}>{name}</span>
+            </div>
+            <span className="label-mono text-[0.6rem] text-cream">{f.name}</span>
+            <span className="text-[0.62rem] italic text-stone">{f.note}</span>
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }
 
