@@ -65,6 +65,17 @@
       touch-action: manipulation;
     }
   }
+
+  /* Prevent iOS Safari from auto-zooming (and shifting the viewport away) when
+     focusing a form control — it zooms whenever the font-size is under 16px.
+     Force 16px on phones; !important to override Tailwind text-xs/sm utilities. */
+  @media (max-width: 640px) {
+    input:not([type='checkbox']):not([type='radio']):not([type='range']),
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
 }
 
 @layer utilities {
