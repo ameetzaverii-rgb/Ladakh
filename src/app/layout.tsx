@@ -4,6 +4,7 @@ import { TabBar } from '@/components/TabBar'
 import { CommandBar } from '@/components/CommandBar'
 import { Toaster } from 'sonner'
 import { ensureSchema } from '@/lib/migrations'
+import { ensureContent } from '@/lib/seedContent'
 
 export const metadata: Metadata = {
   title: 'Leh Ladakh — Workation Manager',
@@ -12,8 +13,10 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Self-heal the schema on first boot so deploys with new columns never 500.
+  // Self-heal the schema on first boot so deploys with new columns never 500,
+  // then seed any destination content that hasn't been populated yet.
   await ensureSchema()
+  await ensureContent()
   return (
     <html lang="en">
       <head>
