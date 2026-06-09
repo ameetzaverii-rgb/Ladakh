@@ -50,6 +50,88 @@ const STEPS: Step[] = [
       `UPDATE "ItineraryDay" SET "sortOrder" = "dayNumber" WHERE "sortOrder" IS NULL;`,
     ],
   },
+  {
+    label: 'Destination table + Ladakh seed',
+    sql: [
+      `CREATE TABLE IF NOT EXISTS "Destination" (
+        "id"        TEXT PRIMARY KEY,
+        "slug"      TEXT NOT NULL UNIQUE,
+        "name"      TEXT NOT NULL,
+        "tagline"   TEXT NOT NULL DEFAULT '',
+        "region"    TEXT NOT NULL DEFAULT '',
+        "color"     TEXT NOT NULL DEFAULT 'blue',
+        "heroWiki"  TEXT[] NOT NULL DEFAULT '{}',
+        "heroSrc"   TEXT,
+        "lat"       DOUBLE PRECISION NOT NULL DEFAULT 34.1526,
+        "lng"       DOUBLE PRECISION NOT NULL DEFAULT 77.5771,
+        "currency"  TEXT NOT NULL DEFAULT 'INR',
+        "intro"     TEXT,
+        "isCustom"  BOOLEAN NOT NULL DEFAULT false,
+        "sortOrder" INTEGER NOT NULL DEFAULT 0,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );`,
+      // Stable id = slug for the presets so backfill references are simple.
+      `INSERT INTO "Destination" ("id","slug","name","tagline","region","color","heroWiki","lat","lng","currency","intro","sortOrder")
+       VALUES
+        ('ladakh','ladakh','Leh Ladakh','High-desert monasteries, lakes & passes','North India · 3,500m','blue',
+         ARRAY['Thikse Monastery','Ladakh'], 34.1526, 77.5771, 'INR',
+         'A high-altitude cold desert of Buddhist monasteries, turquoise lakes and the world''s highest motorable passes.', 0),
+        ('kashmir','kashmir','Kashmir','Dal Lake, houseboats & alpine meadows','North India · 1,600m','green',
+         ARRAY['Dal Lake','Kashmir Valley'], 34.0837, 74.7973, 'INR',
+         'The Valley of houseboats, Mughal gardens, saffron fields and the alpine meadows of Gulmarg and Pahalgam.', 1),
+        ('pokhara','pokhara','Pokhara','Lakeside calm under the Annapurnas','Nepal · 820m','red',
+         ARRAY['Phewa Lake','Pokhara'], 28.2096, 83.9856, 'NPR',
+         'Nepal''s laid-back lake city — paragliding over Phewa Lake, Annapurna sunrises and a gateway to the foothills.', 2),
+        ('spiti','spiti','Spiti Valley','The middle land of cliff monasteries','Himachal · 3,800m','yellow',
+         ARRAY['Key Monastery','Spiti Valley'], 32.2464, 78.0166, 'INR',
+         'A remote Trans-Himalayan desert valley of fossil villages, ancient gompas and impossibly starry skies.', 3)
+       ON CONFLICT ("slug") DO NOTHING;`,
+    ],
+  },
+  {
+    label: 'destinationId columns + itinerary coords + TripConfig fields',
+    sql: [
+      `ALTER TABLE "Flight"        ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "Stay"          ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "Trek"          ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "Event"         ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "Transport"     ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "Place"         ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "ItineraryDay"  ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "ShopItem"      ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "ChecklistItem" ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "JournalEntry"  ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "Expense"       ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
+      `ALTER TABLE "ItineraryDay"  ADD COLUMN IF NOT EXISTS "lat" DOUBLE PRECISION;`,
+      `ALTER TABLE "ItineraryDay"  ADD COLUMN IF NOT EXISTS "lng" DOUBLE PRECISION;`,
+      `ALTER TABLE "ItineraryDay"  ADD COLUMN IF NOT EXISTS "altitudeM" INTEGER;`,
+      `ALTER TABLE "ItineraryDay"  ADD COLUMN IF NOT EXISTS "locationName" TEXT;`,
+      `ALTER TABLE "TripConfig"    ADD COLUMN IF NOT EXISTS "activeDestinationId" TEXT;`,
+      `ALTER TABLE "TripConfig"    ADD COLUMN IF NOT EXISTS "enabledMenus" JSONB;`,
+      `ALTER TABLE "TripConfig"    ADD COLUMN IF NOT EXISTS "onboarded" BOOLEAN NOT NULL DEFAULT true;`,
+    ],
+  },
+  {
+    label: 'Backfill existing data to Ladakh destination',
+    sql: [
+      `UPDATE "Flight"        SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "Stay"          SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "Trek"          SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "Event"         SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "Transport"     SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "Place"         SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "ItineraryDay"  SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "ShopItem"      SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "ChecklistItem" SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "JournalEntry"  SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "Expense"       SET "destinationId"='ladakh' WHERE "destinationId" IS NULL;`,
+      `UPDATE "TripConfig"    SET "activeDestinationId"='ladakh' WHERE "activeDestinationId" IS NULL;`,
+      // dayNumber was globally unique; make it unique per destination instead.
+      `DROP INDEX IF EXISTS "ItineraryDay_dayNumber_key";`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS "ItineraryDay_destinationId_dayNumber_key" ON "ItineraryDay" ("destinationId","dayNumber");`,
+    ],
+  },
 ]
 
 /** Run every migration step in order. Returns the labels that succeeded. */

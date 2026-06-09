@@ -176,10 +176,11 @@ async function main() {
 
   for (const day of days) {
     await prisma.itineraryDay.upsert({
-      where: { dayNumber: day.dayNumber },
-      update: day,
+      where: { destinationId_dayNumber: { destinationId: 'ladakh', dayNumber: day.dayNumber } },
+      update: { ...day, destinationId: 'ladakh' },
       create: {
         ...day,
+        destinationId: 'ladakh',
         isWorkDay: day.isWorkDay ?? true,
         isTrekDay: day.isTrekDay ?? false,
         isExcursionDay: day.isExcursionDay ?? false,

@@ -181,10 +181,11 @@ export async function GET(req: Request) {
 
     for (const day of days) {
       await db.itineraryDay.upsert({
-        where: { dayNumber: day.dayNumber },
-        update: day,
+        where: { destinationId_dayNumber: { destinationId: 'ladakh', dayNumber: day.dayNumber } },
+        update: { ...day, destinationId: 'ladakh' },
         create: {
           ...day,
+          destinationId: 'ladakh',
           isWorkDay: day.isWorkDay ?? true,
           isTrekDay: (day as { isTrekDay?: boolean }).isTrekDay ?? false,
           isExcursionDay: (day as { isExcursionDay?: boolean }).isExcursionDay ?? false,
