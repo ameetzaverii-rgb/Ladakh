@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { activeDestinationId } from '@/lib/destination'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const tripDay = searchParams.get('tripDay')
 
   const entries = await db.journalEntry.findMany({
-    where: tripDay ? { tripDay: parseInt(tripDay) } : {},
+    where: { destinationId: await activeDestinationId(), ...(tripDay ? { tripDay: parseInt(tripDay) } : {}) },
     orderBy: { date: 'desc' },
   })
   return NextResponse.json(entries)
@@ -16,6 +17,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const entry = await db.journalEntry.create({
     data: {
+      destinationId: body.destinationId ?? await activeDestinationId(),
       tripDay: body.tripDay ?? 1,
       date: new Date(body.date ?? Date.now()),
       title: body.title ?? null,

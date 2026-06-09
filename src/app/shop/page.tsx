@@ -4,6 +4,7 @@ import { CategoryHero } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
 import { fetchWikiImage } from '@/lib/trekMedia'
 import { SHOP_IDEAS } from '@/lib/shopSuggestions'
+import { activeDestinationId } from '@/lib/destination'
 import { ShoppingBag } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -13,6 +14,7 @@ export default async function ShopPage() {
   let needsMigrate = false
   try {
     items = (await db.shopItem.findMany({
+      where: { destinationId: await activeDestinationId() },
       orderBy: [{ acquired: 'asc' }, { createdAt: 'asc' }],
     })) as ShopItemT[]
   } catch {

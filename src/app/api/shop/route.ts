@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { activeDestinationId } from '@/lib/destination'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const area = searchParams.get('area')
   const items = await db.shopItem.findMany({
-    where: area ? { area } : {},
+    where: { destinationId: await activeDestinationId(), ...(area ? { area } : {}) },
     orderBy: [{ acquired: 'asc' }, { createdAt: 'asc' }],
   })
   return NextResponse.json(items)
@@ -24,6 +25,7 @@ export async function POST(req: NextRequest) {
       acquired: body.acquired ?? false,
       notes: body.notes ?? null,
       photo: body.photo ?? null,
+      destinationId: body.destinationId ?? await activeDestinationId(),
     },
   })
   return NextResponse.json(item, { status: 201 })

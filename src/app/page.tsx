@@ -8,6 +8,7 @@ import { PhotoTile } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
 import { getCurrentWeather } from '@/lib/weather'
 import { DAY_LOCATIONS } from '@/lib/locations'
+import { activeDestinationId, getActiveContext } from '@/lib/destination'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, ListChecks, BookOpen,
   ChevronRight, Images, type LucideIcon,
@@ -18,13 +19,14 @@ export const dynamic = 'force-dynamic'
 const LEH = DAY_LOCATIONS[1]
 
 async function getDashboardData() {
+  const destinationId = await activeDestinationId()
   const [config, checklistItems, expenses, journalEntries, nextEvents] = await Promise.all([
     db.tripConfig.findFirst().catch(() => null),
-    db.checklistItem.findMany({ orderBy: [{ phase: 'asc' }, { priority: 'asc' }] }),
-    db.expense.findMany({ orderBy: { date: 'desc' } }),
-    db.journalEntry.findMany({ orderBy: { date: 'desc' }, take: 3 }),
+    db.checklistItem.findMany({ where: { destinationId }, orderBy: [{ phase: 'asc' }, { priority: 'asc' }] }),
+    db.expense.findMany({ where: { destinationId }, orderBy: { date: 'desc' } }),
+    db.journalEntry.findMany({ where: { destinationId }, orderBy: { date: 'desc' }, take: 3 }),
     db.event.findMany({
-      where: { startDate: { gte: new Date() } },
+      where: { destinationId, startDate: { gte: new Date() } },
       orderBy: { startDate: 'asc' },
       take: 3,
     }),
@@ -46,7 +48,7 @@ async function getDashboardData() {
   // While on the trip, today's itinerary day powers the daily alert banner.
   const currentDay = isOnTrip ? 1 - daysToTrip : null
   const todayPlan = currentDay
-    ? await db.itineraryDay.findFirst({ where: { dayNumber: currentDay } }).catch(() => null)
+    ? await db.itineraryDay.findFirst({ where: { dayNumber: currentDay, destinationId } }).catch(() => null)
     : null
 
   return {
@@ -66,9 +68,13 @@ function greeting() {
 }
 
 export default async function Dashboard() {
+  const ctx = await getActiveContext()
+  const destName = ctx.dest?.name ?? 'Ladakh'
+  const destLat = ctx.dest?.lat ?? LEH.lat
+  const destLng = ctx.dest?.lng ?? LEH.lng
   const [data, currentWeather, itinImg, festImg, trekImg, budgetImg, galleryImg] = await Promise.all([
     getDashboardData(),
-    getCurrentWeather(LEH.lat, LEH.lng),
+    getCurrentWeather(destLat, destLng),
     getCategoryImage('itinerary'),
     getCategoryImage('events'),
     getCategoryImage('treks'),
@@ -105,8 +111,8 @@ export default async function Dashboard() {
           <h1 className="text-2xl font-extrabold tracking-tight text-cream">{greeting()}, Amit</h1>
           <p className="mt-0.5 text-sm text-stone">
             {isOnTrip
-              ? `You're in Ladakh · ${format(new Date(), 'EEE, MMM d')}`
-              : `${format(new Date(), 'EEE, MMM d')} · ${daysToTrip > 0 ? daysToTrip : 0} days to Ladakh`}
+              ? `You're in ${destName} · ${format(new Date(), 'EEE, MMM d')}`
+              : `${format(new Date(), 'EEE, MMM d')} · ${daysToTrip > 0 ? daysToTrip : 0} days to ${destName}`}
           </p>
         </div>
         {currentWeather && (
@@ -116,7 +122,7 @@ export default async function Dashboard() {
             style={{ background: FLAG_TINT.blue, color: '#235a98' }}
           >
             <span className="text-base leading-none">{currentWeather.icon}</span>
-            Leh {currentWeather.temp}°
+            {currentWeather.temp}°
           </Link>
         )}
       </div>
@@ -130,7 +136,7 @@ export default async function Dashboard() {
           <div className="flex items-center gap-3">
             <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-white" />
             <div>
-              <div className="text-xl font-extrabold leading-tight">You&apos;re in Ladakh</div>
+              <div className="text-xl font-extrabold leading-tight">You&apos;re in {destName}</div>
               <div className="text-sm text-white/85">Make today count</div>
             </div>
             <Link href="/itinerary" className="ml-auto rounded-full bg-white/20 px-4 py-2 text-sm font-bold backdrop-blur-sm">
@@ -151,17 +157,22 @@ export default async function Dashboard() {
         )}
       </div>
 
-      {/* Colour-coded photo tiles */}
+      {/* Colour-coded photo tiles (respect the trip's enabled menus) */}
       <div className="mb-6 grid grid-cols-2 gap-3">
-        <PhotoTile href="/itinerary" src={itinImg?.src ?? null} color="blue" icon={CalendarDays} title="Itinerary" sub="21-day plan" />
-        <PhotoTile href="/events" src={festImg?.src ?? null} color="red" icon={PartyPopper} title="Festivals"
-          sub={nextEvents[0] ? nextEvents[0].name : 'See what’s on'} />
-        <PhotoTile href="/treks" src={trekImg?.src ?? null} color="green" icon={Mountain} title="Treks" sub="Weekend adventures" />
+        <PhotoTile href="/itinerary" src={itinImg?.src ?? null} color="blue" icon={CalendarDays} title="Itinerary" sub="Your day-by-day plan" />
+        {ctx.enabledMenus.includes('events') && (
+          <PhotoTile href="/events" src={festImg?.src ?? null} color="red" icon={PartyPopper} title="Festivals"
+            sub={nextEvents[0] ? nextEvents[0].name : 'See what’s on'} />
+        )}
+        {ctx.enabledMenus.includes('treks') && (
+          <PhotoTile href="/treks" src={trekImg?.src ?? null} color="green" icon={Mountain} title="Treks" sub="Weekend adventures" />
+        )}
         <PhotoTile href="/budget" src={budgetImg?.src ?? null} color="yellow" icon={Wallet} title="Budget"
           sub={`${formatINR(totalSpent)} of ${formatINR(budget)}`} />
       </div>
 
       {/* Places gallery CTA */}
+      {ctx.enabledMenus.includes('gallery') && (
       <Link href="/gallery"
         className="group press relative mb-6 block h-28 overflow-hidden rounded-2xl shadow-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
         {galleryImg?.src ? (
@@ -182,6 +193,7 @@ export default async function Dashboard() {
           <ChevronRight className="ml-auto h-5 w-5 text-white/80" />
         </div>
       </Link>
+      )}
 
       {/* Progress */}
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">

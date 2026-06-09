@@ -1,6 +1,7 @@
 // src/app/api/events/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { activeDestinationId } from '@/lib/destination'
 
 export const revalidate = 3600
 
@@ -11,6 +12,7 @@ export async function GET(req: NextRequest) {
 
     const events = await db.event.findMany({
       where: {
+        destinationId: await activeDestinationId(),
         ...(upcoming && { endDate: { gte: new Date() } }),
       },
       orderBy: [{ startDate: 'asc' }],
@@ -28,6 +30,7 @@ export async function POST(req: NextRequest) {
     const event = await db.event.create({
       data: {
         ...body,
+        destinationId: body.destinationId ?? await activeDestinationId(),
         startDate: new Date(body.startDate),
         endDate: new Date(body.endDate),
       },

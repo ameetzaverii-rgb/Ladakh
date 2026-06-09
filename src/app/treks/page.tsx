@@ -5,6 +5,7 @@ import { ReviewLinks } from '@/components/ReviewLinks'
 import { CategoryHero } from '@/components/Photo'
 import { MiniMap } from '@/components/MiniMap'
 import { getCategoryImage } from '@/lib/imagery'
+import { activeDestinationId } from '@/lib/destination'
 import { Mountain } from 'lucide-react'
 import Link from 'next/link'
 
@@ -17,8 +18,9 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 }
 
 export default async function TreksPage() {
+  const destinationId = await activeDestinationId()
   const [treks, heroImg] = await Promise.all([
-    db.trek.findMany({ orderBy: { difficulty: 'asc' } }),
+    db.trek.findMany({ where: { destinationId }, orderBy: { difficulty: 'asc' } }),
     getCategoryImage('treks'),
   ])
 

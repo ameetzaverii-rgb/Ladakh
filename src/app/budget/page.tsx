@@ -5,6 +5,7 @@ import { AddExpense } from './AddExpense'
 import { CategoryBudgets } from './CategoryBudgets'
 import { CategoryHero } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
+import { activeDestinationId } from '@/lib/destination'
 import { Wallet } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -24,7 +25,7 @@ const DEFAULT_BREAKDOWN: Record<string, number> = {
 
 export default async function BudgetPage() {
   const [expenses, config, heroImg] = await Promise.all([
-    db.expense.findMany({ orderBy: { date: 'desc' } }),
+    db.expense.findMany({ where: { destinationId: await activeDestinationId() }, orderBy: { date: 'desc' } }),
     db.tripConfig.findFirst().catch(() => null),
     getCategoryImage('budget'),
   ])

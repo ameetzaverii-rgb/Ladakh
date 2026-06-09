@@ -6,6 +6,7 @@ import { ItineraryViews, type ViewDay } from '@/components/ItineraryViews'
 import { CategoryHero } from '@/components/Photo'
 import { getCategoryImage } from '@/lib/imagery'
 import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
+import { activeDestinationId } from '@/lib/destination'
 import { CalendarDays, Laptop, Mountain, Camera, PartyPopper, type LucideIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -19,14 +20,16 @@ function isoForDay(start: Date, dayNumber: number): string {
 
 export default async function ItineraryPage() {
   const [days, tripConfig, heroImg] = await Promise.all([
-    db.itineraryDay.findMany({ orderBy: [{ sortOrder: 'asc' }, { dayNumber: 'asc' }] }),
+    db.itineraryDay.findMany({ where: { destinationId: await activeDestinationId() }, orderBy: [{ sortOrder: 'asc' }, { dayNumber: 'asc' }] }),
     db.tripConfig.findFirst().catch(() => null),
     getCategoryImage('itinerary'),
   ])
 
-  // Coordinates for a day: seeded days use the fixed location map, custom days
-  // use their own optional location.
+  // Coordinates for a day, in priority order: per-day stored coords (used by
+  // non-Ladakh destinations), custom-day coords, then the Ladakh DAY_LOCATIONS
+  // fallback keyed by day number.
   const coordsFor = (d: (typeof days)[number]) => {
+    if (d.lat != null && d.lng != null) return { lat: d.lat, lng: d.lng, name: d.locationName ?? d.customName ?? d.title }
     if (d.isCustom) return d.customLat != null && d.customLng != null
       ? { lat: d.customLat, lng: d.customLng, name: d.customName ?? d.title } : null
     const loc = DAY_LOCATIONS[d.dayNumber]

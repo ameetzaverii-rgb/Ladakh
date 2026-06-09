@@ -1,6 +1,7 @@
 // src/app/api/flights/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { activeDestinationId } from '@/lib/destination'
 
 export const revalidate = 300 // Revalidate every 5 minutes
 
@@ -13,6 +14,7 @@ export async function GET(req: NextRequest) {
 
     const flights = await db.flight.findMany({
       where: {
+        destinationId: await activeDestinationId(),
         ...(origin && { origin: origin.toUpperCase() }),
         available,
       },
@@ -29,7 +31,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const flight = await db.flight.create({ data: body })
+    const flight = await db.flight.create({ data: { ...body, destinationId: body.destinationId ?? await activeDestinationId() } })
     return NextResponse.json({ flight }, { status: 201 })
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create flight' }, { status: 500 })
