@@ -132,7 +132,7 @@ export default async function Dashboard() {
             </Link>
           )}
         </div>
-        <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-cream">{greeting()}, {travelerName}</h1>
+        <h1 className="text-2xl font-semibold leading-tight tracking-tight" style={{ color: FLAG.blue }}>{greeting()}, {travelerName}</h1>
         <p className="mt-1 text-sm text-stone">
           {isOnTrip
             ? `You're in ${destName} · ${format(new Date(), 'EEE, MMM d')}`
