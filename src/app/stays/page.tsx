@@ -3,7 +3,8 @@ import { formatINR } from '@/lib/utils'
 import { CategoryHero } from '@/components/Photo'
 import { getCategoryImageFor } from '@/lib/imagery'
 import { getActiveContext } from '@/lib/destination'
-import { BedDouble } from 'lucide-react'
+import { COWORKING_BY_SLUG, COWORKING_INTRO, coworkingKindLabel, type Coworking } from '@/lib/content/coworking'
+import { BedDouble, Wifi, Laptop } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -35,6 +36,10 @@ export default async function StaysPage() {
           Best for solo remote work. · <strong className="text-sand">Fort Road</strong> — central, below Leh Palace.
           · <strong className="text-sand">Old Town</strong> — atmospheric and walkable.
         </div>
+      )}
+
+      {ctx.features.emphasiseConnectivity && (
+        <CoworkingSection slug={ctx.dest?.slug ?? 'ladakh'} currency={ctx.dest?.currency ?? 'INR'} />
       )}
 
       {stays.length === 0 && (
@@ -98,6 +103,71 @@ function StayCard({ stay, showConnectivity = true }: { stay: any; showConnectivi
            className="label-mono text-[0.55rem] text-sky hover:underline block mt-2">
           🔗 Book Now
         </a>
+      )}
+    </div>
+  )
+}
+
+/* Coworking & work-friendly spaces — only shown for Workation / Hybrid trips. */
+function CoworkingSection({ slug, currency }: { slug: string; currency: string }) {
+  const spaces = COWORKING_BY_SLUG[slug] ?? []
+  if (spaces.length === 0) return null
+  const intro = COWORKING_INTRO[slug]
+  return (
+    <section className="mb-10">
+      <div className="mb-3 flex items-center gap-2">
+        <Laptop className="h-4 w-4 text-flag-blue" />
+        <h2 className="text-lg font-extrabold text-cream">Coworking &amp; work spaces</h2>
+      </div>
+      {intro && <p className="mb-4 text-sm leading-relaxed text-muted">{intro}</p>}
+      <div className="grid gap-4 md:grid-cols-2">
+        {spaces.map((s, i) => <CoworkingCard key={i} space={s} currency={currency} />)}
+      </div>
+    </section>
+  )
+}
+
+function fmtMoney(n: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
+  } catch {
+    return `${currency} ${n.toLocaleString('en-IN')}`
+  }
+}
+
+function CoworkingCard({ space, currency }: { space: Coworking; currency: string }) {
+  const wifiStars = '★'.repeat(space.wifiRating) + '☆'.repeat(5 - space.wifiRating)
+  return (
+    <div className="card-base p-5">
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="label-mono mb-1 text-[0.55rem] text-gold">{coworkingKindLabel(space.kind)} · {space.neighbourhood}</div>
+          <h3 className="font-serif text-lg leading-tight text-cream">{space.name}</h3>
+        </div>
+        <div className="shrink-0 text-right">
+          {space.dayPassINR != null ? (
+            <>
+              <div className="font-serif text-lg text-gold">{fmtMoney(space.dayPassINR, currency)}</div>
+              <div className="label-mono text-[0.5rem] text-stone">/day pass</div>
+            </>
+          ) : (
+            <div className="label-mono text-[0.55rem] text-stone">Price varies</div>
+          )}
+        </div>
+      </div>
+      <p className="mb-3 text-xs leading-relaxed text-muted">{space.note}</p>
+      <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-stone">
+        <span className="inline-flex items-center gap-1"><Wifi className="h-3.5 w-3.5 text-sky" /> <span className="text-gold text-[0.65rem]">{wifiStars}</span></span>
+        {space.monthlyINR != null && <span>Monthly: <span className="text-sand">~{fmtMoney(space.monthlyINR, currency)}</span></span>}
+      </div>
+      {space.amenities.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {space.amenities.map((a, i) => <span key={i} className="pill pill-sky">{a}</span>)}
+        </div>
+      )}
+      {space.url && (
+        <a href={space.url} target="_blank" rel="noopener noreferrer"
+           className="label-mono mt-2 block text-[0.55rem] text-sky hover:underline">🔗 Details</a>
       )}
     </div>
   )
