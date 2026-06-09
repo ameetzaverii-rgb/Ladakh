@@ -5,9 +5,9 @@ import { ReviewLinks } from '@/components/ReviewLinks'
 import { CategoryHero } from '@/components/Photo'
 import { MiniMap } from '@/components/MiniMap'
 import { FestivalGallery, type FestImage } from '@/components/FestivalGallery'
-import { getCategoryImage } from '@/lib/imagery'
+import { getCategoryImageFor } from '@/lib/imagery'
 import { fetchWikiImage } from '@/lib/trekMedia'
-import { activeDestinationId } from '@/lib/destination'
+import { getActiveContext } from '@/lib/destination'
 import { PartyPopper, MapPin, Car, Lightbulb, Ticket } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -57,9 +57,10 @@ function festivalWikiTitles(name: string): string[] {
 }
 
 export default async function EventsPage() {
+  const ctx = await getActiveContext()
   const [events, heroImg] = await Promise.all([
-    db.event.findMany({ where: { destinationId: await activeDestinationId() }, orderBy: { startDate: 'asc' } }),
-    getCategoryImage('events'),
+    db.event.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: { startDate: 'asc' } }),
+    getCategoryImageFor('events', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 
   // Resolve up to 4 distinct photos per festival (Wikipedia, cached 1 day).
@@ -80,21 +81,23 @@ export default async function EventsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
       <CategoryHero src={heroImg?.src ?? null} color="red" icon={PartyPopper}
-        title="Festival Calendar" subtitle="Arriving late July puts you at two of Ladakh's most spectacular festivals." />
+        title="Festival Calendar" subtitle={`Festivals, fairs and cultural happenings around ${ctx.dest?.name ?? 'your destination'}.`} />
       <div className="mb-8 flex flex-wrap gap-4">
-        <Link href="/itinerary" className="label-mono text-[0.6rem] text-sky hover:underline">↩ See where these fall on your 21-day plan</Link>
+        <Link href="/itinerary" className="label-mono text-[0.6rem] text-sky hover:underline">↩ See where these fall on your plan</Link>
         <Link href="/contribute" className="label-mono text-[0.6rem] text-sky hover:underline">🙋 Friends can flag an event</Link>
       </div>
 
-      <div className="card-base p-5 mb-8 bg-gradient-to-r from-rust/10 to-gold/5">
-        <div className="label-mono text-[0.55rem] text-gold mb-1">◈ Festival Season ◈</div>
-        <h3 className="font-serif text-xl text-gold mb-2">Phyang Tsedup — Jul 22–23, 2026</h3>
-        <p className="text-sm text-muted leading-relaxed">
-          One of Ladakh's most spectacular festivals. Sacred Cham masked dances by monks in elaborate costumes.
-          The unfurling of the giant silk Thangka is a once-in-a-lifetime sight. Arrive early morning.
-          17km from Leh — taxi ₹800–1,200. Free entry.
-        </p>
-      </div>
+      {ctx.dest?.slug === 'ladakh' && (
+        <div className="card-base p-5 mb-8 bg-gradient-to-r from-rust/10 to-gold/5">
+          <div className="label-mono text-[0.55rem] text-gold mb-1">◈ Festival Season ◈</div>
+          <h3 className="font-serif text-xl text-gold mb-2">Phyang Tsedup — Jul 22–23, 2026</h3>
+          <p className="text-sm text-muted leading-relaxed">
+            One of Ladakh&apos;s most spectacular festivals. Sacred Cham masked dances by monks in elaborate costumes.
+            The unfurling of the giant silk Thangka is a once-in-a-lifetime sight. Arrive early morning.
+            17km from Leh — taxi ₹800–1,200. Free entry.
+          </p>
+        </div>
+      )}
 
       {events.length === 0 && (
         <div className="text-center py-16 text-stone">

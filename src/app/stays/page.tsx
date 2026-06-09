@@ -1,17 +1,17 @@
 import { db } from '@/lib/db'
 import { formatINR } from '@/lib/utils'
 import { CategoryHero } from '@/components/Photo'
-import { getCategoryImage } from '@/lib/imagery'
-import { activeDestinationId } from '@/lib/destination'
+import { getCategoryImageFor } from '@/lib/imagery'
+import { getActiveContext } from '@/lib/destination'
 import { BedDouble } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 export default async function StaysPage() {
-  const destinationId = await activeDestinationId()
+  const ctx = await getActiveContext()
   const [stays, heroImg] = await Promise.all([
-    db.stay.findMany({ where: { destinationId }, orderBy: { pricePerNightINR: 'asc' } }),
-    getCategoryImage('stays'),
+    db.stay.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: { pricePerNightINR: 'asc' } }),
+    getCategoryImageFor('stays', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 
   const grouped = stays.reduce((acc, s) => {

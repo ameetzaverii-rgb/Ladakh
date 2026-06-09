@@ -1,15 +1,16 @@
 import { db } from '@/lib/db'
 import { JournalClient } from './JournalClient'
 import { CategoryHero } from '@/components/Photo'
-import { getCategoryImage } from '@/lib/imagery'
-import { activeDestinationId } from '@/lib/destination'
+import { getCategoryImageFor } from '@/lib/imagery'
+import { getActiveContext } from '@/lib/destination'
 import { BookOpen } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 export default async function JournalPage() {
+  const ctx = await getActiveContext()
   const [entries, heroImg] = await Promise.all([
-    db.journalEntry.findMany({ where: { destinationId: await activeDestinationId() }, orderBy: { date: 'desc' } }),
-    getCategoryImage('journal'),
+    db.journalEntry.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: { date: 'desc' } }),
+    getCategoryImageFor('journal', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 
   return (

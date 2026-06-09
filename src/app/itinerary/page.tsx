@@ -4,9 +4,9 @@ import { getDayWeather, type DayWeather as DayWeatherData } from '@/lib/weather'
 import { ItineraryMap, type MapDay } from '@/components/ItineraryMap'
 import { ItineraryViews, type ViewDay } from '@/components/ItineraryViews'
 import { CategoryHero } from '@/components/Photo'
-import { getCategoryImage } from '@/lib/imagery'
+import { getCategoryImageFor } from '@/lib/imagery'
 import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
-import { activeDestinationId } from '@/lib/destination'
+import { getActiveContext } from '@/lib/destination'
 import { CalendarDays, Laptop, Mountain, Camera, PartyPopper, type LucideIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -19,10 +19,11 @@ function isoForDay(start: Date, dayNumber: number): string {
 }
 
 export default async function ItineraryPage() {
+  const ctx = await getActiveContext()
   const [days, tripConfig, heroImg] = await Promise.all([
-    db.itineraryDay.findMany({ where: { destinationId: await activeDestinationId() }, orderBy: [{ sortOrder: 'asc' }, { dayNumber: 'asc' }] }),
+    db.itineraryDay.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: [{ sortOrder: 'asc' }, { dayNumber: 'asc' }] }),
     db.tripConfig.findFirst().catch(() => null),
-    getCategoryImage('itinerary'),
+    getCategoryImageFor('itinerary', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 
   // Coordinates for a day, in priority order: per-day stored coords (used by

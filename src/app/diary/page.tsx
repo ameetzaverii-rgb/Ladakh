@@ -46,12 +46,22 @@ export default async function DiaryPage() {
   const startDate = config?.tripStartDate ?? new Date('2026-07-22')
   const totalDays = Math.max(itinerary.filter((d: any) => !d.isCustom).length, 21)
 
+  // Per-day coords: prefer the day's stored location (per destination), then
+  // its custom coords, then the Ladakh DAY_LOCATIONS fallback.
+  const coordsForDay = (n: number) => {
+    const d: any = itinerary.find((x: any) => x.dayNumber === n)
+    const lat = d?.lat ?? d?.customLat ?? DAY_LOCATIONS[n]?.lat
+    const lng = d?.lng ?? d?.customLng ?? DAY_LOCATIONS[n]?.lng
+    const name = d?.locationName ?? d?.customName ?? DAY_LOCATIONS[n]?.name ?? null
+    return { lat, lng, name }
+  }
+
   // Live weather per day (parallel, same as the itinerary page).
   const weather: Record<number, DayWeather | null> = {}
   await Promise.all(
     Array.from({ length: totalDays }, (_, i) => i + 1).map(async n => {
-      const loc = DAY_LOCATIONS[n]
-      if (loc) weather[n] = await getDayWeather(loc.lat, loc.lng, isoForDay(startDate, n))
+      const c = coordsForDay(n)
+      if (c.lat != null && c.lng != null) weather[n] = await getDayWeather(c.lat, c.lng, isoForDay(startDate, n))
     })
   )
 
@@ -79,7 +89,7 @@ export default async function DiaryPage() {
           const spend = exps.reduce((s, e) => s + e.amountINR, 0)
           const mood = js.find(j => j.mood)?.mood ?? null
           const highlights = js.flatMap(j => j.highlights).slice(0, 6)
-          const loc = DAY_LOCATIONS[n]
+          const loc = coordsForDay(n)
           const w = weather[n]
           const blurb = js.map(j => j.content).join(' ').trim() || itin?.description || ''
           const headline = js.find(j => j.title)?.title || itin?.title || `Day ${n}`
@@ -105,7 +115,7 @@ export default async function DiaryPage() {
                     {format(new Date(isoForDay(startDate, n)), 'EEEE · MMM d')}
                   </div>
                   <div className="flex items-center gap-2 text-sm font-medium">
-                    {loc && <span>📍 {loc.name}</span>}
+                    {loc.name && <span>📍 {loc.name}</span>}
                     {w && <span className="opacity-80">{w.icon} {w.tempMax}°/{w.tempMin}°</span>}
                   </div>
                 </div>
