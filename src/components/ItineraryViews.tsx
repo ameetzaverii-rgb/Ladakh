@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import Link from 'next/link'
@@ -72,30 +72,34 @@ const VIEWS: { id: View; label: string; icon: LucideIcon }[] = [
   { id: 'location', label: 'By place', icon: MapPin },
 ]
 
+// Whether work-day cues show (false for Leisure trips). Provided by ItineraryViews.
+const ShowWorkContext = createContext(true)
+
 // Primary category → flag colour, label and matching lucide icon.
-function dayMeta(day: ViewDay): { color: FlagColor; label: string; Icon: LucideIcon } {
+function dayMeta(day: ViewDay, showWork = true): { color: FlagColor; label: string; Icon: LucideIcon } {
   if (day.isFestivalDay) return { color: 'red', label: 'Festival', Icon: PartyPopper }
   if (day.isTrekDay) return { color: 'green', label: 'Trek', Icon: Mountain }
   if (day.isExcursionDay) return { color: 'yellow', label: 'Excursion', Icon: Camera }
-  if (day.isWorkDay) return { color: 'blue', label: 'Work day', Icon: Laptop }
+  if (showWork && day.isWorkDay) return { color: 'blue', label: 'Work day', Icon: Laptop }
   return { color: 'blue', label: 'Explore', Icon: MapPin }
 }
 
 // Contextual cross-links so each day jumps straight to the relevant section.
-function dayLinks(day: ViewDay): { href: string; label: string; Icon: LucideIcon }[] {
+function dayLinks(day: ViewDay, showWork = true): { href: string; label: string; Icon: LucideIcon }[] {
   const links: { href: string; label: string; Icon: LucideIcon }[] = []
   if (day.isFestivalDay) links.push({ href: '/events', label: 'Festival', Icon: PartyPopper })
   if (day.isTrekDay) links.push({ href: '/treks', label: 'Trek', Icon: Mountain })
   if (day.isExcursionDay) links.push({ href: '/transport', label: 'Getting there', Icon: Car })
-  if (day.isWorkDay && !day.isTrekDay && !day.isExcursionDay) links.push({ href: '/food', label: 'Cafés', Icon: UtensilsCrossed })
+  if (showWork && day.isWorkDay && !day.isTrekDay && !day.isExcursionDay) links.push({ href: '/food', label: 'Cafés', Icon: UtensilsCrossed })
   links.push({ href: '/diary', label: 'Diary', Icon: NotebookPen })
   return links
 }
 
 function DayLinkChips({ day }: { day: ViewDay }) {
+  const showWork = useContext(ShowWorkContext)
   return (
     <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border pt-2.5">
-      {dayLinks(day).map(l => {
+      {dayLinks(day, showWork).map(l => {
         const Icon = l.Icon
         return (
           <Link
@@ -115,9 +119,11 @@ function DayLinkChips({ day }: { day: ViewDay }) {
 export function ItineraryViews({
   days,
   weather,
+  showWork = true,
 }: {
   days: ViewDay[]
   weather: Record<number, DayWeatherData | null>
+  showWork?: boolean
 }) {
   const [view, setView] = useState<View>('timeline')
   const [editing, setEditing] = useState(false)
@@ -135,7 +141,7 @@ export function ItineraryViews({
   }
 
   return (
-    <>
+    <ShowWorkContext.Provider value={showWork}>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         {/* Segmented view switcher */}
         <div className="inline-flex gap-1 rounded-full bg-[#f1efe9] p-1">
@@ -172,7 +178,7 @@ export function ItineraryViews({
       {view === 'timeline' && <TimelineView days={days} weather={weather} editing={editing} />}
       {view === 'calendar' && <CalendarView days={days} weather={weather} />}
       {view === 'location' && <LocationView days={days} weather={weather} />}
-    </>
+    </ShowWorkContext.Provider>
   )
 }
 
@@ -246,7 +252,8 @@ function ActivityList({ day, editing }: { day: ViewDay; editing: boolean }) {
 
 /* A full day card with an elegant colour band (day + category). */
 function DayCard({ day, weather, editing }: { day: ViewDay; weather: Record<number, DayWeatherData | null>; editing: boolean }) {
-  const { color, label, Icon } = dayMeta(day)
+  const showWork = useContext(ShowWorkContext)
+  const { color, label, Icon } = dayMeta(day, showWork)
   const [open, setOpen] = useState(false)
   const loc = day.isCustom
     ? (day.customLat != null && day.customLng != null ? { name: day.customName ?? day.title, lat: day.customLat, lng: day.customLng, altitudeM: 0 } : null)
@@ -290,6 +297,7 @@ function DayCard({ day, weather, editing }: { day: ViewDay; weather: Record<numb
 
 /* ---------- Timeline (collapsible by week) ---------- */
 function TimelineView({ days, weather, editing }: { days: ViewDay[]; weather: Record<number, DayWeatherData | null>; editing: boolean }) {
+  const showWork = useContext(ShowWorkContext)
   // Group by the seeded day a card sits under (custom days inherit the week).
   const weekOf = (d: ViewDay) => Math.ceil(Math.floor(d.sortOrder ?? d.dayNumber) / 7)
   const weeks = [1, 2, 3].map(w => ({ week: w, days: days.filter(d => weekOf(d) === w) }))
@@ -299,7 +307,7 @@ function TimelineView({ days, weather, editing }: { days: ViewDay[]; weather: Re
       {weeks.map(({ week, days: weekDays }) => {
         if (weekDays.length === 0) return null
         return (
-          <Collapsible key={week} title={WEEK_LABELS[week]} meta={`${weekDays.length} days`} tags={groupTags(weekDays)} defaultOpen={week === 1}>
+          <Collapsible key={week} title={WEEK_LABELS[week]} meta={`${weekDays.length} days`} tags={groupTags(weekDays, showWork)} defaultOpen={week === 1}>
             <div className="space-y-3 pt-1">
               {weekDays.map(day => (
                 <div key={day.id}>
@@ -448,7 +456,8 @@ function AddStop({ afterSortOrder, dayOfWeek }: { afterSortOrder: number; dayOfW
 
 /* A single clean day row — the colour-coded badge is the only indicator. */
 function DayRow({ day, weather }: { day: ViewDay; weather: Record<number, DayWeatherData | null> }) {
-  const { color } = dayMeta(day)
+  const showWork = useContext(ShowWorkContext)
+  const { color } = dayMeta(day, showWork)
   const w = weather[day.dayNumber]
   const loc = DAY_LOCATIONS[day.dayNumber]
   return (
@@ -464,11 +473,11 @@ function DayRow({ day, weather }: { day: ViewDay; weather: Record<number, DayWea
 }
 
 // Distinct category icons present in a group — shown on the section title bar.
-function groupTags(days: ViewDay[]): { Icon: LucideIcon; color: FlagColor }[] {
+function groupTags(days: ViewDay[], showWork = true): { Icon: LucideIcon; color: FlagColor }[] {
   const order: FlagColor[] = ['blue', 'green', 'red', 'yellow', 'ink']
   const seen = new Map<FlagColor, LucideIcon>()
   for (const d of days) {
-    const { color, Icon } = dayMeta(d)
+    const { color, Icon } = dayMeta(d, showWork)
     if (!seen.has(color)) seen.set(color, Icon)
   }
   return order.filter(c => seen.has(c)).map(c => ({ color: c, Icon: seen.get(c)! }))
@@ -498,6 +507,7 @@ function Collapsible({
 
 /* ---------- Calendar / weeks (collapsible) ---------- */
 function CalendarView({ days, weather }: { days: ViewDay[]; weather: Record<number, DayWeatherData | null> }) {
+  const showWork = useContext(ShowWorkContext)
   const weeks = [1, 2, 3].map(w => ({
     week: w,
     days: days.filter(d => Math.ceil(Math.floor(d.sortOrder ?? d.dayNumber) / 7) === w),
@@ -512,7 +522,7 @@ function CalendarView({ days, weather }: { days: ViewDay[]; weather: Record<numb
             key={week}
             title={WEEK_LABELS[week]}
             meta={`${weekDays.length} days`}
-            tags={groupTags(weekDays)}
+            tags={groupTags(weekDays, showWork)}
             defaultOpen={week === 1}
           >
             {weekDays.map(day => <DayRow key={day.id} day={day} weather={weather} />)}
@@ -525,6 +535,7 @@ function CalendarView({ days, weather }: { days: ViewDay[]; weather: Record<numb
 
 /* ---------- By location (collapsible) ---------- */
 function LocationView({ days, weather }: { days: ViewDay[]; weather: Record<number, DayWeatherData | null> }) {
+  const showWork = useContext(ShowWorkContext)
   const groups: { name: string; days: ViewDay[] }[] = []
   const index = new Map<string, number>()
   for (const day of days) {
@@ -547,7 +558,7 @@ function LocationView({ days, weather }: { days: ViewDay[]; weather: Record<numb
             key={g.name}
             title={g.name}
             meta={`${g.days.length} ${g.days.length === 1 ? 'day' : 'days'}${loc ? ` · ${loc.altitudeM.toLocaleString()}m` : ''}`}
-            tags={groupTags(g.days)}
+            tags={groupTags(g.days, showWork)}
             defaultOpen={i === 0}
           >
             {g.days.map(day => <DayRow key={day.id} day={day} weather={weather} />)}

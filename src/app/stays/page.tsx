@@ -24,14 +24,18 @@ export default async function StaysPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
       <CategoryHero src={heroImg?.src ?? null} color="blue" icon={BedDouble}
-        title="Where to Rest" subtitle="Hotels, guesthouses, and hostels optimised for a 21-day workation." />
+        title="Where to Rest" subtitle={ctx.features.emphasiseConnectivity
+          ? 'Hotels, guesthouses and hostels — WiFi & coworking noted for remote work.'
+          : 'Hotels, guesthouses, homestays and hostels for your trip.'} />
 
-      <div className="info-box p-4 mb-8 text-sm text-muted leading-relaxed">
-        <strong className="label-mono text-[0.65rem] text-gold block mb-2">📍 Best Neighbourhood for Workation</strong>
-        <strong className="text-sand">Changspa Road</strong> — quietest, most café-dense, 10-min walk to Main Market.
-        Best for solo remote work. · <strong className="text-sand">Fort Road</strong> — central, below Leh Palace.
-        · <strong className="text-sand">Old Town</strong> — atmospheric and walkable.
-      </div>
+      {ctx.features.emphasiseConnectivity && ctx.dest?.slug === 'ladakh' && (
+        <div className="info-box p-4 mb-8 text-sm text-muted leading-relaxed">
+          <strong className="label-mono text-[0.65rem] text-gold block mb-2">📍 Best Neighbourhood for Workation</strong>
+          <strong className="text-sand">Changspa Road</strong> — quietest, most café-dense, 10-min walk to Main Market.
+          Best for solo remote work. · <strong className="text-sand">Fort Road</strong> — central, below Leh Palace.
+          · <strong className="text-sand">Old Town</strong> — atmospheric and walkable.
+        </div>
+      )}
 
       {stays.length === 0 && (
         <div className="text-center py-16 text-stone">
@@ -46,7 +50,7 @@ export default async function StaysPage() {
           <div className="label-mono text-[0.65rem] text-gold border-l-2 border-gold pl-3 mb-4">{type}S</div>
           <div className="grid md:grid-cols-2 gap-4">
             {typeStays.map(stay => (
-              <StayCard key={stay.id} stay={stay} />
+              <StayCard key={stay.id} stay={stay} showConnectivity={ctx.features.emphasiseConnectivity} />
             ))}
           </div>
         </div>
@@ -55,7 +59,7 @@ export default async function StaysPage() {
   )
 }
 
-function StayCard({ stay }: { stay: any }) {
+function StayCard({ stay, showConnectivity = true }: { stay: any; showConnectivity?: boolean }) {
   const wifiStars = '★'.repeat(stay.wifiRating) + '☆'.repeat(5 - stay.wifiRating)
   return (
     <div className="card-base p-5">
@@ -71,8 +75,8 @@ function StayCard({ stay }: { stay: any }) {
       </div>
       <p className="text-muted text-xs leading-relaxed mb-3">{stay.description}</p>
       <div className="flex gap-3 text-xs text-stone mb-3">
-        <span>WiFi: <span className="text-gold text-[0.65rem]">{wifiStars}</span></span>
-        {stay.hasCoworking && <span className="text-sage">✓ Coworking</span>}
+        {showConnectivity && <span>WiFi: <span className="text-gold text-[0.65rem]">{wifiStars}</span></span>}
+        {showConnectivity && stay.hasCoworking && <span className="text-sage">✓ Coworking</span>}
         {stay.breakfastIncl && <span className="text-sage">✓ Breakfast</span>}
         {stay.hasPowerBackup && <span className="text-stone">✓ Power backup</span>}
       </div>

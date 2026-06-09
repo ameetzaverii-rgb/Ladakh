@@ -20,9 +20,9 @@ export const dynamic = 'force-dynamic'
 
 const LEH = DAY_LOCATIONS[1]
 
-async function getDashboardData() {
+async function getDashboardData(showWorkChecklist: boolean) {
   const destinationId = await activeDestinationId()
-  const [config, checklistItems, expenses, journalEntries, nextEvents] = await Promise.all([
+  const [config, allChecklist, expenses, journalEntries, nextEvents] = await Promise.all([
     db.tripConfig.findFirst().catch(() => null),
     db.checklistItem.findMany({ where: { destinationId }, orderBy: [{ phase: 'asc' }, { priority: 'asc' }] }),
     db.expense.findMany({ where: { destinationId }, orderBy: { date: 'desc' } }),
@@ -33,6 +33,9 @@ async function getDashboardData() {
       take: 3,
     }),
   ])
+
+  // Leisure trips hide the work-setup checklist entirely.
+  const checklistItems = showWorkChecklist ? allChecklist : allChecklist.filter(i => i.category !== 'WORK_SETUP')
 
   const tripStart = config?.tripStartDate ?? new Date('2026-07-22')
   const tripEnd = config?.tripEndDate ?? new Date('2026-08-11')
@@ -78,7 +81,7 @@ export default async function Dashboard() {
   const hero = ctx.dest?.heroWiki
   const travelerName = ctx.cfg?.travelerName || 'there'
   const [data, currentWeather, itinImg, festImg, trekImg, budgetImg, galleryImg] = await Promise.all([
-    getDashboardData(),
+    getDashboardData(ctx.features.showWorkChecklist),
     getCurrentWeather(destLat, destLng),
     getCategoryImageFor('itinerary', slug, hero),
     getCategoryImageFor('events', slug, hero),
@@ -107,7 +110,7 @@ export default async function Dashboard() {
           isTrekDay: todayPlan.isTrekDay,
           isFestivalDay: todayPlan.isFestivalDay,
           isExcursionDay: todayPlan.isExcursionDay,
-        }} />
+        }} showWork={ctx.features.showWorkDays} />
       )}
 
       {/* Masthead — row 1: trip chip + weather · row 2: greeting · row 3: date/countdown */}

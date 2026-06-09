@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
 import { MENU_OPTIONS, ALL_MENU_KEYS } from '@/lib/destinations'
+import { TRIP_TYPE_OPTIONS, asTripType, type TripType } from '@/lib/tripType'
 import { MapPin, Check, ChevronLeft, Sparkles, ArrowRight } from 'lucide-react'
 
 export interface OnboardDestination {
@@ -24,7 +25,7 @@ function addDaysISO(iso: string, n: number): string {
 
 export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
   destinations: OnboardDestination[]; activeId: string | null; currentMenus: string[]
-  defaults?: { startDate?: string; days?: number; budget?: number; travelerName?: string }
+  defaults?: { startDate?: string; days?: number; budget?: number; travelerName?: string; tripType?: string }
 }) {
   const router = useRouter()
   const [step, setStep] = useState<Step>('pick')
@@ -37,6 +38,7 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
   const [days, setDays] = useState<number | ''>(defaults?.days && defaults.days > 0 ? defaults.days : 10)
   const [budget, setBudget] = useState<number | ''>(defaults?.budget && defaults.budget > 0 ? defaults.budget : 150000)
   const [traveler, setTraveler] = useState(defaults?.travelerName || '')
+  const [tripType, setTripType] = useState<TripType>(asTripType(defaults?.tripType))
 
   function choose(d: OnboardDestination) {
     setPicked(d)
@@ -52,7 +54,7 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
     const res = await fetch('/api/trip', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        destinationId: picked.id, enabledMenus: Array.from(menus),
+        destinationId: picked.id, enabledMenus: Array.from(menus), tripType,
         tripStartDate: startDate, tripEndDate, totalBudgetINR: budget === '' ? 0 : budget,
         travelerName: traveler || undefined,
       }),
@@ -161,6 +163,24 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
           <p className="mt-1 text-sm text-stone">We’ll use these for the countdown, day-by-day plan and budget tracker. You can change them anytime in settings.</p>
         </header>
         <div className="space-y-4">
+          <div>
+            <label className="mb-1.5 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Trip type</label>
+            <div className="grid grid-cols-3 gap-2">
+              {TRIP_TYPE_OPTIONS.map(o => {
+                const on = tripType === o.key
+                return (
+                  <button key={o.key} type="button" onClick={() => setTripType(o.key)}
+                    className={`press rounded-xl border-2 p-2.5 text-left transition-colors ${on ? 'border-flag-blue bg-tint-blue' : 'border-border bg-white hover:border-gold-mid'}`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-cream">{o.label}</span>
+                      {on && <Check className="h-3.5 w-3.5 text-flag-blue" strokeWidth={3} />}
+                    </div>
+                    <span className="mt-0.5 block text-[0.66rem] leading-snug text-muted">{o.blurb}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
           <div>
             <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Your name (optional)</label>
             <input value={traveler} onChange={e => setTraveler(e.target.value)} placeholder="e.g. Amit" className={input} />

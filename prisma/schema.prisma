@@ -285,6 +285,7 @@ model TripConfig {
   totalBudgetINR Int      @default(150000)
   homeCity       String   @default("Delhi")
   travelerName   String   @default("Amit")
+  tripType       String   @default("WORKATION") // LEISURE | WORKATION | HYBRID
   notes          String?  @db.Text
   categoryBudgets Json?   // Per-category budget targets, editable from the Budget page
   // Multi-destination: the active trip + which menus are enabled for it.

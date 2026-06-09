@@ -4,6 +4,7 @@
 
 import { db } from './db'
 import { ALL_MENU_KEYS } from './destinations'
+import { asTripType, tripFeatures } from './tripType'
 
 export type ActiveDestination = Awaited<ReturnType<typeof db.destination.findUnique>>
 
@@ -25,7 +26,8 @@ export async function getActiveContext() {
     dest = null
   }
   const enabled: string[] = Array.isArray(cfg?.enabledMenus) ? (cfg!.enabledMenus as string[]) : ALL_MENU_KEYS
-  return { dest, cfg, enabledMenus: enabled, onboarded: cfg?.onboarded ?? true }
+  const tripType = asTripType((cfg as { tripType?: string } | null)?.tripType)
+  return { dest, cfg, enabledMenus: enabled, onboarded: cfg?.onboarded ?? true, tripType, features: tripFeatures(tripType) }
 }
 
 /** Is a given menu key enabled for the active trip? */

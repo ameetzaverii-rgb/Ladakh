@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { ALL_MENU_KEYS } from '@/lib/destinations'
+import { asTripType } from '@/lib/tripType'
 
 // Set up / switch the active trip: which destination + which menus are on.
 export async function POST(req: NextRequest) {
@@ -12,6 +13,7 @@ export async function POST(req: NextRequest) {
 
   // Optional trip preferences captured during onboarding.
   const data: Record<string, unknown> = { activeDestinationId: destinationId, enabledMenus, onboarded: true }
+  if (body.tripType !== undefined) data.tripType = asTripType(body.tripType)
   if (body.tripStartDate) data.tripStartDate = new Date(body.tripStartDate)
   if (body.tripEndDate) data.tripEndDate = new Date(body.tripEndDate)
   if (typeof body.totalBudgetINR === 'number' && body.totalBudgetINR > 0) data.totalBudgetINR = Math.round(body.totalBudgetINR)

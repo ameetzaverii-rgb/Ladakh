@@ -41,6 +41,7 @@ export default async function StartPage() {
             : undefined,
           budget: ctx.cfg?.totalBudgetINR ?? undefined,
           travelerName: ctx.cfg?.travelerName ?? undefined,
+          tripType: ctx.tripType,
         }}
       />
     </div>
