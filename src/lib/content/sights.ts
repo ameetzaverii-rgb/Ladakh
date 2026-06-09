@@ -49,4 +49,14 @@ export const SIGHTS_BY_SLUG: Record<string, Sight[]> = {
     { id: 'tabo', name: 'Tabo Monastery', blurb: 'The 1,000-year-old “Ajanta of the Himalayas” and its murals.', when: 'Day 9', region: 'Spiti · 3,280m', color: 'red', lat: 32.094, lng: 78.385, wiki: ['Tabo Monastery'] },
     { id: 'kaza', name: 'Kaza', blurb: 'The valley’s lively little capital and your high-desert base.', when: 'Day 1', region: 'Spiti · 3,650m', color: 'blue', lat: 32.2264, lng: 78.0716, wiki: ['Kaza, Himachal Pradesh'] },
   ],
+  sikkim: [
+    { id: 'tsomgo', name: 'Tsomgo Lake', blurb: 'A sacred glacial lake at 3,750m on the old Silk Route, ringed by snow.', when: 'Day 4', region: 'East Sikkim · 3,753m', color: 'blue', span: 'big', lat: 27.375, lng: 88.762, wiki: ['Tsomgo Lake', 'Gangtok'] },
+    { id: 'kanchenjunga', name: 'Kanchenjunga', blurb: 'The world’s third-highest peak and Sikkim’s guardian deity on the skyline.', when: 'Always', region: 'West Sikkim · 8,586m', color: 'green', span: 'wide', lat: 27.7025, lng: 88.1475, wiki: ['Kangchenjunga'] },
+    { id: 'rumtek', name: 'Rumtek Monastery', blurb: 'The grand golden-roofed seat of the Karmapa above the Gangtok valley.', when: 'Day 3', region: 'East Sikkim · 1,550m', color: 'red', span: 'tall', lat: 27.2887, lng: 88.5615, wiki: ['Rumtek Monastery', 'Gangtok'] },
+    { id: 'khecheopalri', name: 'Khecheopalri Lake', blurb: 'A still, forest-wrapped wish-fulfilling lake sacred to Buddhists and Lepchas.', when: 'Day 7', region: 'West Sikkim · 1,700m', color: 'blue', lat: 27.349, lng: 88.193, wiki: ['Khecheopalri Lake', 'Pelling'] },
+    { id: 'pemayangtse', name: 'Pemayangtse Monastery', blurb: 'One of Sikkim’s oldest gompas, with a Kanchenjunga view from Pelling.', when: 'Day 6', region: 'West Sikkim · 2,085m', color: 'red', span: 'wide', lat: 27.305, lng: 88.252, wiki: ['Pemayangtse Monastery', 'Pelling'] },
+    { id: 'yumthang', name: 'Yumthang Valley', blurb: 'The “Valley of Flowers” — alpine meadows and hot springs in North Sikkim.', when: 'Optional', region: 'North Sikkim · 3,564m', color: 'green', span: 'wide', lat: 27.823, lng: 88.703, wiki: ['Yumthang Valley', 'Lachung'] },
+    { id: 'gurudongmar', name: 'Gurudongmar Lake', blurb: 'A startlingly blue, near-frozen lake at 5,430m in the far north.', when: 'Optional', region: 'North Sikkim · 5,430m', color: 'blue', lat: 28.026, lng: 88.71, wiki: ['Gurudongmar Lake'] },
+    { id: 'buddhapark', name: 'Buddha Park, Ravangla', blurb: 'A giant serene Buddha statue on a ridge with Himalayan panoramas.', when: 'Day 9', region: 'South Sikkim · 2,100m', color: 'red', lat: 27.307, lng: 88.362, wiki: ['Buddha Park of Ravangla', 'Ravangla'] },
+  ],
 }

@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
 import { AccountButton } from '@/components/AccountButton'
+import { DestinationSwitcher } from '@/components/TripControls'
 import { authConfigured } from '@/lib/auth'
 import { DailyAlert } from '@/components/DailyAlert'
 import { PhotoTile } from '@/components/Photo'
@@ -13,16 +14,16 @@ import { DAY_LOCATIONS } from '@/lib/locations'
 import { activeDestinationId, getActiveContext } from '@/lib/destination'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, ListChecks, BookOpen,
-  ChevronRight, Images, MapPin, ChevronsUpDown, type LucideIcon,
+  ChevronRight, Images, type LucideIcon,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
 const LEH = DAY_LOCATIONS[1]
 
-async function getDashboardData() {
+async function getDashboardData(showWorkChecklist: boolean) {
   const destinationId = await activeDestinationId()
-  const [config, checklistItems, expenses, journalEntries, nextEvents] = await Promise.all([
+  const [config, allChecklist, expenses, journalEntries, nextEvents] = await Promise.all([
     db.tripConfig.findFirst().catch(() => null),
     db.checklistItem.findMany({ where: { destinationId }, orderBy: [{ phase: 'asc' }, { priority: 'asc' }] }),
     db.expense.findMany({ where: { destinationId }, orderBy: { date: 'desc' } }),
@@ -33,6 +34,9 @@ async function getDashboardData() {
       take: 3,
     }),
   ])
+
+  // Leisure trips hide the work-setup checklist entirely.
+  const checklistItems = showWorkChecklist ? allChecklist : allChecklist.filter(i => i.category !== 'WORK_SETUP')
 
   const tripStart = config?.tripStartDate ?? new Date('2026-07-22')
   const tripEnd = config?.tripEndDate ?? new Date('2026-08-11')
@@ -71,6 +75,7 @@ function greeting() {
 
 export default async function Dashboard() {
   const ctx = await getActiveContext()
+  const destinations = await db.destination.findMany({ orderBy: { sortOrder: 'asc' }, select: { id: true, slug: true, name: true } })
   const destName = ctx.dest?.name ?? 'Ladakh'
   const destLat = ctx.dest?.lat ?? LEH.lat
   const destLng = ctx.dest?.lng ?? LEH.lng
@@ -78,7 +83,7 @@ export default async function Dashboard() {
   const hero = ctx.dest?.heroWiki
   const travelerName = ctx.cfg?.travelerName || 'there'
   const [data, currentWeather, itinImg, festImg, trekImg, budgetImg, galleryImg] = await Promise.all([
-    getDashboardData(),
+    getDashboardData(ctx.features.showWorkChecklist),
     getCurrentWeather(destLat, destLng),
     getCategoryImageFor('itinerary', slug, hero),
     getCategoryImageFor('events', slug, hero),
@@ -107,21 +112,13 @@ export default async function Dashboard() {
           isTrekDay: todayPlan.isTrekDay,
           isFestivalDay: todayPlan.isFestivalDay,
           isExcursionDay: todayPlan.isExcursionDay,
-        }} />
+        }} showWork={ctx.features.showWorkDays} />
       )}
 
       {/* Masthead — row 1: trip chip + weather · row 2: greeting · row 3: date/countdown */}
       <div className="mb-5">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <Link
-            href="/start"
-            title="Switch destination or start a new trip"
-            className="flex min-w-0 items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-bold text-cream shadow-soft transition-colors hover:border-gold-mid"
-          >
-            <MapPin className="h-3.5 w-3.5 shrink-0 text-flag-red" />
-            <span className="truncate">{destName}</span>
-            <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-stone" />
-          </Link>
+          <DestinationSwitcher destinations={destinations} activeId={ctx.dest?.id ?? null} variant="chip" />
           <div className="flex shrink-0 items-center gap-2">
             {currentWeather && (
               <Link

@@ -111,7 +111,7 @@ const DEST_CATEGORY: Record<string, Record<string, string[]>> = {
     itinerary: ['Rumtek Monastery', 'Gangtok'], events: ['Pang Lhabsol', 'Cham dance'],
     treks: ['Goecha La', 'Kangchenjunga'], stays: ['Gangtok'],
     food: ['Momo (food)', 'Thukpa'], transport: ['Tsomgo Lake', 'Gangtok'],
-    shop: ['M.G. Marg', 'Gangtok'], gallery: ['Tsomgo Lake', 'Kangchenjunga'], budget: ['Gangtok'],
+    shop: ['Gangtok'], gallery: ['Tsomgo Lake', 'Kangchenjunga'], budget: ['Gangtok'],
     journal: ['Khecheopalri Lake'], diary: ['Khecheopalri Lake'], flights: ['Pakyong Airport', 'Gangtok'],
   },
 }

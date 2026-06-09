@@ -14,16 +14,17 @@ export interface TodayPlan {
   isExcursionDay: boolean
 }
 
-function reminderFor(p: TodayPlan): { tip: string; color: string } {
+function reminderFor(p: TodayPlan, showWork: boolean): { tip: string; color: string } {
   if (p.isFestivalDay) return { tip: 'Festival today — arrive early for the Cham dances.', color: FLAG.red }
   if (p.isTrekDay) return { tip: 'Trek day — carry water, layers and sun protection.', color: FLAG.green }
   if (p.isExcursionDay) return { tip: 'Excursion — carry your Inner Line Permit and a photo ID.', color: FLAG.yellow }
-  return { tip: 'Work this morning, then explore the afternoon.', color: FLAG.blue }
+  if (showWork && p.isWorkDay) return { tip: 'Work this morning, then explore the afternoon.', color: FLAG.blue }
+  return { tip: 'Explore at your own pace today.', color: FLAG.blue }
 }
 
 const todayKey = () => new Date().toISOString().slice(0, 10)
 
-export function DailyAlert({ plan }: { plan: TodayPlan }) {
+export function DailyAlert({ plan, showWork = true }: { plan: TodayPlan; showWork?: boolean }) {
   const [show, setShow] = useState(false)
 
   // Once-a-day: stays dismissed only for the current date, returns tomorrow.
@@ -36,7 +37,7 @@ export function DailyAlert({ plan }: { plan: TodayPlan }) {
   }, [])
 
   if (!show) return null
-  const { tip, color } = reminderFor(plan)
+  const { tip, color } = reminderFor(plan, showWork)
 
   function dismiss() {
     try { localStorage.setItem('dailyAlertDismissed', todayKey()) } catch {}

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
 import { MENU_OPTIONS, ALL_MENU_KEYS } from '@/lib/destinations'
+import { TRIP_TYPE_OPTIONS, asTripType, type TripType } from '@/lib/tripType'
 import { MapPin, Check, ChevronLeft, Sparkles, ArrowRight } from 'lucide-react'
 
 export interface OnboardDestination {
@@ -24,7 +25,7 @@ function addDaysISO(iso: string, n: number): string {
 
 export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
   destinations: OnboardDestination[]; activeId: string | null; currentMenus: string[]
-  defaults?: { startDate?: string; days?: number; budget?: number; travelerName?: string }
+  defaults?: { startDate?: string; days?: number; budget?: number; travelerName?: string; tripType?: string }
 }) {
   const router = useRouter()
   const [step, setStep] = useState<Step>('pick')
@@ -34,9 +35,10 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
   const [busy, setBusy] = useState(false)
   // Trip preferences
   const [startDate, setStartDate] = useState(defaults?.startDate || todayISO())
-  const [days, setDays] = useState(defaults?.days && defaults.days > 0 ? defaults.days : 10)
-  const [budget, setBudget] = useState(defaults?.budget && defaults.budget > 0 ? defaults.budget : 150000)
+  const [days, setDays] = useState<number | ''>(defaults?.days && defaults.days > 0 ? defaults.days : 10)
+  const [budget, setBudget] = useState<number | ''>(defaults?.budget && defaults.budget > 0 ? defaults.budget : 150000)
   const [traveler, setTraveler] = useState(defaults?.travelerName || '')
+  const [tripType, setTripType] = useState<TripType>(asTripType(defaults?.tripType))
 
   function choose(d: OnboardDestination) {
     setPicked(d)
@@ -47,12 +49,13 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
   async function build() {
     if (!picked) return
     setBusy(true)
-    const tripEndDate = addDaysISO(startDate, Math.max(1, days) - 1)
+    const numDays = days === '' ? 1 : days
+    const tripEndDate = addDaysISO(startDate, Math.max(1, numDays) - 1)
     const res = await fetch('/api/trip', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        destinationId: picked.id, enabledMenus: Array.from(menus),
-        tripStartDate: startDate, tripEndDate, totalBudgetINR: budget,
+        destinationId: picked.id, enabledMenus: Array.from(menus), tripType,
+        tripStartDate: startDate, tripEndDate, totalBudgetINR: budget === '' ? 0 : budget,
         travelerName: traveler || undefined,
       }),
     })
@@ -143,8 +146,10 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
 
   // ── Trip details (dates, length, budget) ──
   if (step === 'details' && picked) {
-    const endDate = addDaysISO(startDate, Math.max(1, days) - 1)
-    const perDay = days > 0 ? Math.round(budget / days) : budget
+    const numDays = days === '' ? 0 : days
+    const numBudget = budget === '' ? 0 : budget
+    const endDate = addDaysISO(startDate, Math.max(1, numDays) - 1)
+    const perDay = numDays > 0 ? Math.round(numBudget / numDays) : numBudget
     const fmt = (iso: string) => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
     const input = 'w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-gold-mid'
     return (
@@ -159,6 +164,24 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
         </header>
         <div className="space-y-4">
           <div>
+            <label className="mb-1.5 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Trip type</label>
+            <div className="grid grid-cols-3 gap-2">
+              {TRIP_TYPE_OPTIONS.map(o => {
+                const on = tripType === o.key
+                return (
+                  <button key={o.key} type="button" onClick={() => setTripType(o.key)}
+                    className={`press rounded-xl border-2 p-2.5 text-left transition-colors ${on ? 'border-flag-blue bg-tint-blue' : 'border-border bg-white hover:border-gold-mid'}`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-cream">{o.label}</span>
+                      {on && <Check className="h-3.5 w-3.5 text-flag-blue" strokeWidth={3} />}
+                    </div>
+                    <span className="mt-0.5 block text-[0.66rem] leading-snug text-muted">{o.blurb}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+          <div>
             <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Your name (optional)</label>
             <input value={traveler} onChange={e => setTraveler(e.target.value)} placeholder="e.g. Amit" className={input} />
           </div>
@@ -169,13 +192,19 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
             </div>
             <div>
               <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Number of days</label>
-              <input type="number" min={1} max={120} value={days} onChange={e => setDays(parseInt(e.target.value) || 1)} className={input} />
+              <input type="number" min={1} max={120} value={days}
+                onChange={e => setDays(e.target.value === '' ? '' : Math.min(120, parseInt(e.target.value) || 0))}
+                onBlur={e => { if (e.target.value === '' || parseInt(e.target.value) < 1) setDays(1) }}
+                className={input} />
             </div>
           </div>
           <p className="-mt-1 text-xs text-muted">Ends <span className="font-semibold text-sand">{fmt(endDate)}</span> · {days} day{days !== 1 ? 's' : ''}</p>
           <div>
             <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Total budget (₹)</label>
-            <input type="number" min={0} step={1000} value={budget} onChange={e => setBudget(parseInt(e.target.value) || 0)} className={input} />
+            <input type="number" min={0} step={1000} value={budget}
+              onChange={e => setBudget(e.target.value === '' ? '' : (parseInt(e.target.value) || 0))}
+              onBlur={e => { if (e.target.value === '') setBudget(0) }}
+              className={input} />
             <p className="mt-1 text-xs text-muted">≈ {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(perDay)} / day</p>
           </div>
         </div>

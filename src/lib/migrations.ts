@@ -128,6 +128,7 @@ const STEPS: Step[] = [
       `ALTER TABLE "TripConfig"    ADD COLUMN IF NOT EXISTS "activeDestinationId" TEXT;`,
       `ALTER TABLE "TripConfig"    ADD COLUMN IF NOT EXISTS "enabledMenus" JSONB;`,
       `ALTER TABLE "TripConfig"    ADD COLUMN IF NOT EXISTS "onboarded" BOOLEAN NOT NULL DEFAULT true;`,
+      `ALTER TABLE "TripConfig"    ADD COLUMN IF NOT EXISTS "tripType" TEXT NOT NULL DEFAULT 'WORKATION';`,
     ],
   },
   {

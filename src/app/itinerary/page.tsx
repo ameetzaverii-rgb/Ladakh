@@ -7,6 +7,7 @@ import { CategoryHero } from '@/components/Photo'
 import { getCategoryImageFor } from '@/lib/imagery'
 import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
 import { getActiveContext } from '@/lib/destination'
+import { planSubtitle } from '@/lib/tripType'
 import { CalendarDays, Laptop, Mountain, Camera, PartyPopper, type LucideIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -83,7 +84,7 @@ export default async function ItineraryPage() {
     <div className="max-w-3xl mx-auto px-4 py-10">
       <CategoryHero src={heroImg?.src ?? null} color="blue" icon={CalendarDays}
         title={viewDays.length ? `Your ${viewDays.filter(d => !d.isCustom).length}-Day Plan` : 'Your Plan'}
-        subtitle={`Work mornings, explore afternoons — your day-by-day ${ctx.dest?.name ?? 'trip'}.`} />
+        subtitle={planSubtitle(ctx.tripType, ctx.dest?.name ?? 'trip')} />
 
       {/* Legend */}
       <div className="mb-7 flex flex-wrap gap-2">
@@ -92,7 +93,9 @@ export default async function ItineraryPage() {
           { Icon: Mountain, label: 'Trek', color: 'green' },
           { Icon: Camera, label: 'Excursion', color: 'yellow' },
           { Icon: PartyPopper, label: 'Festival', color: 'red' },
-        ] as { Icon: LucideIcon; label: string; color: FlagColor }[]).map(l => {
+        ] as { Icon: LucideIcon; label: string; color: FlagColor }[])
+          .filter(l => l.label !== 'Work day' || ctx.features.showWorkDays)
+          .map(l => {
           const Icon = l.Icon
           return (
             <span key={l.label} className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.68rem] font-semibold"
@@ -128,7 +131,7 @@ export default async function ItineraryPage() {
           </p>
         </div>
       ) : (
-        <ItineraryViews days={viewDays} weather={weather} />
+        <ItineraryViews days={viewDays} weather={weather} showWork={ctx.features.showWorkDays} />
       )}
     </div>
   )
