@@ -1,7 +1,9 @@
 import { FLAG, type FlagColor } from '@/lib/utils'
 import { getCategoryImage } from '@/lib/imagery'
 import { getActiveContext } from '@/lib/destination'
+import { authConfigured } from '@/lib/auth'
 import { PhotoTile } from '@/components/Photo'
+import { AccountButton } from '@/components/AccountButton'
 import Link from 'next/link'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, BedDouble, UtensilsCrossed,
@@ -53,6 +55,9 @@ export default async function MorePage() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="section-title mb-1">Everything</h1>
       <p className="mb-4 text-sm text-stone">Every part of your {ctx.dest?.name ?? 'trip'}, colour-coded.</p>
+
+      {/* Account */}
+      <div className="mb-4"><AccountButton configured={authConfigured} /></div>
 
       {/* Active destination + switch */}
       <Link href="/start" className="mb-6 flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-soft hover:border-gold-mid">
