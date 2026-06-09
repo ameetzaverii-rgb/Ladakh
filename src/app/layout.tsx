@@ -8,8 +8,8 @@ import { ensureSchema } from '@/lib/migrations'
 import { ensureContent } from '@/lib/seedContent'
 
 export const metadata: Metadata = {
-  title: 'Leh Ladakh — Workation Manager',
-  description: '21-day Leh Ladakh workation planner, journal, and budget tracker',
+  title: 'Tarcho — Himalayan trip planner',
+  description: 'Tarcho — plan, journal and budget your Himalayan trip in one calm, colourful place.',
   icons: { icon: '/favicon.ico' },
 }
 
@@ -22,7 +22,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Marcellus&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
       </head>
