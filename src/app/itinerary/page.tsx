@@ -82,7 +82,8 @@ export default async function ItineraryPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <CategoryHero src={heroImg?.src ?? null} color="blue" icon={CalendarDays}
-        title="The 21-Day Plan" subtitle="Work mornings, explore afternoons — your day-by-day Ladakh workation." />
+        title={viewDays.length ? `Your ${viewDays.filter(d => !d.isCustom).length}-Day Plan` : 'Your Plan'}
+        subtitle={`Work mornings, explore afternoons — your day-by-day ${ctx.dest?.name ?? 'trip'}.`} />
 
       {/* Legend */}
       <div className="mb-7 flex flex-wrap gap-2">
@@ -117,10 +118,14 @@ export default async function ItineraryPage() {
       )}
 
       {days.length === 0 ? (
-        <div className="text-center py-16 text-stone">
-          <div className="text-4xl mb-3">📅</div>
-          <p className="font-serif text-cream text-lg mb-2">Itinerary not seeded yet</p>
-          <p className="text-sm">Run <code className="text-gold">npm run db:seed</code> to populate the 21-day plan.</p>
+        <div className="mx-auto max-w-sm rounded-2xl border border-border bg-white px-6 py-12 text-center">
+          <CalendarDays className="mx-auto mb-3 h-9 w-9 text-muted" />
+          <p className="mb-1 font-serif text-lg text-cream">No plan for {ctx.dest?.name ?? 'this trip'} yet</p>
+          <p className="text-sm text-stone">
+            {ctx.dest?.isCustom
+              ? 'This is your own destination — switch on “Edit plan” to add your first day and build the itinerary.'
+              : 'Content for this destination is still loading. Pull to refresh in a moment, or tap “Edit plan” to start adding days yourself.'}
+          </p>
         </div>
       ) : (
         <ItineraryViews days={viewDays} weather={weather} />
