@@ -92,3 +92,16 @@ export async function getPlacesWithImages(): Promise<ResolvedPlace[]> {
     PLACES.map(async place => ({ ...place, image: await resolvePhoto(place) }))
   )
 }
+
+/**
+ * Gallery sights for a destination: Ladakh uses the curated PLACES list; the
+ * other destinations use SIGHTS_BY_SLUG. Images resolved live (cached 1 day).
+ */
+export async function getSightsForDestination(slug: string): Promise<ResolvedPlace[]> {
+  if (slug === 'ladakh') return getPlacesWithImages()
+  const { SIGHTS_BY_SLUG } = await import('./content/sights')
+  const sights = SIGHTS_BY_SLUG[slug] ?? []
+  return Promise.all(
+    sights.map(async s => ({ ...s, image: await resolvePhoto({ wiki: s.wiki }) }))
+  ) as Promise<ResolvedPlace[]>
+}

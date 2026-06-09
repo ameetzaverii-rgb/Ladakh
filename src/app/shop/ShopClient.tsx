@@ -8,6 +8,7 @@ import {
   Shirt, UtensilsCrossed, Hammer, Gem, Sparkles, Package, Heart, type LucideIcon,
 } from 'lucide-react'
 import { ShopDiscover } from './ShopDiscover'
+import { type ShopIdea } from '@/lib/shopSuggestions'
 
 export type ShopItemT = {
   id: string; name: string; area: string; category: string;
@@ -56,7 +57,7 @@ function resizeImage(file: File, maxDim = 1000, quality = 0.7): Promise<string> 
   })
 }
 
-export function ShopClient({ items, ideaImages = {} }: { items: ShopItemT[]; ideaImages?: Record<string, string> }) {
+export function ShopClient({ items, ideas = [], ideaImages = {} }: { items: ShopItemT[]; ideas?: ShopIdea[]; ideaImages?: Record<string, string> }) {
   const [filterArea, setFilterArea] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editItem, setEditItem] = useState<ShopItemT | null>(null)
@@ -103,7 +104,7 @@ export function ShopClient({ items, ideaImages = {} }: { items: ShopItemT[]; ide
       </div>
 
       {tab === 'discover' ? (
-        <ShopDiscover existingNames={items.map(i => i.name)} images={ideaImages} />
+        <ShopDiscover ideas={ideas} existingNames={items.map(i => i.name)} images={ideaImages} />
       ) : (
       <>
       {/* Stats */}

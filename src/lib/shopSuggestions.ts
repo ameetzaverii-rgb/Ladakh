@@ -14,6 +14,34 @@ export interface ShopIdea {
   wiki: string[]      // Wikipedia titles tried in order for the Polaroid photo
 }
 
+// Derive deck ideas for non-Ladakh destinations from their curated shop lists.
+import { KASHMIR } from './content/kashmir'
+import { POKHARA } from './content/pokhara'
+import { SPITI } from './content/spiti'
+
+const CONTENT_SHOP: Record<string, readonly any[]> = {
+  kashmir: KASHMIR.shop,
+  pokhara: POKHARA.shop,
+  spiti: SPITI.shop,
+}
+
+/** The swipe-deck ideas for a destination (Ladakh keeps its hand-written set). */
+export function shopIdeasForSlug(slug: string): ShopIdea[] {
+  if (slug === 'ladakh') return SHOP_IDEAS
+  const shop = CONTENT_SHOP[slug]
+  if (!shop) return []
+  return shop.map((s, i) => ({
+    id: `${slug}-${i}`,
+    name: s.name,
+    area: s.area,
+    category: s.category,
+    estPriceINR: s.estPriceINR ?? 0,
+    blurb: s.notes ?? '',
+    whereToBuy: s.whereToBuy ?? '',
+    wiki: [s.name],
+  }))
+}
+
 export const SHOP_IDEAS: ShopIdea[] = [
   { id: 'pashmina', name: 'Genuine Pashmina shawl', area: 'Leh', category: 'Textiles', estPriceINR: 6000, blurb: 'Feather-light Changthangi wool. Look for the GI tag and a price that reflects the real thing.', whereToBuy: 'LAHDC / GI-certified shops, Main Bazaar', wiki: ['Pashmina'] },
   { id: 'apricots', name: 'Dried apricots & jam', area: 'Nubra', category: 'Food', estPriceINR: 400, blurb: 'Sun-dried Raktsey Karpo apricots — Ladakh’s signature fruit, sweet and intense.', whereToBuy: 'Roadside stalls, Nubra & Turtuk villages', wiki: ['Apricot'] },
