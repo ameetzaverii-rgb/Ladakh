@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
 import { MENU_OPTIONS, ALL_MENU_KEYS } from '@/lib/destinations'
-import { MapPin, Plus, Check, ChevronLeft, Sparkles, ArrowRight } from 'lucide-react'
+import { MapPin, Check, ChevronLeft, Sparkles, ArrowRight } from 'lucide-react'
 
 export interface OnboardDestination {
   id: string; slug: string; name: string; tagline: string
   region: string; color: string; intro: string; image: string | null
 }
 
-type Step = 'pick' | 'menus' | 'details' | 'custom'
+type Step = 'pick' | 'menus' | 'details'
 const COLORS: FlagColor[] = ['blue', 'green', 'red', 'yellow']
 
 const todayISO = () => new Date().toISOString().slice(0, 10)
@@ -28,7 +28,7 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
 }) {
   const router = useRouter()
   const [step, setStep] = useState<Step>('pick')
-  const [dests, setDests] = useState(destinations)
+  const dests = destinations
   const [picked, setPicked] = useState<OnboardDestination | null>(null)
   const [menus, setMenus] = useState<Set<string>>(new Set(currentMenus.length ? currentMenus : ALL_MENU_KEYS))
   const [busy, setBusy] = useState(false)
@@ -99,13 +99,6 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
               </button>
             )
           })}
-          {/* Build your own */}
-          <button onClick={() => setStep('custom')}
-            className="press flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-white/50 text-stone transition-colors hover:border-gold-mid hover:text-cream">
-            <Plus className="h-7 w-7" />
-            <span className="text-sm font-bold">Create your own</span>
-            <span className="px-6 text-center text-[0.7rem] text-muted">Build a custom destination from scratch</span>
-          </button>
         </div>
       </div>
     )
@@ -196,67 +189,5 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
     )
   }
 
-  // ── Build your own destination ──
-  return <CustomDestination onBack={() => setStep('pick')} onCreated={(d) => { setDests(x => [...x, d]); choose(d) }} />
-}
-
-function CustomDestination({ onBack, onCreated }: { onBack: () => void; onCreated: (d: OnboardDestination) => void }) {
-  const [name, setName] = useState('')
-  const [region, setRegion] = useState('')
-  const [tagline, setTagline] = useState('')
-  const [color, setColor] = useState<FlagColor>('blue')
-  const [busy, setBusy] = useState(false)
-  const input = 'w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-gold-mid'
-
-  async function create() {
-    if (!name.trim()) { toast.error('Give your destination a name'); return }
-    setBusy(true)
-    const res = await fetch('/api/destinations', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, region, tagline, color, heroWiki: [name] }),
-    })
-    setBusy(false)
-    if (!res.ok) { toast.error('Could not create destination'); return }
-    const d = await res.json()
-    toast.success(`${d.name} created`)
-    onCreated({ id: d.id, slug: d.slug, name: d.name, tagline: d.tagline, region: d.region, color: d.color, intro: d.intro ?? '', image: null })
-  }
-
-  return (
-    <div className="mx-auto max-w-md">
-      <button onClick={onBack} className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-stone hover:text-cream">
-        <ChevronLeft className="h-4 w-4" /> Back
-      </button>
-      <h1 className="mb-1 font-serif text-2xl font-bold text-cream">Create your destination</h1>
-      <p className="mb-5 text-sm text-stone">Set it up now — add stays, food and an itinerary later from each section.</p>
-      <div className="space-y-3">
-        <div>
-          <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Name</label>
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Coorg" className={input} />
-        </div>
-        <div>
-          <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Region / altitude</label>
-          <input value={region} onChange={e => setRegion(e.target.value)} placeholder="e.g. Karnataka · 1,200m" className={input} />
-        </div>
-        <div>
-          <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Tagline</label>
-          <input value={tagline} onChange={e => setTagline(e.target.value)} placeholder="Misty coffee hills & waterfalls" className={input} />
-        </div>
-        <div>
-          <label className="mb-1 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Accent colour</label>
-          <div className="flex gap-2">
-            {COLORS.map(c => (
-              <button key={c} onClick={() => setColor(c)} aria-label={c}
-                className={`h-8 w-8 rounded-full border-2 ${color === c ? 'border-cream' : 'border-transparent'}`}
-                style={{ background: FLAG[c] }} />
-            ))}
-          </div>
-        </div>
-      </div>
-      <button onClick={create} disabled={busy}
-        className="press mt-6 inline-flex items-center gap-2 rounded-full bg-flag-blue px-6 py-3 text-sm font-bold text-white disabled:opacity-50">
-        <Plus className="h-4 w-4" /> {busy ? 'Creating…' : 'Create & choose menus'}
-      </button>
-    </div>
-  )
+  return null
 }
