@@ -44,6 +44,7 @@ const config: Config = {
       },
       fontFamily: {
         serif: ['Cormorant Garamond', 'serif'],
+        display: ['Marcellus', 'serif'],
         mono: ['Space Mono', 'monospace'],
         sans: ['Outfit', 'sans-serif'],
       },

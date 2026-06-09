@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { Home, CalendarDays, BookOpen, Wallet, LayoutGrid } from 'lucide-react'
 
 const TABS = [
-  { href: '/',          label: 'Home',    icon: Home },
+  { href: '/today',     label: 'Home',    icon: Home },
   { href: '/itinerary', label: 'Plan',    icon: CalendarDays },
   { href: '/journal',   label: 'Journal', icon: BookOpen },
   { href: '/budget',    label: 'Budget',  icon: Wallet },
@@ -20,7 +20,6 @@ export function TabBar() {
   const pathname = usePathname()
 
   const isActive = (href: string) => {
-    if (href === '/') return pathname === '/'
     if (href === '/more') return MORE_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'))
     return pathname === href || pathname.startsWith(href + '/')
   }
