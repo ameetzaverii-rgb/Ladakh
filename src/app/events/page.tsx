@@ -57,7 +57,7 @@ function festivalWikiTitles(name: string, slug = 'ladakh', fallbackWiki: string[
   // Pokhara
   else if (n.includes('fewa') || n.includes('phewa') || n.includes('street festival')) base = ['Phewa Lake', 'Pokhara']
   else if (n.includes('dashain')) base = ['Dashain']
-  else if (n.includes('tihar')) base = ['Tihar', 'Diwali']
+  else if (n.includes('tihar')) base = ['Tihar (festival)', 'Diwali']
   else if (n.includes('maghe') || n.includes('sankranti')) base = ["Devi's Fall", 'Pokhara']
   // Spiti
   else if (n.includes('losar')) base = ['Losar', slug === 'spiti' ? 'Key Monastery' : 'Cham dance']
