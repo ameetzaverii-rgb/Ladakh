@@ -3,6 +3,8 @@ import { daysUntil, formatINR, FLAG, FLAG_TINT, type FlagColor } from '@/lib/uti
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
+import { AccountButton } from '@/components/AccountButton'
+import { authConfigured } from '@/lib/auth'
 import { DailyAlert } from '@/components/DailyAlert'
 import { PhotoTile } from '@/components/Photo'
 import { getCategoryImageFor } from '@/lib/imagery'
@@ -120,17 +122,20 @@ export default async function Dashboard() {
             <span className="truncate">{destName}</span>
             <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-stone" />
           </Link>
-          {currentWeather && (
-            <Link
-              href="/weather"
-              title="See the day-by-day forecast"
-              className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold"
-              style={{ background: FLAG_TINT.blue, color: '#235a98' }}
-            >
-              <span className="text-base leading-none">{currentWeather.icon}</span>
-              {currentWeather.temp}°
-            </Link>
-          )}
+          <div className="flex shrink-0 items-center gap-2">
+            {currentWeather && (
+              <Link
+                href="/weather"
+                title="See the day-by-day forecast"
+                className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold"
+                style={{ background: FLAG_TINT.blue, color: '#235a98' }}
+              >
+                <span className="text-base leading-none">{currentWeather.icon}</span>
+                {currentWeather.temp}°
+              </Link>
+            )}
+            <AccountButton configured={authConfigured} compact />
+          </div>
         </div>
         <h1 className="text-2xl font-semibold leading-tight tracking-tight" style={{ color: FLAG.blue }}>{greeting()}, {travelerName}</h1>
         <p className="mt-1 text-sm text-stone">

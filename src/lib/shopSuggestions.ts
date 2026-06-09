@@ -18,11 +18,13 @@ export interface ShopIdea {
 import { KASHMIR } from './content/kashmir'
 import { POKHARA } from './content/pokhara'
 import { SPITI } from './content/spiti'
+import { SIKKIM } from './content/sikkim'
 
 const CONTENT_SHOP: Record<string, readonly any[]> = {
   kashmir: KASHMIR.shop,
   pokhara: POKHARA.shop,
   spiti: SPITI.shop,
+  sikkim: SIKKIM.shop,
 }
 
 /** The swipe-deck ideas for a destination (Ladakh keeps its hand-written set). */

@@ -8,6 +8,7 @@ import { db } from './db'
 import { KASHMIR } from './content/kashmir'
 import { POKHARA } from './content/pokhara'
 import { SPITI } from './content/spiti'
+import { SIKKIM } from './content/sikkim'
 
 interface DestContent {
   stays: readonly any[]
@@ -23,6 +24,7 @@ const CONTENT: Record<string, DestContent> = {
   kashmir: KASHMIR,
   pokhara: POKHARA,
   spiti: SPITI,
+  sikkim: SIKKIM,
 }
 
 // Seed one model only if the destination currently has zero of it.

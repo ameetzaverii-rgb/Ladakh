@@ -48,6 +48,13 @@ export const DESTINATION_PRESETS: DestinationPreset[] = [
     intro: 'A remote Trans-Himalayan desert valley of fossil villages, ancient gompas and impossibly starry skies.',
     sortOrder: 3,
   },
+  {
+    slug: 'sikkim', name: 'Sikkim', tagline: 'Monasteries, Kanchenjunga & alpine lakes',
+    region: 'Northeast India · 1,650m', color: 'green', heroWiki: ['Rumtek Monastery', 'Gangtok'],
+    lat: 27.3389, lng: 88.6065, currency: 'INR',
+    intro: 'India’s greenest Himalayan state — Buddhist monasteries, glacial lakes, orchid cloud-forests and dawn views of Kanchenjunga.',
+    sortOrder: 4,
+  },
 ]
 
 // All toggleable menu sections (core tabs Home/Plan/Journal/Budget are always on).

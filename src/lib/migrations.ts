@@ -90,6 +90,24 @@ const STEPS: Step[] = [
     ],
   },
   {
+    // Promote Sikkim to a full curated destination. Upsert (not DO NOTHING) so
+    // that any earlier custom "sikkim" row is normalised to the curated preset
+    // and marked non-custom; its content is seeded separately by ensureContent.
+    label: 'Sikkim curated destination',
+    sql: [
+      `INSERT INTO "Destination" ("id","slug","name","tagline","region","color","heroWiki","lat","lng","currency","intro","sortOrder","isCustom")
+       VALUES
+        ('sikkim','sikkim','Sikkim','Monasteries, Kanchenjunga & alpine lakes','Northeast India · 1,650m','green',
+         ARRAY['Rumtek Monastery','Gangtok'], 27.3389, 88.6065, 'INR',
+         'India''s greenest Himalayan state — Buddhist monasteries, glacial lakes, orchid cloud-forests and dawn views of Kanchenjunga.', 4, false)
+       ON CONFLICT ("slug") DO UPDATE SET
+        "name"='Sikkim', "tagline"='Monasteries, Kanchenjunga & alpine lakes', "region"='Northeast India · 1,650m',
+        "color"='green', "heroWiki"=ARRAY['Rumtek Monastery','Gangtok'], "lat"=27.3389, "lng"=88.6065, "currency"='INR',
+        "intro"='India''s greenest Himalayan state — Buddhist monasteries, glacial lakes, orchid cloud-forests and dawn views of Kanchenjunga.',
+        "sortOrder"=4, "isCustom"=false;`,
+    ],
+  },
+  {
     label: 'destinationId columns + itinerary coords + TripConfig fields',
     sql: [
       `ALTER TABLE "Flight"        ADD COLUMN IF NOT EXISTS "destinationId" TEXT;`,
