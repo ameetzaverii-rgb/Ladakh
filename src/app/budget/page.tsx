@@ -4,8 +4,8 @@ import { BudgetClient } from './BudgetClient'
 import { AddExpense } from './AddExpense'
 import { CategoryBudgets } from './CategoryBudgets'
 import { CategoryHero } from '@/components/Photo'
-import { getCategoryImage } from '@/lib/imagery'
-import { activeDestinationId } from '@/lib/destination'
+import { getCategoryImageFor } from '@/lib/imagery'
+import { getActiveContext } from '@/lib/destination'
 import { Wallet } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -24,10 +24,11 @@ const DEFAULT_BREAKDOWN: Record<string, number> = {
 }
 
 export default async function BudgetPage() {
+  const ctx = await getActiveContext()
   const [expenses, config, heroImg] = await Promise.all([
-    db.expense.findMany({ where: { destinationId: await activeDestinationId() }, orderBy: { date: 'desc' } }),
+    db.expense.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: { date: 'desc' } }),
     db.tripConfig.findFirst().catch(() => null),
-    getCategoryImage('budget'),
+    getCategoryImageFor('budget', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 
   const totalBudget = config?.totalBudgetINR ?? 150000

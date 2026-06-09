@@ -1,5 +1,5 @@
 import { FLAG, type FlagColor } from '@/lib/utils'
-import { getCategoryImage } from '@/lib/imagery'
+import { getCategoryImageFor } from '@/lib/imagery'
 import { getActiveContext } from '@/lib/destination'
 import { authConfigured } from '@/lib/auth'
 import { PhotoTile } from '@/components/Photo'
@@ -48,7 +48,7 @@ export default async function MorePage() {
   const ctx = await getActiveContext()
   const items = ITEMS.filter(it => !it.menu || ctx.enabledMenus.includes(it.menu))
   const srcs = await Promise.all(
-    items.map(it => (it.img ? getCategoryImage(it.img) : Promise.resolve(null)))
+    items.map(it => (it.img ? getCategoryImageFor(it.img, ctx.dest?.slug, ctx.dest?.heroWiki) : Promise.resolve(null)))
   )
 
   return (

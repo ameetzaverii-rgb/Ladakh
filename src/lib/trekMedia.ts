@@ -23,7 +23,23 @@ export function getTrekMediaConfig(trekName: string): TrekMedia {
     return { titles: ['Chadar Trek', 'Zanskar'], youtubeQuery: 'Chadar trek Zanskar' }
   if (n.includes('sham'))
     return { titles: ['Likir Monastery', 'Sham Valley', 'Ladakh'], youtubeQuery: 'Sham Valley trek Ladakh' }
-  return { titles: ['Ladakh'], youtubeQuery: 'Ladakh trekking' }
+  // Kashmir
+  if (n.includes('great lakes')) return { titles: ['Great Lakes of Kashmir', 'Sonamarg'], youtubeQuery: 'Kashmir Great Lakes trek' }
+  if (n.includes('lidder') || n.includes('aru')) return { titles: ['Aru, Jammu and Kashmir', 'Pahalgam'], youtubeQuery: 'Aru Lidderwat trek Pahalgam' }
+  if (n.includes('khilanmarg') || n.includes('gulmarg')) return { titles: ['Gulmarg'], youtubeQuery: 'Khilanmarg Gulmarg trek' }
+  if (n.includes('tarsar') || n.includes('marsar')) return { titles: ['Tarsar Lake', 'Pahalgam'], youtubeQuery: 'Tarsar Marsar trek Kashmir' }
+  // Pokhara / Annapurna
+  if (n.includes('australian camp') || n.includes('dhampus')) return { titles: ['Dhampus', 'Annapurna Massif'], youtubeQuery: 'Australian Camp Dhampus trek' }
+  if (n.includes('poon hill') || n.includes('ghorepani')) return { titles: ['Poon Hill', 'Ghorepani'], youtubeQuery: 'Poon Hill trek Nepal' }
+  if (n.includes('mardi')) return { titles: ['Machhapuchhre', 'Annapurna Massif'], youtubeQuery: 'Mardi Himal trek' }
+  if (n.includes('sarangkot')) return { titles: ['Sarangkot'], youtubeQuery: 'Sarangkot sunrise Pokhara' }
+  // Spiti
+  if (n.includes('komic') || n.includes('langza') || n.includes('hikkim')) return { titles: ['Langza', 'Komic'], youtubeQuery: 'Langza Komic Hikkim Spiti' }
+  if (n.includes('dhankar')) return { titles: ['Dhankar Monastery'], youtubeQuery: 'Dhankar lake trek Spiti' }
+  if (n.includes('pin valley') || n.includes('mudh')) return { titles: ['Pin Valley National Park'], youtubeQuery: 'Pin Valley trek Spiti' }
+  if (n.includes('kibber') || n.includes('tashigang')) return { titles: ['Kibber'], youtubeQuery: 'Kibber Spiti trek' }
+  // Generic mountain fallback (not Ladakh-specific).
+  return { titles: ['Himalayas'], youtubeQuery: 'Himalaya trekking' }
 }
 
 export interface TrekImage {

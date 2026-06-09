@@ -1,17 +1,17 @@
 import { db } from '@/lib/db'
 import { CategoryHero } from '@/components/Photo'
-import { getCategoryImage } from '@/lib/imagery'
+import { getCategoryImageFor } from '@/lib/imagery'
 import { ItineraryMap, type MapDay } from '@/components/ItineraryMap'
 import { DAY_LOCATIONS } from '@/lib/locations'
-import { activeDestinationId } from '@/lib/destination'
+import { getActiveContext } from '@/lib/destination'
 import { Car } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 export default async function TransportPage() {
-  const destinationId = await activeDestinationId()
+  const ctx = await getActiveContext()
   const [routes, heroImg] = await Promise.all([
-    db.transport.findMany({ where: { destinationId }, orderBy: { rateINR: 'asc' } }),
-    getCategoryImage('transport'),
+    db.transport.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: { rateINR: 'asc' } }),
+    getCategoryImageFor('transport', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 
   // Unique locations across the plan for the route map.

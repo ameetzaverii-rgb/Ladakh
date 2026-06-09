@@ -1,9 +1,9 @@
 import { db } from '@/lib/db'
 import { ReviewLinks } from '@/components/ReviewLinks'
 import { CategoryHero } from '@/components/Photo'
-import { getCategoryImage } from '@/lib/imagery'
+import { getCategoryImageFor } from '@/lib/imagery'
 import { fetchWikiImage } from '@/lib/trekMedia'
-import { activeDestinationId } from '@/lib/destination'
+import { getActiveContext } from '@/lib/destination'
 import { UtensilsCrossed, Coffee, Soup, Croissant, Sandwich, Laptop, Wifi, type LucideIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -37,9 +37,10 @@ function foodWikiTitles(place: any): string[] {
 }
 
 export default async function FoodPage() {
+  const ctx = await getActiveContext()
   const [places, heroImg] = await Promise.all([
-    db.place.findMany({ where: { destinationId: await activeDestinationId() }, orderBy: { laptopFriendly: 'desc' } }),
-    getCategoryImage('food'),
+    db.place.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: { laptopFriendly: 'desc' } }),
+    getCategoryImageFor('food', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 
   // Resolve a banner photo per place (Wikipedia, cached 1 day).
@@ -59,9 +60,10 @@ export default async function FoodPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
       <CategoryHero src={heroImg?.src ?? null} color="red" icon={UtensilsCrossed}
-        title="Eat, Drink, Repeat" subtitle="The best cafés, restaurants, and street eats in Leh." />
+        title="Eat, Drink, Repeat" subtitle={`The best cafés, restaurants, and local eats in ${ctx.dest?.name ?? 'town'}.`} />
       <a href="/contribute" className="mb-8 inline-block label-mono text-[0.6rem] text-sky hover:underline">🙋 Got a recommendation? Friends can add via the Collaborate page</a>
 
+      {ctx.dest?.slug === 'ladakh' && (
       <div className="warning-box p-4 mb-8 text-sm text-muted">
         <strong className="label-mono text-[0.65rem] text-rust block mb-2">🍜 Must Order in Ladakh</strong>
         <span className="text-sand">Thukpa</span> (Tibetan noodle soup) · <span className="text-sand">Momos</span> (steamed dumplings with chilli sauce) ·
@@ -70,6 +72,7 @@ export default async function FoodPage() {
         <span className="text-sand">Sea Buckthorn juice</span> (local superfruit) ·
         <span className="text-sand">Butter tea / Gur Gur Chai</span> (salty, buttery, essential)
       </div>
+      )}
 
       {places.length === 0 && (
         <div className="text-center py-16 text-stone">

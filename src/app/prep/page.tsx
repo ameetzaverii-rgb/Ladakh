@@ -2,21 +2,25 @@ import { db } from '@/lib/db'
 import { PHASE_ORDER } from '@/lib/utils'
 import { PrepClient } from './PrepClient'
 import { CategoryHero } from '@/components/Photo'
-import { getCategoryImage } from '@/lib/imagery'
-import { activeDestinationId } from '@/lib/destination'
+import { getCategoryImageFor } from '@/lib/imagery'
+import { getActiveContext } from '@/lib/destination'
 import { ListChecks } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-async function getChecklistData() {
+async function getChecklistData(destinationId: string) {
   const items = await db.checklistItem.findMany({
-    where: { destinationId: await activeDestinationId() },
+    where: { destinationId },
     orderBy: [{ phase: 'asc' }, { priority: 'asc' }, { createdAt: 'asc' }],
   })
   return items
 }
 
 export default async function PrepPage() {
-  const [items, heroImg] = await Promise.all([getChecklistData(), getCategoryImage('itinerary')])
+  const ctx = await getActiveContext()
+  const [items, heroImg] = await Promise.all([
+    getChecklistData(ctx.dest?.id ?? 'ladakh'),
+    getCategoryImageFor('itinerary', ctx.dest?.slug, ctx.dest?.heroWiki),
+  ])
 
   const byPhase = PHASE_ORDER.reduce((acc, phase) => {
     acc[phase] = items.filter(i => i.phase === phase)

@@ -84,6 +84,48 @@ export async function getCategoryImage(key: string): Promise<TrekImage | null> {
   return ref ? resolvePhoto(ref) : null
 }
 
+// Contextual category-hero images per destination, so section headers and home
+// tiles show real photos of THAT place — never Ladakh everywhere.
+const DEST_CATEGORY: Record<string, Record<string, string[]>> = {
+  kashmir: {
+    itinerary: ['Dal Lake'], events: ['Indira Gandhi Memorial Tulip Garden', 'Dal Lake'],
+    treks: ['Great Lakes of Kashmir', 'Sonamarg'], stays: ['Dal Lake'],
+    food: ['Wazwan', 'Rogan josh'], transport: ['Gulmarg Gondola', 'Srinagar'],
+    shop: ['Pashmina', 'Srinagar'], gallery: ['Dal Lake'], budget: ['Srinagar'],
+    journal: ['Dal Lake'], diary: ['Dal Lake'], flights: ['Sheikh ul-Alam International Airport', 'Srinagar'],
+  },
+  pokhara: {
+    itinerary: ['Phewa Lake'], events: ['Pokhara'], treks: ['Annapurna Massif', 'Machhapuchhre'],
+    stays: ['Phewa Lake'], food: ['Dal bhat', 'Momo (food)'], transport: ['Pokhara'],
+    shop: ['Pokhara'], gallery: ['Phewa Lake'], budget: ['Pokhara'],
+    journal: ['Phewa Lake'], diary: ['Phewa Lake'], flights: ['Pokhara International Airport', 'Pokhara'],
+  },
+  spiti: {
+    itinerary: ['Key Monastery'], events: ['Key Monastery', 'Cham dance'],
+    treks: ['Pin Valley National Park', 'Spiti Valley'], stays: ['Kaza, Himachal Pradesh'],
+    food: ['Thukpa', 'Momo (food)'], transport: ['Kunzum Pass', 'Spiti Valley'],
+    shop: ['Kaza, Himachal Pradesh'], gallery: ['Key Monastery'], budget: ['Kaza, Himachal Pradesh'],
+    journal: ['Chandra Taal'], diary: ['Chandra Taal'], flights: ['Spiti Valley'],
+  },
+}
+
+/**
+ * Destination-aware category hero image. Falls back to the destination's own
+ * hero keywords (e.g. for custom destinations), then the Ladakh defaults.
+ */
+export async function getCategoryImageFor(
+  key: string,
+  slug?: string,
+  fallbackWiki?: string[],
+): Promise<TrekImage | null> {
+  if (slug && slug !== 'ladakh') {
+    const titles = DEST_CATEGORY[slug]?.[key] ?? fallbackWiki
+    if (titles && titles.length) return resolvePhoto({ wiki: titles })
+  }
+  const ref = CATEGORY_IMAGES[key]
+  return ref ? resolvePhoto(ref) : null
+}
+
 export type ResolvedPlace = Place & { image: TrekImage | null }
 
 /** Fetch every place photo in parallel (mirrors the itinerary page's pattern). */

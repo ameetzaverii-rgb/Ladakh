@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
 import { DailyAlert } from '@/components/DailyAlert'
 import { PhotoTile } from '@/components/Photo'
-import { getCategoryImage } from '@/lib/imagery'
+import { getCategoryImageFor } from '@/lib/imagery'
 import { getCurrentWeather } from '@/lib/weather'
 import { DAY_LOCATIONS } from '@/lib/locations'
 import { activeDestinationId, getActiveContext } from '@/lib/destination'
@@ -72,14 +72,16 @@ export default async function Dashboard() {
   const destName = ctx.dest?.name ?? 'Ladakh'
   const destLat = ctx.dest?.lat ?? LEH.lat
   const destLng = ctx.dest?.lng ?? LEH.lng
+  const slug = ctx.dest?.slug
+  const hero = ctx.dest?.heroWiki
   const [data, currentWeather, itinImg, festImg, trekImg, budgetImg, galleryImg] = await Promise.all([
     getDashboardData(),
     getCurrentWeather(destLat, destLng),
-    getCategoryImage('itinerary'),
-    getCategoryImage('events'),
-    getCategoryImage('treks'),
-    getCategoryImage('budget'),
-    getCategoryImage('gallery'),
+    getCategoryImageFor('itinerary', slug, hero),
+    getCategoryImageFor('events', slug, hero),
+    getCategoryImageFor('treks', slug, hero),
+    getCategoryImageFor('budget', slug, hero),
+    getCategoryImageFor('gallery', slug, hero),
   ])
 
   const {

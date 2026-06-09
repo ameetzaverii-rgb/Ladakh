@@ -4,8 +4,8 @@ import { getTrekImage, getTrekMediaConfig, youtubeSearchUrl, type TrekImage } fr
 import { ReviewLinks } from '@/components/ReviewLinks'
 import { CategoryHero } from '@/components/Photo'
 import { MiniMap } from '@/components/MiniMap'
-import { getCategoryImage } from '@/lib/imagery'
-import { activeDestinationId } from '@/lib/destination'
+import { getCategoryImageFor } from '@/lib/imagery'
+import { getActiveContext } from '@/lib/destination'
 import { Mountain } from 'lucide-react'
 import Link from 'next/link'
 
@@ -18,10 +18,10 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 }
 
 export default async function TreksPage() {
-  const destinationId = await activeDestinationId()
+  const ctx = await getActiveContext()
   const [treks, heroImg] = await Promise.all([
-    db.trek.findMany({ where: { destinationId }, orderBy: { difficulty: 'asc' } }),
-    getCategoryImage('treks'),
+    db.trek.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: { difficulty: 'asc' } }),
+    getCategoryImageFor('treks', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 
   // Fetch a real photo for each trek in parallel.

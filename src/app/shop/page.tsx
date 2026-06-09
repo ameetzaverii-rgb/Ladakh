@@ -1,7 +1,7 @@
 import { db } from '@/lib/db'
 import { ShopClient, type ShopItemT } from './ShopClient'
 import { CategoryHero } from '@/components/Photo'
-import { getCategoryImage } from '@/lib/imagery'
+import { getCategoryImageFor } from '@/lib/imagery'
 import { fetchWikiImage } from '@/lib/trekMedia'
 import { shopIdeasForSlug, type ShopIdea } from '@/lib/shopSuggestions'
 import { getActiveContext } from '@/lib/destination'
@@ -36,7 +36,7 @@ export default async function ShopPage() {
     })
   )
 
-  const heroImg = await getCategoryImage('shop')
+  const heroImg = await getCategoryImageFor('shop', slug, ctx.dest?.heroWiki)
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">

@@ -1,5 +1,6 @@
 import { CategoryHero } from '@/components/Photo'
-import { getCategoryImage } from '@/lib/imagery'
+import { getCategoryImageFor } from '@/lib/imagery'
+import { getActiveContext } from '@/lib/destination'
 import { NATIONAL, LOCAL, PEOPLE, type Contact } from '@/lib/emergency'
 import { FLAG, FLAG_TINT } from '@/lib/utils'
 import { Phone, ShieldAlert, HeartPulse, Users, Pencil } from 'lucide-react'
@@ -49,7 +50,8 @@ function Section({ title, icon: Icon, items }: { title: string; icon: typeof Pho
 }
 
 export default async function EmergencyPage() {
-  const heroImg = await getCategoryImage('events') // a dramatic Ladakh banner
+  const ctx = await getActiveContext()
+  const heroImg = await getCategoryImageFor('gallery', ctx.dest?.slug, ctx.dest?.heroWiki)
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
