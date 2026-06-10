@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { TarchoLogo } from './Logo'
 
-// Pages that already show a large hero logo — skip the header there to avoid doubling.
-const HIDE_ON = ['/', '/signin']
+// The sign-in page shows its own large hero logo, so skip the header there.
+const HIDE_ON = ['/signin']
 
 /** A slim, app-wide brand bar: the prayer-flag mark above the Tarcho wordmark,
  *  centred and visible on every screen, linking home. */
