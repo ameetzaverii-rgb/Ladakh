@@ -19,9 +19,9 @@ function isoForDay(start: Date, dayNumber: number): string {
 export default async function WeatherPage() {
   const ctx = await getActiveContext()
   const destId = ctx.dest?.id ?? 'ladakh'
-  const [days, config, heroImg] = await Promise.all([
+  const config = ctx.cfg
+  const [days, heroImg] = await Promise.all([
     db.itineraryDay.findMany({ where: { destinationId: destId }, orderBy: [{ sortOrder: 'asc' }, { dayNumber: 'asc' }] }),
-    db.tripConfig.findFirst().catch(() => null),
     getCategoryImageFor('gallery', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
   const startDate = config?.tripStartDate ?? new Date('2026-07-22')

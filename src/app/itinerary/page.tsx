@@ -21,9 +21,9 @@ function isoForDay(start: Date, dayNumber: number): string {
 
 export default async function ItineraryPage() {
   const ctx = await getActiveContext()
-  const [days, tripConfig, heroImg] = await Promise.all([
+  const tripConfig = ctx.cfg
+  const [days, heroImg] = await Promise.all([
     db.itineraryDay.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: [{ sortOrder: 'asc' }, { dayNumber: 'asc' }] }),
-    db.tripConfig.findFirst().catch(() => null),
     getCategoryImageFor('itinerary', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 

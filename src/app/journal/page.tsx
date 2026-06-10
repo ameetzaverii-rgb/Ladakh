@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 export default async function JournalPage() {
   const ctx = await getActiveContext()
   const [entries, heroImg] = await Promise.all([
-    db.journalEntry.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: { date: 'desc' } }),
+    db.journalEntry.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh', userId: ctx.ownerId }, orderBy: { date: 'desc' } }),
     getCategoryImageFor('journal', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { activeDestinationId } from '@/lib/destination'
+import { currentOwnerId } from '@/lib/owner'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -10,6 +11,7 @@ export async function GET(req: NextRequest) {
   const items = await db.checklistItem.findMany({
     where: {
       destinationId: await activeDestinationId(),
+      userId: await currentOwnerId(),
       ...(phase ? { phase: phase as any } : {}),
       ...(completed !== null ? { completed: completed === 'true' } : {}),
     },
@@ -23,6 +25,7 @@ export async function POST(req: NextRequest) {
   const item = await db.checklistItem.create({
     data: {
       destinationId: body.destinationId ?? await activeDestinationId(),
+      userId: await currentOwnerId(),
       title: body.title,
       category: body.category ?? 'MISC',
       phase: body.phase ?? 'MONTH_BEFORE',

@@ -15,21 +15,25 @@ shown to everyone regardless of login — which is why it says "41 days to trip"
 even when signed out. _Not a bug; it's the current single-tenant design._
 
 Plan:
-- [~] **2a — Login-gated editing** (in progress):
-  - [x] Server enforcement: middleware blocks all write APIs unless the admin
-        is signed in (safe fallback keeps app editable if sign-in isn't set up).
-  - [x] Admin = `ADMIN_EMAIL`; session exposes `isAdmin`; `useCanEdit()` hook.
-  - [x] Global trip controls gated (destination switch, trip type, onboarding).
-  - [ ] Hide remaining per-page add/edit buttons (expenses, journal, checklist,
-        stays, etc.) for non-admins; friendly 401 toast.
-  - [ ] **Requires in prod**: `GOOGLE_CLIENT_ID/SECRET` + `ADMIN_EMAIL` set in
-        Vercel, else gating stays off (open editing).
-- [ ] **2b — User-scoped data**: add `userId` to `TripConfig`, `Expense`,
-      `JournalEntry`, checklist state, etc. Each signed-in user gets their own
-      trip(s): own dates, budget, journal, checklist. Anonymous visitors see a
-      read-only Ladakh demo (or a "sign in to start your trip" prompt).
-- [ ] After 2b: the dashboard countdown/budget/journal all read the *current
-      user's* trip instead of the global one.
+- [x] **2a — Login-gated editing** (shipped): middleware enforces writes;
+      admin = `ADMIN_EMAIL`; `useCanEdit()`; global controls gated.
+- [x] **2b — User-scoped data** (shipped):
+  - [x] `userId` on TripConfig/Expense/JournalEntry/ChecklistItem + `Booking`
+        model (self-healing migration).
+  - [x] Anonymous = read-only Ladakh demo (userId NULL rows).
+  - [x] First sign-in auto-creates a starter trip cloned from the demo
+        (settings + prep checklist); dashboard/budget/journal/prep read the
+        signed-in user's own data; countdown reflects *their* dates.
+  - [x] Writes scoped to the owner's rows; signed-in users edit their own trip;
+        catalog stays admin-only.
+  - [x] **Bookings**: per-user `Booking` + `/bookings` page (flights, stays,
+        treks, tickets — ref, cost, link) in More.
+- [ ] **Remaining polish**: hide per-page add/edit buttons for anonymous on
+      budget/journal/prep (server already enforces); multi-trip per user; echo
+      bookings on the matching itinerary day.
+- [ ] **Requires in prod for gating/per-user to activate**: set
+      `GOOGLE_CLIENT_ID/SECRET` + `ADMIN_EMAIL` in Vercel. Until then the app
+      runs as the open shared demo (safe fallback).
 
 ---
 

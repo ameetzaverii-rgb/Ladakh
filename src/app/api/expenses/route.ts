@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { activeDestinationId } from '@/lib/destination'
+import { currentOwnerId } from '@/lib/owner'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -10,6 +11,7 @@ export async function GET(req: NextRequest) {
   const expenses = await db.expense.findMany({
     where: {
       destinationId: await activeDestinationId(),
+      userId: await currentOwnerId(),
       ...(tripDay ? { tripDay: parseInt(tripDay) } : {}),
       ...(category ? { category: category as any } : {}),
     },
@@ -23,6 +25,7 @@ export async function POST(req: NextRequest) {
   const expense = await db.expense.create({
     data: {
       destinationId: body.destinationId ?? await activeDestinationId(),
+      userId: await currentOwnerId(),
       tripDay: body.tripDay ?? 1,
       date: new Date(body.date ?? Date.now()),
       amountINR: body.amountINR,

@@ -10,7 +10,7 @@ import { TRIP_TYPE_OPTIONS } from '@/lib/tripType'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, BedDouble, UtensilsCrossed,
   Car, ShoppingBag, Plane, BookOpen, NotebookPen, ListChecks, UserPlus, Settings, Images,
-  ShieldAlert, ChevronDown, type LucideIcon,
+  ShieldAlert, ChevronDown, Ticket, type LucideIcon,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -26,6 +26,7 @@ const ITEMS: Item[] = [
   { href: '/events', label: 'Festivals', icon: PartyPopper, color: 'red', img: 'events', menu: 'events' },
   { href: '/treks', label: 'Treks', icon: Mountain, color: 'green', img: 'treks', menu: 'treks' },
   { href: '/budget', label: 'Budget', icon: Wallet, color: 'yellow', img: 'budget' },
+  { href: '/bookings', label: 'Bookings', icon: Ticket, color: 'blue' },
   { href: '/stays', label: 'Stays', icon: BedDouble, color: 'blue', img: 'stays', menu: 'stays' },
   { href: '/food', label: 'Food', icon: UtensilsCrossed, color: 'red', img: 'food', menu: 'food' },
   { href: '/transport', label: 'Transport', icon: Car, color: 'blue', img: 'transport', menu: 'transport' },

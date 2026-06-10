@@ -23,13 +23,12 @@ export const dynamic = 'force-dynamic'
 
 const LEH = DAY_LOCATIONS[1]
 
-async function getDashboardData(showWorkChecklist: boolean) {
+async function getDashboardData(showWorkChecklist: boolean, ownerId: string | null, config: { tripStartDate?: Date | null; tripEndDate?: Date | null; totalBudgetINR?: number | null } | null) {
   const destinationId = await activeDestinationId()
-  const [config, allChecklist, expenses, journalEntries, nextEvents] = await Promise.all([
-    db.tripConfig.findFirst().catch(() => null),
-    db.checklistItem.findMany({ where: { destinationId }, orderBy: [{ phase: 'asc' }, { priority: 'asc' }] }),
-    db.expense.findMany({ where: { destinationId }, orderBy: { date: 'desc' } }),
-    db.journalEntry.findMany({ where: { destinationId }, orderBy: { date: 'desc' }, take: 3 }),
+  const [allChecklist, expenses, journalEntries, nextEvents] = await Promise.all([
+    db.checklistItem.findMany({ where: { destinationId, userId: ownerId }, orderBy: [{ phase: 'asc' }, { priority: 'asc' }] }),
+    db.expense.findMany({ where: { destinationId, userId: ownerId }, orderBy: { date: 'desc' } }),
+    db.journalEntry.findMany({ where: { destinationId, userId: ownerId }, orderBy: { date: 'desc' }, take: 3 }),
     db.event.findMany({
       where: { destinationId, startDate: { gte: new Date() } },
       orderBy: { startDate: 'asc' },
@@ -89,7 +88,7 @@ export default async function Dashboard() {
   const hero = ctx.dest?.heroWiki
   const travelerName = ctx.cfg?.travelerName || 'there'
   const [data, currentWeather] = await Promise.all([
-    getDashboardData(ctx.features.showWorkChecklist),
+    getDashboardData(ctx.features.showWorkChecklist, ctx.ownerId, ctx.cfg),
     getCurrentWeather(destLat, destLng),
   ])
 

@@ -7,9 +7,9 @@ import { getActiveContext } from '@/lib/destination'
 import { ListChecks } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-async function getChecklistData(destinationId: string, showWorkChecklist: boolean) {
+async function getChecklistData(destinationId: string, showWorkChecklist: boolean, ownerId: string | null) {
   const items = await db.checklistItem.findMany({
-    where: { destinationId },
+    where: { destinationId, userId: ownerId },
     orderBy: [{ phase: 'asc' }, { priority: 'asc' }, { createdAt: 'asc' }],
   })
   // Leisure trips hide work-setup tasks (SIM for tethering, coworking tests…).
@@ -19,7 +19,7 @@ async function getChecklistData(destinationId: string, showWorkChecklist: boolea
 export default async function PrepPage() {
   const ctx = await getActiveContext()
   const [items, heroImg] = await Promise.all([
-    getChecklistData(ctx.dest?.id ?? 'ladakh', ctx.features.showWorkChecklist),
+    getChecklistData(ctx.dest?.id ?? 'ladakh', ctx.features.showWorkChecklist, ctx.ownerId),
     getCategoryImageFor('itinerary', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 
