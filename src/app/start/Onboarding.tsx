@@ -62,7 +62,7 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
     setBusy(false)
     if (!res.ok) { toast.error('Could not build the trip'); return }
     toast.success(`Your ${picked.name} trip is ready`)
-    router.push('/today')
+    router.push('/')
     router.refresh()
   }
 
