@@ -164,7 +164,8 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
         </header>
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Trip type</label>
+            <label className="mb-1.5 block text-[0.62rem] font-bold uppercase tracking-wide text-stone">Trip type · optional</label>
+            <p className="-mt-1 mb-2 text-xs text-muted">Already set to <span className="font-semibold text-sand">{TRIP_TYPE_OPTIONS.find(o => o.key === tripType)?.label}</span> — tap another only if you want to change it. It just tweaks which sections show (e.g. work days).</p>
             <div className="grid grid-cols-3 gap-2">
               {TRIP_TYPE_OPTIONS.map(o => {
                 const on = tripType === o.key

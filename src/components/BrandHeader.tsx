@@ -27,7 +27,10 @@ export function BrandHeader() {
     <header className="sticky top-0 z-40 border-b border-border/70 bg-dark/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-2">
         <Link href="/" aria-label="Tarcho home" className="press shrink-0">
-          <TarchoLogo size="md" layout="stacked" />
+          {/* Grows with the screen: larger on tablets/desktop. */}
+          <span className="block sm:hidden"><TarchoLogo size="md" layout="stacked" /></span>
+          <span className="hidden sm:block xl:hidden"><TarchoLogo size="lg" layout="stacked" /></span>
+          <span className="hidden xl:block"><TarchoLogo size="xl" layout="stacked" /></span>
         </Link>
         <nav className="hidden items-center gap-1 sm:flex">
           {LINKS.map(l => (

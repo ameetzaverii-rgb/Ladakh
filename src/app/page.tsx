@@ -1,9 +1,11 @@
+import { Suspense } from 'react'
 import { db } from '@/lib/db'
 import { daysUntil, formatINR, FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { QuickActions } from '@/components/QuickActions'
 import { AccountButton } from '@/components/AccountButton'
+import { TarchoLogo } from '@/components/Logo'
 import { DestinationSwitcher } from '@/components/TripControls'
 import { authConfigured } from '@/lib/auth'
 import { DailyAlert } from '@/components/DailyAlert'
@@ -74,28 +76,29 @@ function greeting() {
 }
 
 export default async function Dashboard() {
-  const ctx = await getActiveContext()
-  const destinations = await db.destination.findMany({ orderBy: { sortOrder: 'asc' }, select: { id: true, slug: true, name: true } })
+  // Fast shell: only block on DB/weather. Photos stream in via <Suspense> so the
+  // page paints immediately instead of waiting on Wikipedia image lookups.
+  const [ctx, destinations] = await Promise.all([
+    getActiveContext(),
+    db.destination.findMany({ orderBy: { sortOrder: 'asc' }, select: { id: true, slug: true, name: true } }),
+  ])
   const destName = ctx.dest?.name ?? 'Ladakh'
   const destLat = ctx.dest?.lat ?? LEH.lat
   const destLng = ctx.dest?.lng ?? LEH.lng
   const slug = ctx.dest?.slug
   const hero = ctx.dest?.heroWiki
   const travelerName = ctx.cfg?.travelerName || 'there'
-  const [data, currentWeather, itinImg, festImg, trekImg, budgetImg, galleryImg] = await Promise.all([
+  const [data, currentWeather] = await Promise.all([
     getDashboardData(ctx.features.showWorkChecklist),
     getCurrentWeather(destLat, destLng),
-    getCategoryImageFor('itinerary', slug, hero),
-    getCategoryImageFor('events', slug, hero),
-    getCategoryImageFor('treks', slug, hero),
-    getCategoryImageFor('budget', slug, hero),
-    getCategoryImageFor('gallery', slug, hero),
   ])
 
   const {
     tripStart, budget, totalSpent, checklistTotal, checklistDone,
     daysToTrip, isOnTrip, urgentItems, todayPlan, recentJournal, nextEvents,
   } = data
+  const showEvents = ctx.enabledMenus.includes('events')
+  const showTreks = ctx.enabledMenus.includes('treks')
 
   const checklistPct = checklistTotal > 0 ? Math.round((checklistDone / checklistTotal) * 100) : 0
   const budgetPct = Math.min(Math.round((totalSpent / budget) * 100), 100)
@@ -172,42 +175,19 @@ export default async function Dashboard() {
         )}
       </div>
 
-      {/* Colour-coded photo tiles (respect the trip's enabled menus) */}
-      <div className="mb-6 grid grid-cols-2 gap-3">
-        <PhotoTile href="/itinerary" src={itinImg?.src ?? null} color="blue" icon={CalendarDays} title="Itinerary" sub="Your day-by-day plan" />
-        {ctx.enabledMenus.includes('events') && (
-          <PhotoTile href="/events" src={festImg?.src ?? null} color="red" icon={PartyPopper} title="Festivals"
-            sub={nextEvents[0] ? nextEvents[0].name : 'See what’s on'} />
-        )}
-        {ctx.enabledMenus.includes('treks') && (
-          <PhotoTile href="/treks" src={trekImg?.src ?? null} color="green" icon={Mountain} title="Treks" sub="Weekend adventures" />
-        )}
-        <PhotoTile href="/budget" src={budgetImg?.src ?? null} color="yellow" icon={Wallet} title="Budget"
-          sub={`${formatINR(totalSpent)} of ${formatINR(budget)}`} />
-      </div>
+      {/* Colour-coded photo tiles — photos stream in (respect enabled menus) */}
+      <Suspense fallback={<TilesSkeleton count={2 + (showEvents ? 1 : 0) + (showTreks ? 1 : 0)} />}>
+        <PhotoTilesSection
+          slug={slug} hero={hero} showEvents={showEvents} showTreks={showTreks}
+          nextEventName={nextEvents[0]?.name ?? null} totalSpent={totalSpent} budget={budget}
+        />
+      </Suspense>
 
       {/* Places gallery CTA */}
       {ctx.enabledMenus.includes('gallery') && (
-      <Link href="/gallery"
-        className="group press relative mb-6 block h-28 overflow-hidden rounded-2xl shadow-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
-        {galleryImg?.src ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={galleryImg.src} alt="Places to visit" className="img-zoom absolute inset-0 h-full w-full object-cover" />
-        ) : (
-          <div className="absolute inset-0" style={{ background: FLAG.blue }} />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
-        <div className="absolute inset-0 flex items-center gap-3 p-5">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
-            <Images className="h-6 w-6 text-white" strokeWidth={2.2} />
-          </span>
-          <div>
-            <div className="text-lg font-extrabold text-white drop-shadow">Places gallery</div>
-            <div className="text-xs text-white/85">Every stop on your 21-day plan, in pictures</div>
-          </div>
-          <ChevronRight className="ml-auto h-5 w-5 text-white/80" />
-        </div>
-      </Link>
+        <Suspense fallback={<div className="shimmer mb-6 h-28 rounded-2xl" />}>
+          <GallerySection slug={slug} hero={hero} />
+        </Suspense>
       )}
 
       {/* Progress */}
@@ -264,7 +244,83 @@ export default async function Dashboard() {
         <ChevronRight className="ml-auto h-5 w-5 text-muted" />
       </Link>
 
+      {/* What “Tarcho” means */}
+      <footer className="mt-10 flex flex-col items-center border-t border-border pt-8 text-center">
+        <TarchoLogo size="sm" layout="stacked" />
+        <p className="mt-3 max-w-md text-xs leading-relaxed text-stone">
+          <span className="font-semibold text-cream">Tarcho</span> are the strings of Tibetan prayer flags
+          that ripple across every Himalayan pass, bridge and rooftop — each gust is said to carry a blessing
+          on the wind. Their five colours —{' '}
+          <span className="font-semibold" style={{ color: FLAG.blue }}>blue</span> sky,
+          {' '}white air,{' '}
+          <span className="font-semibold" style={{ color: FLAG.red }}>red</span> fire,{' '}
+          <span className="font-semibold" style={{ color: FLAG.green }}>green</span> water and{' '}
+          <span className="font-semibold" style={{ color: FLAG.yellow }}>amber</span> earth —
+          are the same five we use to colour-code your trip.
+        </p>
+      </footer>
+
     </div>
+  )
+}
+
+/** Photo tiles whose images are fetched from Wikipedia — streamed so they never block the shell. */
+async function PhotoTilesSection({ slug, hero, showEvents, showTreks, nextEventName, totalSpent, budget }: {
+  slug?: string; hero?: string[]; showEvents: boolean; showTreks: boolean
+  nextEventName: string | null; totalSpent: number; budget: number
+}) {
+  const [itinImg, festImg, trekImg, budgetImg] = await Promise.all([
+    getCategoryImageFor('itinerary', slug, hero),
+    showEvents ? getCategoryImageFor('events', slug, hero) : Promise.resolve(null),
+    showTreks ? getCategoryImageFor('treks', slug, hero) : Promise.resolve(null),
+    getCategoryImageFor('budget', slug, hero),
+  ])
+  return (
+    <div className="mb-6 grid grid-cols-2 gap-3">
+      <PhotoTile href="/itinerary" src={itinImg?.src ?? null} color="blue" icon={CalendarDays} title="Itinerary" sub="Your day-by-day plan" />
+      {showEvents && (
+        <PhotoTile href="/events" src={festImg?.src ?? null} color="red" icon={PartyPopper} title="Festivals" sub={nextEventName ?? 'See what’s on'} />
+      )}
+      {showTreks && (
+        <PhotoTile href="/treks" src={trekImg?.src ?? null} color="green" icon={Mountain} title="Treks" sub="Weekend adventures" />
+      )}
+      <PhotoTile href="/budget" src={budgetImg?.src ?? null} color="yellow" icon={Wallet} title="Budget" sub={`${formatINR(totalSpent)} of ${formatINR(budget)}`} />
+    </div>
+  )
+}
+
+function TilesSkeleton({ count }: { count: number }) {
+  return (
+    <div className="mb-6 grid grid-cols-2 gap-3">
+      {Array.from({ length: count }).map((_, i) => <div key={i} className="shimmer h-28 rounded-2xl" />)}
+    </div>
+  )
+}
+
+/** Places-gallery hero image — streamed. */
+async function GallerySection({ slug, hero }: { slug?: string; hero?: string[] }) {
+  const galleryImg = await getCategoryImageFor('gallery', slug, hero)
+  return (
+    <Link href="/gallery"
+      className="group press relative mb-6 block h-28 overflow-hidden rounded-2xl shadow-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
+      {galleryImg?.src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={galleryImg.src} alt="Places to visit" className="img-zoom absolute inset-0 h-full w-full object-cover" />
+      ) : (
+        <div className="absolute inset-0" style={{ background: FLAG.blue }} />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
+      <div className="absolute inset-0 flex items-center gap-3 p-5">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
+          <Images className="h-6 w-6 text-white" strokeWidth={2.2} />
+        </span>
+        <div>
+          <div className="text-lg font-extrabold text-white drop-shadow">Places gallery</div>
+          <div className="text-xs text-white/85">Every stop on your 21-day plan, in pictures</div>
+        </div>
+        <ChevronRight className="ml-auto h-5 w-5 text-white/80" />
+      </div>
+    </Link>
   )
 }
 

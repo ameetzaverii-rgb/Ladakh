@@ -6,6 +6,7 @@ import { authConfigured } from '@/lib/auth'
 import { PhotoTile } from '@/components/Photo'
 import { AccountButton } from '@/components/AccountButton'
 import { DestinationSwitcher, TripTypeToggle } from '@/components/TripControls'
+import { TRIP_TYPE_OPTIONS } from '@/lib/tripType'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, BedDouble, UtensilsCrossed,
   Car, ShoppingBag, Plane, BookOpen, NotebookPen, ListChecks, UserPlus, Settings, Images,
@@ -69,7 +70,9 @@ export default async function MorePage() {
         </div>
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between [&::-webkit-details-marker]:hidden">
-            <span className="text-[0.62rem] font-bold uppercase tracking-wide text-stone">Trip type</span>
+            <span className="text-[0.62rem] font-bold uppercase tracking-wide text-stone">
+              Trip type · <span className="text-flag-blue">{TRIP_TYPE_OPTIONS.find(o => o.key === ctx.tripType)?.label ?? 'Leisure'}</span>
+            </span>
             <ChevronDown className="h-4 w-4 text-stone transition-transform group-open:rotate-180" />
           </summary>
           <div className="mt-2"><TripTypeToggle value={ctx.tripType} /></div>
