@@ -5,6 +5,7 @@ import { BrandHeader } from '@/components/BrandHeader'
 import { CommandBar } from '@/components/CommandBar'
 import { Providers } from '@/components/Providers'
 import { Toaster } from 'sonner'
+import { authConfigured } from '@/lib/auth'
 import { ensureSchema } from '@/lib/migrations'
 import { ensureContent } from '@/lib/seedContent'
 
@@ -19,6 +20,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // then seed any destination content that hasn't been populated yet.
   await ensureSchema()
   await ensureContent()
+  // Editing is gated to the admin only once sign-in + an admin email exist.
+  const gatingActive = authConfigured && !!process.env.ADMIN_EMAIL
   return (
     <html lang="en">
       <head>
@@ -28,7 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="bg-dark text-sand font-sans antialiased min-h-screen">
-        <Providers>
+        <Providers gatingActive={gatingActive}>
           <BrandHeader />
           <main className="min-h-screen pb-24">
             {children}

@@ -1,318 +1,307 @@
 // src/app/preview/page.tsx
-// Brand exploration sandbox — logo options + a fused prayer-flag-ribbon + bento
-// home-screen mock for the two name finalists (Khora / Tarcho). Not linked in
-// the nav; open /preview to compare. Safe to delete once a direction is chosen.
+// Landing-page exploration — three complete designs to choose from.
+// Each has: About the app · Destinations · the Tarcho logo story.
+// Not linked in nav; open /preview to compare. Safe to delete once chosen.
 
-import { CalendarDays, BedDouble, PartyPopper, Mountain, Wallet, BookOpen, MapPin } from 'lucide-react'
+import Link from 'next/link'
+import { TarchoLogo, FlagString } from '@/components/Logo'
+import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
+import {
+  CalendarDays, BookOpen, Wallet, Mountain, MapPin, ArrowRight,
+  Compass, Sparkles, type LucideIcon,
+} from 'lucide-react'
 
-export const metadata = { title: 'Brand preview' }
+export const metadata = { title: 'Landing designs · Tarcho' }
 
-// Prayer-flag palette, in the traditional left→right order.
-const FLAGS = [
-  { key: 'blue', hex: '#2f6db5', tint: '#e7f0fa', label: 'Sky' },
-  { key: 'white', hex: '#f6f1e7', tint: '#faf7f0', label: 'Air' },
-  { key: 'red', hex: '#d24b3e', tint: '#fbe9e7', label: 'Fire' },
-  { key: 'green', hex: '#3e9e6e', tint: '#e7f4ee', label: 'Water' },
-  { key: 'yellow', hex: '#e0a21b', tint: '#fbf0d8', label: 'Earth' },
+const DESTS: { name: string; tagline: string; region: string; color: FlagColor }[] = [
+  { name: 'Leh Ladakh', tagline: 'High-desert monasteries, lakes & passes', region: 'North India · 3,500m', color: 'blue' },
+  { name: 'Kashmir', tagline: 'Dal Lake, houseboats & alpine meadows', region: 'North India · 1,600m', color: 'green' },
+  { name: 'Pokhara', tagline: 'Lakeside calm under the Annapurnas', region: 'Nepal · 820m', color: 'red' },
+  { name: 'Spiti Valley', tagline: 'The middle land of cliff monasteries', region: 'Himachal · 3,800m', color: 'yellow' },
+  { name: 'Sikkim', tagline: 'Monasteries, Kanchenjunga & alpine lakes', region: 'Northeast India · 1,650m', color: 'green' },
 ]
 
-// Wordmark font candidates for the font lab. `note` is the vibe in a few words.
-const FONTS = [
-  { name: 'Fraunces', css: "'Fraunces', serif", note: 'warm, characterful serif' },
-  { name: 'Marcellus', css: "'Marcellus', serif", note: 'refined Roman caps — travel-luxe' },
-  { name: 'Playfair Display', css: "'Playfair Display', serif", note: 'high-contrast editorial' },
-  { name: 'Spectral', css: "'Spectral', serif", note: 'calm literary serif' },
-  { name: 'Cinzel', css: "'Cinzel', serif", note: 'engraved, monumental' },
-  { name: 'Syne', css: "'Syne', sans-serif", note: 'arty geometric display' },
-  { name: 'Space Grotesk', css: "'Space Grotesk', sans-serif", note: 'modern techy sans' },
-  { name: 'Unbounded', css: "'Unbounded', sans-serif", note: 'bold rounded display' },
+const FEATURES: { icon: LucideIcon; title: string; text: string; color: FlagColor }[] = [
+  { icon: CalendarDays, title: 'Day-by-day plan', text: 'A living itinerary with weather, treks and festivals baked in.', color: 'blue' },
+  { icon: BookOpen, title: 'Journal', text: 'Capture each day — moods, photos and the small moments.', color: 'red' },
+  { icon: Wallet, title: 'Budget', text: 'Track every rupee against your trip total, in real time.', color: 'yellow' },
+  { icon: Mountain, title: 'Treks & culture', text: 'Curated treks, monasteries and the festivals worth timing.', color: 'green' },
 ]
 
-// Google Fonts for the font lab (only loaded on /preview).
-const FONT_LAB_CSS =
-  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Marcellus&family=Playfair+Display:wght@700&family=Spectral:wght@600;700&family=Cinzel:wght@600;700&family=Syne:wght@700;800&family=Space+Grotesk:wght@600;700&family=Unbounded:wght@600;700&display=swap'
+const ELEMENTS = [
+  { label: 'Sky', hex: '#2f6db5' },
+  { label: 'Air', hex: '#f3ede1' },
+  { label: 'Fire', hex: '#d24b3e' },
+  { label: 'Water', hex: '#3e9e6e' },
+  { label: 'Earth', hex: '#e0a21b' },
+]
 
-export default function PreviewPage() {
+const LOGO_COPY =
+  'Tarcho are the strings of Tibetan prayer flags strung across every Himalayan pass, bridge and rooftop. Each gust is said to carry a blessing on the wind. Their five colours — sky, air, fire, water and earth — are the same five we use to colour-code your whole trip.'
+const ABOUT_COPY =
+  'Tarcho turns the messy spreadsheet of a Himalayan trip into one calm, colourful place — plan the days, journal the journey, and keep the budget honest, all made for the mountains.'
+
+export default function Preview() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      {/* Fonts used only by the font lab below */}
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link rel="stylesheet" href={FONT_LAB_CSS} />
-      <header className="mb-10 text-center">
-        <div className="label-mono mb-2 text-[0.6rem] tracking-widest text-gold">BRAND EXPLORATION</div>
-        <h1 className="font-serif text-3xl font-bold text-cream">Name &amp; home-screen options</h1>
-        <p className="mx-auto mt-2 max-w-xl text-sm text-stone">
-          Two finalists, three logo treatments each, and a home screen that fuses the prayer-flag
-          ribbon with a bento gallery. Pick a name + a logo and I&apos;ll theme the whole app around it.
-        </p>
-      </header>
+    <div className="pb-24">
+      {/* Switcher */}
+      <div className="sticky top-0 z-50 border-b border-border bg-dark/90 px-4 py-2 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl items-center gap-3">
+          <span className="label-mono text-gold">Landing designs</span>
+          <nav className="flex gap-1 text-sm font-bold">
+            <a href="#d1" className="rounded-full px-3 py-1 hover:bg-black/5">1 · Editorial</a>
+            <a href="#d2" className="rounded-full px-3 py-1 hover:bg-black/5">2 · Cinematic</a>
+            <a href="#d3" className="rounded-full px-3 py-1 hover:bg-black/5">3 · Bento</a>
+          </nav>
+        </div>
+      </div>
 
-      <NameBlock name="Khora" tagline="the sacred circuit — every journey, a loop"
-        logos={[<KhoraRingLogo key="a" />, <KhoraBuntingLogo key="b" />, <KhoraMonolineLogo key="c" />]} />
-
-      <div className="my-12 h-px bg-border" />
-
-      <NameBlock name="Tarcho" tagline="a string of prayer flags on the wind"
-        logos={[<TarchoStringLogo key="a" />, <TarchoPoleLogo key="b" />, <TarchoBuntingLogo key="c" />]} />
-
-      <div className="my-12 h-px bg-border" />
-
-      {/* ── FONT LAB ── chosen layouts (bunting above the word), each in 8 fonts ── */}
-      <header className="mb-8 text-center">
-        <div className="label-mono mb-2 text-[0.6rem] tracking-widest text-gold">FONT LAB</div>
-        <h2 className="font-serif text-2xl font-bold text-cream">Pick the wordmark font</h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm text-stone">
-          Your chosen layouts — <strong>Khora</strong> (bunting above) and <strong>Tarcho</strong> (string above) —
-          each rendered in eight fonts. Tell me the font name under any one and I&apos;ll lock it in.
-        </p>
-      </header>
-
-      <FontLab name="Khora" width={140} />
-      <div className="my-10 h-px bg-border" />
-      <FontLab name="Tarcho" width={150} />
+      <DesignOne />
+      <DesignTwo />
+      <DesignThree />
     </div>
   )
 }
 
-function FontLab({ name, width }: { name: string; width: number }) {
+/* ─────────────────────────  Shared  ───────────────────────── */
+
+function DesignLabel({ id, n, name, vibe }: { id: string; n: string; name: string; vibe: string }) {
+  return (
+    <div id={id} className="scroll-mt-12 bg-cream px-4 py-3 text-center text-white">
+      <span className="label-mono text-white/70">Design {n}</span>
+      <span className="ml-2 font-display text-lg">{name}</span>
+      <span className="ml-2 text-xs text-white/60">— {vibe}</span>
+    </div>
+  )
+}
+
+function CTAButtons({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-3">
+      <Link href="/start" className="press inline-flex items-center gap-2 rounded-full bg-flag-blue px-6 py-3 text-sm font-bold text-white shadow-soft">
+        <Sparkles className="h-4 w-4" /> Start your trip
+      </Link>
+      <Link href="/" className={`press inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold shadow-soft ${tone === 'dark' ? 'bg-white/10 text-white' : 'border border-border bg-white text-cream'}`}>
+        See a live demo <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
+  )
+}
+
+/* ─────────────────────────  Design 1 — Editorial / warm  ───────────────────────── */
+
+function DesignOne() {
   return (
     <section>
-      <h3 className="mb-5 font-serif text-xl font-bold text-cream">{name}</h3>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {FONTS.map(f => (
-          <div key={f.name} className="flex min-h-[150px] flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-white p-5 shadow-soft">
-            <div className="flex flex-1 flex-col items-center justify-center gap-1.5">
-              <FlagBunting width={width} />
-              <span className="text-3xl font-bold tracking-tight text-cream" style={{ fontFamily: f.css }}>{name}</span>
-            </div>
-            <span className="label-mono text-[0.6rem] text-cream">{f.name}</span>
-            <span className="text-[0.62rem] italic text-stone">{f.note}</span>
+      <DesignLabel id="d1" n="1" name="Editorial" vibe="warm, magazine-like, calm" />
+      <div className="bg-dark">
+        <div className="mx-auto max-w-3xl px-5 pb-10 pt-14 text-center">
+          <TarchoLogo size="xl" layout="stacked" className="mx-auto" />
+          <p className="mt-5 font-display text-xl italic text-stone">a string of prayer flags on the wind</p>
+          <h1 className="mx-auto mt-4 max-w-2xl font-display text-4xl leading-tight text-cream">Plan your Himalayan escape, beautifully.</h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-stone">{ABOUT_COPY}</p>
+          <div className="mt-7"><CTAButtons /></div>
+        </div>
+
+        <div className="mx-auto max-w-4xl px-5 py-8">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {FEATURES.map(f => (
+              <div key={f.title} className="rounded-2xl border border-border bg-white p-4 shadow-soft">
+                <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: FLAG_TINT[f.color] }}>
+                  <f.icon className="h-5 w-5" style={{ color: FLAG[f.color] }} />
+                </span>
+                <div className="font-bold text-cream">{f.title}</div>
+                <p className="mt-1 text-xs leading-relaxed text-stone">{f.text}</p>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        <div className="mx-auto max-w-4xl px-5 py-8">
+          <div className="mb-5 flex items-end justify-between">
+            <div>
+              <div className="label-mono text-gold">◈ Where to ◈</div>
+              <h2 className="font-display text-3xl text-cream">Five Himalayan starts</h2>
+            </div>
+            <span className="hidden text-sm text-stone sm:block">…and a blank canvas for your own.</span>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {DESTS.map(d => (
+              <div key={d.name} className="press group overflow-hidden rounded-2xl border border-border bg-white shadow-soft">
+                <div className="relative h-28" style={{ background: `linear-gradient(135deg, ${FLAG[d.color]}, ${FLAG.ink})` }}>
+                  <div className="absolute inset-0 flex items-end p-3">
+                    <h3 className="font-display text-2xl text-white drop-shadow">{d.name}</h3>
+                  </div>
+                  <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[0.55rem] font-bold text-cream">
+                    <MapPin className="h-3 w-3" />{d.region}
+                  </span>
+                </div>
+                <p className="p-3 text-xs text-stone">{d.tagline}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-4xl px-5 py-10">
+          <div className="grid items-center gap-6 rounded-3xl border border-border bg-white p-7 shadow-soft sm:grid-cols-[auto,1fr]">
+            <div className="flex flex-col items-center gap-3">
+              <FlagString width={180} />
+              <span className="font-display text-3xl text-cream">Tarcho</span>
+            </div>
+            <div>
+              <div className="label-mono text-gold">Why “Tarcho”?</div>
+              <p className="mt-2 text-sm leading-relaxed text-sand">{LOGO_COPY}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {ELEMENTS.map(e => (
+                  <span key={e.label} className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-semibold text-stone">
+                    <span className="h-3 w-3 rounded-sm" style={{ background: e.hex, border: e.label === 'Air' ? '1px solid #d9cdaf' : 'none' }} />
+                    {e.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   )
 }
 
-function NameBlock({ name, tagline, logos }: { name: string; tagline: string; logos: React.ReactNode[] }) {
+/* ─────────────────────────  Design 2 — Dark cinematic  ───────────────────────── */
+
+function DesignTwo() {
   return (
     <section>
-      <div className="mb-6 flex flex-wrap items-baseline gap-3">
-        <h2 className="font-serif text-2xl font-bold text-cream">{name}</h2>
-        <span className="text-sm italic text-stone">{tagline}</span>
-      </div>
-
-      {/* Logo options */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        {logos.map((logo, i) => (
-          <div key={i} className="flex min-h-[150px] flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-white p-5 shadow-soft">
-            {logo}
-            <span className="label-mono text-[0.55rem] text-stone">Option {String.fromCharCode(65 + i)}</span>
+      <DesignLabel id="d2" n="2" name="Cinematic" vibe="dark, bold, premium" />
+      <div style={{ background: '#101319' }} className="text-white">
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-1.5" style={{ background: `linear-gradient(90deg, ${FLAG.blue}, #f6f1e7, ${FLAG.red}, ${FLAG.green}, ${FLAG.yellow})` }} />
+          <div className="mx-auto max-w-3xl px-5 pb-14 pt-16 text-center">
+            <TarchoLogo size="xl" layout="stacked" tone="light" className="mx-auto" />
+            <h1 className="mx-auto mt-6 max-w-2xl font-display text-5xl leading-[1.05]">
+              Your Himalayan trip,
+              <span className="block bg-gradient-to-r from-[#5b9be0] via-[#e98a5c] to-[#e0a21b] bg-clip-text text-transparent">beautifully planned.</span>
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/65">{ABOUT_COPY}</p>
+            <div className="mt-7"><CTAButtons tone="dark" /></div>
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* Home-screen mock */}
-      <div className="flex justify-center">
-        <HomeMock name={name} />
+        <div className="mx-auto max-w-4xl px-5 py-10">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {FEATURES.map(f => (
+              <div key={f.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl" style={{ background: FLAG[f.color] }}>
+                  <f.icon className="h-5 w-5 text-white" />
+                </span>
+                <div className="font-bold">{f.title}</div>
+                <p className="mt-1 text-xs leading-relaxed text-white/55">{f.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="py-8">
+          <div className="mx-auto mb-4 max-w-4xl px-5">
+            <div className="label-mono text-[#e0a21b]">◈ Destinations ◈</div>
+            <h2 className="font-display text-3xl">Pick a Himalaya</h2>
+          </div>
+          <div className="scrollbar-none flex gap-4 overflow-x-auto px-5 pb-2">
+            {DESTS.map(d => (
+              <div key={d.name} className="relative h-56 w-64 shrink-0 overflow-hidden rounded-3xl" style={{ background: `linear-gradient(160deg, ${FLAG[d.color]}, #101319)` }}>
+                <div className="absolute inset-0 flex flex-col justify-end p-5">
+                  <span className="flex w-fit items-center gap-1 rounded-full bg-black/30 px-2 py-0.5 text-[0.6rem] font-bold text-white/85"><MapPin className="h-3 w-3" />{d.region}</span>
+                  <h3 className="mt-2 font-display text-3xl leading-tight">{d.name}</h3>
+                  <p className="mt-1 text-xs text-white/75">{d.tagline}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-3xl px-5 py-14 text-center">
+          <div className="mb-6 flex justify-center gap-2">
+            {ELEMENTS.map((e, i) => (
+              <span key={e.label} className="animate-flag h-12 w-9 rounded-[3px]" style={{ background: e.hex, border: e.label === 'Air' ? '1px solid #d9cdaf' : 'none', animationDelay: `${i * 120}ms` }} />
+            ))}
+          </div>
+          <div className="label-mono text-[#e0a21b]">The name</div>
+          <h2 className="mt-1 font-display text-4xl">Tarcho</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/65">{LOGO_COPY}</p>
+        </div>
       </div>
     </section>
   )
 }
 
-/* ─────────────────────────  HOME-SCREEN MOCK  ───────────────────────── */
+/* ─────────────────────────  Design 3 — Playful bento  ───────────────────────── */
 
-function HomeMock({ name }: { name: string }) {
+function DesignThree() {
   return (
-    <div className="w-full max-w-sm overflow-hidden rounded-[2rem] border-[6px] border-deep bg-cream shadow-soft">
-      <div className="px-5 pb-6 pt-5">
-        {/* Masthead */}
-        <div className="mb-4 flex items-center justify-between">
-          <span className="font-serif text-xl font-bold text-cream">{name}</span>
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-tint-blue text-flag-blue">
-            <MapPin className="h-4 w-4" />
-          </span>
-        </div>
-        <h3 className="text-2xl font-semibold leading-tight" style={{ color: FLAGS[0].hex }}>Good morning, Amit</h3>
-        <p className="mt-0.5 text-sm text-stone">12 days to Ladakh · Thu, Jun 18</p>
-
-        {/* Prayer-flag ribbon nav */}
-        <FlagRibbon />
-
-        {/* Bento gallery */}
-        <BentoGrid />
-      </div>
-    </div>
-  )
-}
-
-function FlagRibbon() {
-  const items = [
-    { f: FLAGS[0], Icon: CalendarDays, label: 'Plan' },
-    { f: FLAGS[1], Icon: BedDouble, label: 'Stay' },
-    { f: FLAGS[2], Icon: PartyPopper, label: 'Culture' },
-    { f: FLAGS[3], Icon: Mountain, label: 'Treks' },
-    { f: FLAGS[4], Icon: Wallet, label: 'Budget' },
-  ]
-  return (
-    <div className="relative mt-5">
-      {/* the string */}
-      <div className="absolute left-1 right-1 top-0 h-px bg-border" />
-      <div className="flex gap-1.5 pt-1.5">
-        {items.map(({ f, Icon, label }) => {
-          const dark = f.key === 'white'
-          return (
-            <div key={label} className="flex flex-1 flex-col items-center gap-1 rounded-b-lg pb-2 pt-2.5"
-              style={{ background: f.hex, border: dark ? '1px solid #e6ddc9' : 'none' }}>
-              <Icon className="h-4 w-4" style={{ color: dark ? '#7a6f57' : '#fff' }} />
-              <span className="text-[0.6rem] font-bold" style={{ color: dark ? '#7a6f57' : '#fff' }}>{label}</span>
+    <section>
+      <DesignLabel id="d3" n="3" name="Bento" vibe="colourful, modern, playful" />
+      <div className="bg-dark">
+        <div className="mx-auto max-w-4xl px-5 py-12">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="col-span-2 row-span-2 flex flex-col justify-between rounded-3xl p-6 text-white" style={{ background: `linear-gradient(140deg, ${FLAG.blue}, ${FLAG.red} 55%, ${FLAG.yellow})` }}>
+              <FlagString width={150} />
+              <div>
+                <div className="font-display text-5xl leading-none">Tarcho</div>
+                <p className="mt-2 max-w-xs text-sm text-white/85">Plan, journal & budget your Himalayan trip — one calm, colourful place.</p>
+              </div>
+              <div className="mt-4"><Link href="/start" className="press inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-cream"><Sparkles className="h-4 w-4 text-flag-blue" /> Start your trip</Link></div>
             </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
 
-function BentoGrid() {
-  return (
-    <div className="mt-4 grid grid-cols-2 gap-2.5">
-      {/* big hero tile */}
-      <div className="relative col-span-2 h-28 overflow-hidden rounded-2xl"
-        style={{ background: `linear-gradient(110deg, ${FLAGS[0].hex}, ${FLAGS[2].hex} 60%, ${FLAGS[4].hex})` }}>
-        <div className="absolute inset-0 flex flex-col justify-end p-4 text-white">
-          <span className="text-[0.6rem] font-semibold uppercase tracking-wide opacity-90">Today · Day 3</span>
-          <span className="text-base font-extrabold leading-tight drop-shadow">Work morning + Old Town</span>
+            {FEATURES.map(f => (
+              <div key={f.title} className="col-span-1 rounded-3xl border border-border bg-white p-4 shadow-soft">
+                <span className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: FLAG_TINT[f.color] }}>
+                  <f.icon className="h-[18px] w-[18px]" style={{ color: FLAG[f.color] }} />
+                </span>
+                <div className="text-sm font-bold text-cream">{f.title}</div>
+                <p className="mt-0.5 text-[0.68rem] leading-snug text-stone">{f.text}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3 rounded-3xl border border-border bg-white/60 p-6 text-center">
+            <Compass className="mx-auto mb-2 h-6 w-6 text-flag-blue" />
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-sand">{ABOUT_COPY}</p>
+          </div>
+
+          <div className="mb-3 mt-8 flex items-center gap-2">
+            <FlagString width={56} />
+            <h2 className="font-display text-2xl text-cream">Choose a destination</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {DESTS.map((d, i) => (
+              <div key={d.name} className={`press relative overflow-hidden rounded-2xl p-4 text-white ${i === 0 ? 'col-span-2 sm:col-span-1' : ''}`}
+                style={{ background: `linear-gradient(150deg, ${FLAG[d.color]}, ${FLAG.ink})`, minHeight: 120 }}>
+                <span className="flex w-fit items-center gap-1 rounded-full bg-black/25 px-2 py-0.5 text-[0.55rem] font-bold"><MapPin className="h-3 w-3" />{d.region}</span>
+                <h3 className="mt-6 font-display text-2xl leading-tight">{d.name}</h3>
+                <p className="text-[0.68rem] text-white/80">{d.tagline}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 rounded-3xl p-7 text-white" style={{ background: '#141821' }}>
+            <div className="grid items-center gap-5 sm:grid-cols-[1fr,auto]">
+              <div>
+                <div className="label-mono text-[#e0a21b]">What it means</div>
+                <h2 className="mt-1 font-display text-3xl">Tarcho — the prayer flags</h2>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/65">{LOGO_COPY}</p>
+              </div>
+              <div className="flex gap-1.5">
+                {ELEMENTS.map((e, i) => (
+                  <span key={e.label} className="flex flex-col items-center gap-1">
+                    <span className="animate-flag h-10 w-7 rounded-[3px]" style={{ background: e.hex, border: e.label === 'Air' ? '1px solid #d9cdaf' : 'none', animationDelay: `${i * 120}ms` }} />
+                    <span className="text-[0.55rem] text-white/60">{e.label}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <BentoTile f={FLAGS[2]} Icon={PartyPopper} title="Festivals" sub="Phyang Tsedup" />
-      <BentoTile f={FLAGS[3]} Icon={Mountain} title="Treks" sub="Sham Valley" />
-      <BentoTile f={FLAGS[4]} Icon={Wallet} title="Budget" sub="₹42k of ₹1.5L" />
-      <BentoTile f={FLAGS[0]} Icon={BookOpen} title="Journal" sub="3 entries" />
-    </div>
-  )
-}
-
-function BentoTile({ f, Icon, title, sub }: { f: typeof FLAGS[number]; Icon: typeof Wallet; title: string; sub: string }) {
-  return (
-    <div className="rounded-2xl border border-border bg-white p-3 shadow-soft">
-      <span className="mb-1.5 flex h-8 w-8 items-center justify-center rounded-xl" style={{ background: f.tint }}>
-        <Icon className="h-4 w-4" style={{ color: f.hex }} />
-      </span>
-      <div className="text-sm font-bold text-cream">{title}</div>
-      <div className="text-[0.68rem] text-stone">{sub}</div>
-    </div>
-  )
-}
-
-/* ─────────────────────────  KHORA LOGOS  ───────────────────────── */
-// A ring of five flag-coloured arcs — the circumambulation (khora).
-function KhoraRing({ size = 40 }: { size?: number }) {
-  const r = 15
-  const c = 2 * Math.PI * r
-  const seg = c / 5
-  const gap = seg * 0.16
-  return (
-    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden>
-      {FLAGS.map((f, i) => (
-        <circle key={f.key} cx="20" cy="20" r={r} fill="none"
-          stroke={f.key === 'white' ? '#d9cdaf' : f.hex} strokeWidth="5" strokeLinecap="round"
-          strokeDasharray={`${seg - gap} ${c - seg + gap}`}
-          transform={`rotate(${i * 72 - 90} 20 20)`} />
-      ))}
-    </svg>
-  )
-}
-
-function KhoraRingLogo() {
-  return (
-    <div className="flex items-center gap-3">
-      <KhoraRing size={44} />
-      <span className="font-serif text-3xl font-bold tracking-tight text-cream">Khora</span>
-    </div>
-  )
-}
-
-function KhoraBuntingLogo() {
-  return (
-    <div className="flex flex-col items-center gap-1.5">
-      <FlagBunting width={140} />
-      <span className="font-serif text-3xl font-bold tracking-tight text-cream">Khora</span>
-    </div>
-  )
-}
-
-function KhoraMonolineLogo() {
-  return (
-    <div className="flex flex-col items-center">
-      <span className="font-serif text-3xl font-semibold tracking-[0.18em] text-cream">KHORA</span>
-      <div className="mt-1.5 flex gap-1">
-        {FLAGS.map(f => (
-          <span key={f.key} className="h-1.5 w-6 rounded-full"
-            style={{ background: f.hex, border: f.key === 'white' ? '1px solid #d9cdaf' : 'none' }} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-/* ─────────────────────────  TARCHO LOGOS  ───────────────────────── */
-// A horizontal string of hanging rectangular flags.
-function FlagBunting({ width = 150 }: { width?: number }) {
-  const n = 5
-  const w = 22, h = 26, gap = (width - n * w) / (n - 1)
-  return (
-    <svg width={width} height="36" viewBox={`0 0 ${width} 36`} aria-hidden>
-      <line x1="0" y1="4" x2={width} y2="4" stroke="#d9cdaf" strokeWidth="1.5" />
-      {FLAGS.map((f, i) => {
-        const x = i * (w + gap)
-        return (
-          <g key={f.key}>
-            <rect x={x} y="4" width={w} height={h} rx="2"
-              fill={f.hex} stroke={f.key === 'white' ? '#d9cdaf' : 'none'} />
-          </g>
-        )
-      })}
-    </svg>
-  )
-}
-
-function TarchoStringLogo() {
-  return (
-    <div className="flex flex-col items-center gap-1.5">
-      <FlagBunting width={150} />
-      <span className="font-serif text-3xl font-bold tracking-tight text-cream">Tarcho</span>
-    </div>
-  )
-}
-
-function TarchoPoleLogo() {
-  return (
-    <div className="flex items-center gap-2">
-      <svg width="26" height="46" viewBox="0 0 26 46" aria-hidden>
-        <line x1="3" y1="2" x2="3" y2="44" stroke="#3a4150" strokeWidth="2.5" strokeLinecap="round" />
-        {FLAGS.slice(0, 4).map((f, i) => (
-          <polygon key={f.key} points={`3,${5 + i * 9} 24,${9 + i * 9} 3,${13 + i * 9}`}
-            fill={f.hex} stroke={f.key === 'white' ? '#d9cdaf' : 'none'} />
-        ))}
-      </svg>
-      <span className="font-serif text-3xl font-bold tracking-tight text-cream">Tarcho</span>
-    </div>
-  )
-}
-
-function TarchoBuntingLogo() {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <span className="font-serif text-3xl font-bold tracking-tight text-cream">Tarcho</span>
-      <svg width="150" height="22" viewBox="0 0 150 22" aria-hidden>
-        <line x1="2" y1="3" x2="148" y2="3" stroke="#d9cdaf" strokeWidth="1.5" />
-        {FLAGS.map((f, i) => {
-          const x = 10 + i * 28
-          return <polygon key={f.key} points={`${x},3 ${x + 18},3 ${x + 9},20`}
-            fill={f.hex} stroke={f.key === 'white' ? '#d9cdaf' : 'none'} />
-        })}
-      </svg>
-    </div>
+    </section>
   )
 }
