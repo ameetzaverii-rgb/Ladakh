@@ -9,7 +9,7 @@ import { DestinationSwitcher, TripTypeToggle } from '@/components/TripControls'
 import {
   CalendarDays, PartyPopper, Mountain, Wallet, BedDouble, UtensilsCrossed,
   Car, ShoppingBag, Plane, BookOpen, NotebookPen, ListChecks, UserPlus, Settings, Images,
-  ShieldAlert, type LucideIcon,
+  ShieldAlert, ChevronDown, type LucideIcon,
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -67,10 +67,13 @@ export default async function MorePage() {
           <div className="mb-1.5 text-[0.62rem] font-bold uppercase tracking-wide text-stone">Destination</div>
           <DestinationSwitcher destinations={destinations} activeId={ctx.dest?.id ?? null} variant="block" />
         </div>
-        <div>
-          <div className="mb-1.5 text-[0.62rem] font-bold uppercase tracking-wide text-stone">Trip type</div>
-          <TripTypeToggle value={ctx.tripType} />
-        </div>
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center justify-between [&::-webkit-details-marker]:hidden">
+            <span className="text-[0.62rem] font-bold uppercase tracking-wide text-stone">Trip type</span>
+            <ChevronDown className="h-4 w-4 text-stone transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="mt-2"><TripTypeToggle value={ctx.tripType} /></div>
+        </details>
       </div>
 
       {/* Colour legend */}
