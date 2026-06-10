@@ -20,7 +20,7 @@ export function TabBar() {
   const pathname = usePathname()
 
   const isActive = (href: string) => {
-    if (href === '/') return pathname === '/' || pathname === '/today'
+    if (href === '/') return pathname === '/'
     if (href === '/more') return MORE_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'))
     return pathname === href || pathname.startsWith(href + '/')
   }
