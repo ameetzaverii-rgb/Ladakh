@@ -14,7 +14,7 @@ const TABS = [
 ]
 
 // Routes that live under the "More" hub light up the More tab.
-const MORE_ROUTES = ['/more', '/gallery', '/emergency', '/stays', '/treks', '/transport', '/food', '/events', '/shop', '/flights', '/prep', '/diary', '/weather', '/contribute', '/admin']
+const MORE_ROUTES = ['/more', '/gallery', '/emergency', '/stays', '/treks', '/transport', '/food', '/events', '/shop', '/flights', '/prep', '/diary', '/weather', '/contribute', '/admin', '/bookings']
 
 export function TabBar() {
   const pathname = usePathname()

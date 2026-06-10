@@ -280,6 +280,7 @@ model ItineraryDay {
 
 model TripConfig {
   id             String   @id @default(cuid())
+  userId         String?  // null = the shared read-only demo; else this user's own trip
   tripStartDate  DateTime @default(dbgenerated("'2026-07-22'::date"))
   tripEndDate    DateTime @default(dbgenerated("'2026-08-11'::date"))
   totalBudgetINR Int      @default(150000)
@@ -294,6 +295,8 @@ model TripConfig {
   onboarded      Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // ─────────────────────────────────────────
@@ -337,9 +340,35 @@ model ChecklistItem {
   costINR     Int?
   url         String?
   destinationId String?
+  userId      String?           // null = shared demo template; else this user's own
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 
+  @@index([destinationId])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────
+// BOOKINGS — confirmed reservations (per user)
+// ─────────────────────────────────────────
+model Booking {
+  id            String    @id @default(cuid())
+  userId        String?   // null = shared demo; else this user's own
+  destinationId String?
+  type          String    @default("OTHER") // FLIGHT | STAY | TREK | EVENT | TRANSPORT | OTHER
+  title         String
+  vendor        String?
+  bookingRef    String?
+  costINR       Int?
+  date          DateTime?
+  tripDay       Int?
+  url           String?
+  notes         String?   @db.Text
+  status        String    @default("CONFIRMED") // CONFIRMED | PENDING | CANCELLED
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
   @@index([destinationId])
 }
 
@@ -382,12 +411,14 @@ model JournalEntry {
   location   String?
   weather    String?
   destinationId String?
+  userId     String?  // null = shared demo; else this user's own
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@index([tripDay])
   @@index([date])
   @@index([destinationId])
+  @@index([userId])
 }
 
 // ─────────────────────────────────────────
@@ -405,6 +436,7 @@ model Expense {
   paymentMode String          @default("cash") // "cash" | "upi" | "card"
   receipt     String?
   destinationId String?
+  userId      String?         // null = shared demo; else this user's own
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
@@ -412,6 +444,7 @@ model Expense {
   @@index([date])
   @@index([category])
   @@index([destinationId])
+  @@index([userId])
 }
 
 enum ExpenseCategory {

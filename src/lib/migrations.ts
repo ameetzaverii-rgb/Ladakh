@@ -151,6 +151,43 @@ const STEPS: Step[] = [
       `CREATE UNIQUE INDEX IF NOT EXISTS "ItineraryDay_destinationId_dayNumber_key" ON "ItineraryDay" ("destinationId","dayNumber");`,
     ],
   },
+  {
+    label: 'Per-user ownership (2b)',
+    sql: [
+      `ALTER TABLE "TripConfig"    ADD COLUMN IF NOT EXISTS "userId" TEXT;`,
+      `ALTER TABLE "Expense"       ADD COLUMN IF NOT EXISTS "userId" TEXT;`,
+      `ALTER TABLE "JournalEntry"  ADD COLUMN IF NOT EXISTS "userId" TEXT;`,
+      `ALTER TABLE "ChecklistItem" ADD COLUMN IF NOT EXISTS "userId" TEXT;`,
+      `CREATE INDEX IF NOT EXISTS "TripConfig_userId_idx"    ON "TripConfig" ("userId");`,
+      `CREATE INDEX IF NOT EXISTS "Expense_userId_idx"       ON "Expense" ("userId");`,
+      `CREATE INDEX IF NOT EXISTS "JournalEntry_userId_idx"  ON "JournalEntry" ("userId");`,
+      `CREATE INDEX IF NOT EXISTS "ChecklistItem_userId_idx" ON "ChecklistItem" ("userId");`,
+    ],
+  },
+  {
+    label: 'Booking table (2b)',
+    sql: [
+      `CREATE TABLE IF NOT EXISTS "Booking" (
+        "id"            TEXT PRIMARY KEY,
+        "userId"        TEXT,
+        "destinationId" TEXT,
+        "type"          TEXT NOT NULL DEFAULT 'OTHER',
+        "title"         TEXT NOT NULL,
+        "vendor"        TEXT,
+        "bookingRef"    TEXT,
+        "costINR"       INTEGER,
+        "date"          TIMESTAMP(3),
+        "tripDay"       INTEGER,
+        "url"           TEXT,
+        "notes"         TEXT,
+        "status"        TEXT NOT NULL DEFAULT 'CONFIRMED',
+        "createdAt"     TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt"     TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );`,
+      `CREATE INDEX IF NOT EXISTS "Booking_userId_idx" ON "Booking" ("userId");`,
+      `CREATE INDEX IF NOT EXISTS "Booking_destinationId_idx" ON "Booking" ("destinationId");`,
+    ],
+  },
 ]
 
 /** Run every migration step in order. Returns the labels that succeeded. */

@@ -25,9 +25,9 @@ const DEFAULT_BREAKDOWN: Record<string, number> = {
 
 export default async function BudgetPage() {
   const ctx = await getActiveContext()
-  const [expenses, config, heroImg] = await Promise.all([
-    db.expense.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: { date: 'desc' } }),
-    db.tripConfig.findFirst().catch(() => null),
+  const config = ctx.cfg
+  const [expenses, heroImg] = await Promise.all([
+    db.expense.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh', userId: ctx.ownerId }, orderBy: { date: 'desc' } }),
     getCategoryImageFor('budget', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
 

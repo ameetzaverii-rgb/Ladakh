@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { Wallet, BookOpen, type LucideIcon } from 'lucide-react'
+import { Wallet, BookOpen, LogIn, type LucideIcon } from 'lucide-react'
+import { signIn } from 'next-auth/react'
 import { PLACE_OPTIONS, HIGHLIGHT_OPTIONS } from '@/lib/options'
 import { MOODS } from '@/lib/moods'
+import { useCanEdit } from '@/components/EditMode'
 
 type Tab = 'expense' | 'journal'
 
@@ -23,6 +25,17 @@ const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
 export function QuickActions() {
   const [tab, setTab] = useState<Tab>('expense')
   const router = useRouter()
+  const canEdit = useCanEdit()
+
+  // Read-only viewers (not signed in) can't log to the shared demo.
+  if (!canEdit) {
+    return (
+      <button onClick={() => signIn('google')}
+        className="press card-base mb-8 flex w-full items-center justify-center gap-2 px-5 py-4 text-sm font-bold text-cream">
+        <LogIn className="h-4 w-4 text-flag-blue" /> Sign in to log expenses & journal entries
+      </button>
+    )
+  }
 
   return (
     <div className="card-base mb-8 overflow-hidden">

@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import { DAY_LOCATIONS } from '@/lib/locations'
 import { getDayWeather, type DayWeather } from '@/lib/weather'
 import { activeDestinationId } from '@/lib/destination'
+import { currentOwnerId, resolveTripConfig } from '@/lib/owner'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,11 +37,12 @@ const MOODS = ['😔', '😐', '🙂', '😊', '🤩']
 
 export default async function DiaryPage() {
   const destinationId = await activeDestinationId()
+  const ownerId = await currentOwnerId()
   const [itinerary, journals, expenses, config] = await Promise.all([
     db.itineraryDay.findMany({ where: { destinationId }, orderBy: { dayNumber: 'asc' } }),
-    db.journalEntry.findMany({ where: { destinationId }, orderBy: { date: 'asc' } }) as unknown as Promise<Journal[]>,
-    db.expense.findMany({ where: { destinationId } }) as unknown as Promise<Expense[]>,
-    db.tripConfig.findFirst().catch(() => null),
+    db.journalEntry.findMany({ where: { destinationId, userId: ownerId }, orderBy: { date: 'asc' } }) as unknown as Promise<Journal[]>,
+    db.expense.findMany({ where: { destinationId, userId: ownerId } }) as unknown as Promise<Expense[]>,
+    resolveTripConfig(),
   ])
 
   const startDate = config?.tripStartDate ?? new Date('2026-07-22')
