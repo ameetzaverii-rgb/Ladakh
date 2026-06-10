@@ -63,8 +63,8 @@ export function TarchoLogo({
 
   return (
     <span className={cn('inline-flex flex-col items-center gap-2.5', className)}>
-      <FlagString width={flag} />
       <span className={word}>Tarcho</span>
+      <FlagString width={flag} />
     </span>
   )
 }

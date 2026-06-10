@@ -15,8 +15,15 @@ shown to everyone regardless of login — which is why it says "41 days to trip"
 even when signed out. _Not a bug; it's the current single-tenant design._
 
 Plan:
-- [ ] **2a — Login-gated editing**: all write APIs require auth; hide edit/add
-      buttons when signed out. Admin = `ADMIN_EMAIL`. (No schema change.)
+- [~] **2a — Login-gated editing** (in progress):
+  - [x] Server enforcement: middleware blocks all write APIs unless the admin
+        is signed in (safe fallback keeps app editable if sign-in isn't set up).
+  - [x] Admin = `ADMIN_EMAIL`; session exposes `isAdmin`; `useCanEdit()` hook.
+  - [x] Global trip controls gated (destination switch, trip type, onboarding).
+  - [ ] Hide remaining per-page add/edit buttons (expenses, journal, checklist,
+        stays, etc.) for non-admins; friendly 401 toast.
+  - [ ] **Requires in prod**: `GOOGLE_CLIENT_ID/SECRET` + `ADMIN_EMAIL` set in
+        Vercel, else gating stays off (open editing).
 - [ ] **2b — User-scoped data**: add `userId` to `TripConfig`, `Expense`,
       `JournalEntry`, checklist state, etc. Each signed-in user gets their own
       trip(s): own dates, budget, journal, checklist. Anonymous visitors see a

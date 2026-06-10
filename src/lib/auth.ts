@@ -35,12 +35,18 @@ export const authOptions: NextAuthOptions = {
         token.uid = (user as any).id
         token.role = (user as any).role ?? 'VIEWER'
       }
+      // The configured owner email is always treated as admin.
+      const admin = process.env.ADMIN_EMAIL?.toLowerCase()
+      if (admin && typeof token.email === 'string' && token.email.toLowerCase() === admin) {
+        token.role = 'ADMIN'
+      }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
         ;(session.user as any).id = token.uid
         ;(session.user as any).role = token.role
+        ;(session.user as any).isAdmin = token.role === 'ADMIN'
       }
       return session
     },

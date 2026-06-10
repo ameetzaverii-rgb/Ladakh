@@ -7,6 +7,7 @@ import { FLAG, FLAG_TINT, type FlagColor } from '@/lib/utils'
 import { MENU_OPTIONS, ALL_MENU_KEYS } from '@/lib/destinations'
 import { TRIP_TYPE_OPTIONS, asTripType, type TripType } from '@/lib/tripType'
 import { MapPin, Check, ChevronLeft, Sparkles, ArrowRight } from 'lucide-react'
+import { useCanEdit } from '@/components/EditMode'
 
 export interface OnboardDestination {
   id: string; slug: string; name: string; tagline: string
@@ -28,6 +29,7 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
   defaults?: { startDate?: string; days?: number; budget?: number; travelerName?: string; tripType?: string }
 }) {
   const router = useRouter()
+  const canEdit = useCanEdit()
   const [step, setStep] = useState<Step>('pick')
   const dests = destinations
   const [picked, setPicked] = useState<OnboardDestination | null>(null)
@@ -48,6 +50,7 @@ export function Onboarding({ destinations, activeId, currentMenus, defaults }: {
 
   async function build() {
     if (!picked) return
+    if (!canEdit) { toast.error('Sign in as the admin to create or change the trip'); return }
     setBusy(true)
     const numDays = days === '' ? 1 : days
     const tripEndDate = addDaysISO(startDate, Math.max(1, numDays) - 1)
