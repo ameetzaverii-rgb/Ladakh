@@ -22,10 +22,20 @@ function isoForDay(start: Date, dayNumber: number): string {
 export default async function ItineraryPage() {
   const ctx = await getActiveContext()
   const tripConfig = ctx.cfg
-  const [days, heroImg] = await Promise.all([
+  const [allDays, heroImg] = await Promise.all([
     db.itineraryDay.findMany({ where: { destinationId: ctx.dest?.id ?? 'ladakh' }, orderBy: [{ sortOrder: 'asc' }, { dayNumber: 'asc' }] }),
     getCategoryImageFor('itinerary', ctx.dest?.slug, ctx.dest?.heroWiki),
   ])
+
+  // Cap the curated plan to the trip length the user set (Admin / onboarding
+  // "number of days"). Custom user-added days are never trimmed. If the trip
+  // runs longer than the curated content, every seeded day still shows.
+  const tripLengthDays = tripConfig?.tripStartDate && tripConfig?.tripEndDate
+    ? Math.round((tripConfig.tripEndDate.getTime() - tripConfig.tripStartDate.getTime()) / 86400000) + 1
+    : null
+  const days = tripLengthDays == null
+    ? allDays
+    : allDays.filter(d => d.isCustom || d.dayNumber <= tripLengthDays)
 
   // Coordinates for a day, in priority order: per-day stored coords (used by
   // non-Ladakh destinations), custom-day coords, then the Ladakh DAY_LOCATIONS
